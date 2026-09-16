@@ -3,7 +3,7 @@
 > **Projeto Integrador IV** — Sistema de gerenciamento de chamados de suporte técnico com painel administrativo, fluxo de status em tempo real e notificações via Socket TCP.
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Vers%C3%A3o-v0.4.1-00B4D8?style=for-the-badge&logo=git&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vers%C3%A3o-v0.4.2-00B4D8?style=for-the-badge&logo=git&logoColor=white" />
   <img src="https://img.shields.io/badge/Java-Puro-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" />
   <img src="https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
   <img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
@@ -19,7 +19,7 @@
 - [Acesso à Aplicação](#acesso-à-aplicação)
 - [Sobre o Projeto](#sobre-o-projeto)
   - [Fluxo de Status dos Chamados](#fluxo-de-status-dos-chamados)
-- [Status Atual (v0.4.1)](#status-atual-v041)
+- [Status Atual (v0.4.2)](#status-atual-v042)
 - [Histórico de Versões (Changelog)](#histórico-de-versões-changelog)
 - [Arquitetura](#arquitetura)
 - [Stack Tecnológica](#stack-tecnológica)
@@ -63,32 +63,34 @@ Sistema Help Desk corporativo voltado para ambientes corporativos e educacionais
 
 ---
 
-## Status Atual (v0.4.1)
+## Status Atual (v0.4.2)
 
-> **Frontend totalmente integrado com o Backend — CRUD de chamados persiste no Neon PostgreSQL.**
+> **Documentação de escopo do projeto e identificação da equipe.**
 
+- **Documento de Escopo**: Inclusão do documento oficial de escopo do projeto (`docs/escopo.pdf`) com a definição completa do sistema Help Desk.
+- **Equipe do Projeto**: Identificação dos membros da equipe com respectivos RAs no README.
 - **CRUD via API REST**: Todas as operações de chamados (criar, listar, editar, deletar) passam pela API Java e persistem no banco de dados Neon.
-- **Endpoint DELETE**: Backend agora suporta exclusão de chamados com limpeza cascata (timeline + notificações + ticket).
-- **Dashboard 100% responsivo com Neon DB**: Métricas de chamados (total, novos/aguardando, atribuídos a técnicos, resolvidos, não solucionados, taxa de resolução real e distribuição por categorias do banco) calculadas puramente a partir dos dados persistidos no PostgreSQL, sem status inventados no JS ou trends artificiais.
-- **Variáveis em inglês**: Todo o código frontend usa nomes em inglês (`title`, `status`, `priority`, `createdAt`, etc.).
-- **Sistema de tradução (i18n)**: Módulo `i18n.js` garante que a interface continue em PT-BR para o usuário final, mapeando os ENums do banco para visualização.
-- **Módulo API centralizado**: `api.js` encapsula todas as chamadas HTTP com autenticação via Bearer token, incluindo notificações e endpoints de chamados.
+- **Endpoint DELETE**: Backend suporta exclusão de chamados com limpeza cascata (timeline + notificações + ticket).
+- **Dashboard 100% responsivo com Neon DB**: Métricas calculadas puramente a partir dos dados persistidos no PostgreSQL.
+- **Sistema de tradução (i18n)**: Módulo `i18n.js` garante que a interface continue em PT-BR para o usuário final.
+- **Módulo API centralizado**: `api.js` encapsula todas as chamadas HTTP com autenticação via Bearer token.
 - **Autenticação & Sessão**: Login e registro com validação, geração de token e mapeamento no frontend.
-- **Regras de Negócio de Chamados**:
-  - Todo novo chamado é criado obrigatoriamente com o status `NEW`.
-  - O solicitante é vinculado automaticamente ao usuário autenticado. Apenas administradores e técnicos podem alterar o solicitante na edição.
-  - Alocação de técnico avança automaticamente o status para `ASSIGNED`.
-  - Técnicos podem se auto-atribuir ao chamado com apenas um clique pelo botão **"Me Atribuir"**.
-  - Prioridade padrão definida como `MEDIUM` caso não selecionada.
-  - Categorias carregadas dinamicamente do banco de dados Neon.
-  - Controle de visualização e edição de campos por perfil (RBAC: Cliente vs TI).
+- **Regras de Negócio de Chamados**: Status automático, auto-atribuição de técnicos, RBAC por perfil e categorias dinâmicas do Neon DB.
 
 ---
 
 ## Histórico de Versões (Changelog)
 
-### [v0.4.1] — Integração Full-Stack Neon DB, i18n e Dashboard Reativo
+### [v0.4.2] — Documentação de Escopo e Identificação da Equipe
 *Versão atual*
+
+- **Documentação**:
+  - Adicionado documento oficial de escopo do projeto em `docs/escopo.pdf`.
+- **README**:
+  - Inclusão dos membros da equipe com RAs na seção Equipe e Licença.
+  - Atualização do badge de versão e status atual para v0.4.2.
+
+### [v0.4.1] — Integração Full-Stack Neon DB, i18n e Dashboard Reativo
 
 - **Backend**:
   - Adicionado endpoint `DELETE /api/chamados/:id` com exclusão em cascata transacional (timeline → notificações → ticket).
@@ -247,7 +249,8 @@ Help-Desk-PI-IV/
 │   └── lib/
 ├── docs/                       # Documentação de arquitetura e banco
 │   ├── backend_architecture.md
-│   └── database_modeling.md
+│   ├── database_modeling.md
+│   └── escopo.pdf              # Documento oficial de escopo do projeto
 └── .gitignore                  # Arquivos ignorados (segurança e envs)
 ```
 
