@@ -270,6 +270,11 @@ Modelagem relacional em 5 tabelas normalizadas:
 ---
 
 ## Equipe e Licença
+**Cauã Vasconselos Grecco De Faria (25006367)**
+**Rafael Trevisan (25002001)**
+**Vinicius Fortes Heinzl - (25008058)**
+**Pedro Henrique Vieira Lima (25018202)** 
+**Kaue Rodrigues Seixas (23011884)**
 
 **Projeto Integrador IV** — Curso de Análise e Desenvolvimento de Sistemas.  
 Este projeto é de caráter acadêmico e livre para fins de estudo.
