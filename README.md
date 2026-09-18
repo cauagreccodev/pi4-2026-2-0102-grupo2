@@ -3,7 +3,7 @@
 > **Projeto Integrador IV** — Sistema de gerenciamento de chamados de suporte técnico com painel administrativo, fluxo de status em tempo real e notificações via Socket TCP.
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Vers%C3%A3o-v0.4.2-00B4D8?style=for-the-badge&logo=git&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vers%C3%A3o-v0.4.3-00B4D8?style=for-the-badge&logo=git&logoColor=white" />
   <img src="https://img.shields.io/badge/Java-Puro-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" />
   <img src="https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
   <img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
@@ -19,7 +19,7 @@
 - [Acesso à Aplicação](#acesso-à-aplicação)
 - [Sobre o Projeto](#sobre-o-projeto)
   - [Fluxo de Status dos Chamados](#fluxo-de-status-dos-chamados)
-- [Status Atual (v0.4.2)](#status-atual-v042)
+- [Status Atual (v0.4.3)](#status-atual-v043)
 - [Histórico de Versões (Changelog)](#histórico-de-versões-changelog)
 - [Arquitetura](#arquitetura)
 - [Stack Tecnológica](#stack-tecnológica)
@@ -63,10 +63,13 @@ Sistema Help Desk corporativo voltado para ambientes corporativos e educacionais
 
 ---
 
-## Status Atual (v0.4.2)
+## Status Atual (v0.4.3)
 
-> **Documentação de escopo do projeto e identificação da equipe.**
+> **Rota pública de Health Check e prevenção de cold start no Render.**
 
+- **Health Check & Keep-Alive**: Implementação do handler público `HealthHandler` mapeado nas rotas `/health`, `/api/health` e na raiz `/`.
+- **Prevenção de Cold Start (Render)**: Compatibilidade total com serviços de Cron Jobs e monitores de uptime (sem bloqueio de autenticação).
+- **Correção de 404 na Raiz**: Tratamento elegante na URL base da API direcionando para a aplicação frontend na Vercel.
 - **Documento de Escopo**: Inclusão do documento oficial de escopo do projeto (`docs/escopo.pdf`) com a definição completa do sistema Help Desk.
 - **Equipe do Projeto**: Identificação dos membros da equipe com respectivos RAs no README.
 - **CRUD via API REST**: Todas as operações de chamados (criar, listar, editar, deletar) passam pela API Java e persistem no banco de dados Neon.
@@ -81,8 +84,16 @@ Sistema Help Desk corporativo voltado para ambientes corporativos e educacionais
 
 ## Histórico de Versões (Changelog)
 
-### [v0.4.2] — Documentação de Escopo e Identificação da Equipe
+### [v0.4.3] — Health Check Público e Prevenção de Cold Start no Render
 *Versão atual*
+
+- **Backend-API**:
+  - Implementado `HealthHandler` com endpoints públicos `/health`, `/api/health` e `/`.
+  - Suporte aos métodos `GET` e `HEAD` com resposta `200 OK` contendo status da API, versão e link do frontend.
+  - Eliminação de erro 404 (*No context found for request*) na raiz do deploy no Render.
+  - Habilitada integração com serviços de Cron Jobs / Keep-Alive externos para evitar *cold start* no plano gratuito do Render.
+
+### [v0.4.2] — Documentação de Escopo e Identificação da Equipe
 
 - **Documentação**:
   - Adicionado documento oficial de escopo do projeto em `docs/escopo.pdf`.

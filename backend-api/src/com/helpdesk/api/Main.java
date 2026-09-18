@@ -2,6 +2,7 @@ package com.helpdesk.api;
 
 import com.helpdesk.api.config.Database;
 import com.helpdesk.api.handler.CategoryHandler;
+import com.helpdesk.api.handler.HealthHandler;
 import com.helpdesk.api.handler.LoginHandler;
 import com.helpdesk.api.handler.NotificationHandler;
 import com.helpdesk.api.handler.TicketHandler;
@@ -27,6 +28,12 @@ public class Main {
                 } catch (NumberFormatException ignored) {}
             }
             HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+
+            // Rota pública de Health Check / Status (para Cron Jobs e evitar cold start do Render)
+            HealthHandler healthHandler = new HealthHandler();
+            server.createContext("/health", healthHandler);
+            server.createContext("/api/health", healthHandler);
+            server.createContext("/", healthHandler);
 
             // Rotas da API (suporta com e sem /api)
             server.createContext("/api/login", new LoginHandler());
