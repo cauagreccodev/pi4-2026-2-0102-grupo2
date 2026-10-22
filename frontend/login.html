@@ -10,14 +10,27 @@
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/login.css">
     
-    <!-- Ícones (Lucide) -->
-    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
     <div class="login-wrapper">
+        <aside class="auth-story" aria-label="Sobre o HelpDesk">
+            <a class="auth-wordmark" href="login.html"><span class="auth-symbol"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14v-3a9 9 0 0 1 18 0v3"/><rect x="3" y="13" width="4" height="8" rx="2"/><rect x="17" y="13" width="4" height="8" rx="2"/></svg></span> HelpDesk<span class="auth-product">SUPORTE DE TI</span></a>
+            <div class="auth-story__content">
+                <span class="auth-eyebrow">MENOS ATRITO. MAIS SOLUÇÕES.</span>
+                <h2>Seu trabalho segue.<br>A gente cuida<br>do suporte.</h2>
+                <p>Um lugar para conectar sua equipe de TI a quem precisa de ajuda.</p>
+                <ol class="auth-steps">
+                    <li><span>01</span><div><strong>Abra sua solicitação</strong><small>Conte o que você precisa resolver.</small></div></li>
+                    <li><span>02</span><div><strong>Acompanhe cada etapa</strong><small>Saiba como seu atendimento está evoluindo.</small></div></li>
+                    <li><span>03</span><div><strong>Volte ao que importa</strong><small>Consulte soluções e o histórico quando precisar.</small></div></li>
+                </ol>
+            </div>
+            <span class="auth-story__footer">Pessoas conectadas. Problemas resolvidos.</span>
+        </aside>
+        <main class="auth-main">
         <div class="login-card">
             <div class="brand">
-                <i data-lucide="ticket"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14v-3a9 9 0 0 1 18 0v3"/><rect x="3" y="13" width="4" height="8" rx="2"/><rect x="17" y="13" width="4" height="8" rx="2"/></svg>
                 <h1>HelpDesk</h1>
             </div>
             
@@ -30,33 +43,34 @@
                 <div class="input-group">
                     <label for="loginEmail">E-mail Corporativo</label>
                     <div class="input-field">
-                        <i data-lucide="mail"></i>
-                        <input type="email" id="loginEmail" placeholder="nome@empresa.com.br" required />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+                        <input type="email" id="loginEmail" autocomplete="username" placeholder="nome@empresa.com.br" required />
                     </div>
                 </div>
                 
                 <div class="input-group">
                     <label for="loginPassword">Senha</label>
                     <div class="input-field">
-                        <i data-lucide="lock"></i>
-                        <input type="password" id="loginPassword" placeholder="••••••••" required />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input type="password" id="loginPassword" autocomplete="current-password" placeholder="••••••••" required />
                     </div>
                 </div>
                 
-                <div class="error-message" id="loginError"></div>
+                <div class="error-message" role="alert" id="loginError"></div>
                 
                 <button type="submit" class="btn-primary" id="btnLogin">Entrar no HelpDesk</button>
             </form>
 
             <div class="auth-footer">
-                <span>Ainda nao tem uma conta?</span>
+                <span>Ainda não tem uma conta?</span>
                 <a href="register.html">Criar Conta</a>
             </div>
         </div>
+        <p class="auth-caption">HelpDesk · Central de suporte de TI</p>
+        </main>
     </div>
 
     <!-- Scripts -->
-    <script>lucide.createIcons();</script>
     <script src="js/auth.js"></script>
 </body>
 </html>
