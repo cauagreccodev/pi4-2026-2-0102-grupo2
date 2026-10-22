@@ -48,14 +48,13 @@ const Icons = {
 function renderSidebar() {
   const stats = getDashboardStats();
   return `
-    <aside class="sidebar" id="sidebar" aria-label="Menu principal">
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar__logo">
         <div class="sidebar__logo-icon">${Icons.headphones}</div>
         <div class="sidebar__logo-text">Help<span>Desk</span></div>
       </div>
 
-      <div class="sidebar__workspace"><span class="workspace-mark">TI</span><div>Central de suporte<small>Ambiente corporativo</small></div></div>
-      <nav class="sidebar__nav" aria-label="Navegação principal">
+      <nav class="sidebar__nav">
         <div class="sidebar__section-title">${i18n.t('main')}</div>
         <a class="sidebar__link active" data-route="dashboard" href="#dashboard">
           <span class="sidebar__link-icon">${Icons.layoutDashboard}</span>
@@ -109,7 +108,7 @@ function renderHeader(breadcrumbs) {
       <div class="header__right">
         <div class="header__search">
           <span class="header__search-icon">${Icons.search}</span>
-          <input type="text" class="header__search-input" id="globalSearch" aria-label="${i18n.t('searchTickets')}" placeholder="${i18n.t('searchTickets')}" autocomplete="off">
+          <input type="text" class="header__search-input" id="globalSearch" placeholder="${i18n.t('searchTickets')}" autocomplete="off">
         </div>
         <button class="header__icon-btn" id="themeToggleBtn" title="${i18n.t('toggleTheme')}">
           ${themeIcon}
@@ -130,7 +129,7 @@ function renderHeader(breadcrumbs) {
           </div>
         </div>
         <div class="header__dropdown-wrapper">
-          <button class="header__avatar" id="profileBtn" type="button" aria-label="Abrir menu da conta" title="${CURRENT_USER?.name || 'Usuário'}">${CURRENT_USER?.initials || 'HD'}</button>
+          <div class="header__avatar" id="profileBtn" title="${CURRENT_USER?.name || 'Usuário'}">${CURRENT_USER?.initials || 'HD'}</div>
           <div class="header__dropdown header__dropdown--profile" id="profileDropdown">
             <div class="dropdown__profile-header">
               <div class="dropdown__profile-avatar">${CURRENT_USER?.initials || 'HD'}</div>
@@ -219,34 +218,32 @@ function renderDashboard() {
 
   return `
     <div class="page-transition-enter">
-      <div class="page-header dashboard-heading">
+      <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:var(--space-4);">
         <div>
-          <span class="page-eyebrow">CENTRAL DE SUPORTE</span>
           <h1 class="page-header__title">${i18n.t('dashboard')}</h1>
           <p class="page-header__subtitle" style="margin-bottom:0">${i18n.t('dashboardSubtitle')}</p>
         </div>
-        <div class="page-header__actions">
+        <div style="display:flex; align-items:center; gap:var(--space-3);">
           ${connectionBadge}
           <button class="btn btn-ghost btn-sm" onclick="App.refreshData()" title="${i18n.t('refreshData')}">
             ${Icons.loader} ${i18n.t('refreshData')}
           </button>
-          <button class="btn btn-primary" onclick="App.openNewTicket()">${Icons.plus} ${i18n.t('newTicket')}</button>
         </div>
       </div>
 
       <!-- Stat Cards (100% Neon DB Real Data) -->
       <div class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card" style="--stat-accent: var(--purple-500)">
           <div class="stat-card__info">
             <span class="stat-card__label">${i18n.t('totalTickets')}</span>
             <span class="stat-card__value">${stats.total}</span>
-            <span class="stat-card__trend">Chamados registrados</span>
+            <span class="stat-card__trend">${stats.total} registros no Neon</span>
           </div>
           <div class="stat-card__icon" style="--stat-icon-bg: var(--color-primary-light); --stat-icon-color: var(--color-primary)">
             ${Icons.clipboardList}
           </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" style="--stat-accent: var(--status-open)">
           <div class="stat-card__info">
             <span class="stat-card__label">${i18n.t('openTickets')}</span>
             <span class="stat-card__value">${stats.newCount}</span>
@@ -256,7 +253,7 @@ function renderDashboard() {
             ${Icons.inbox}
           </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" style="--stat-accent: var(--status-progress)">
           <div class="stat-card__info">
             <span class="stat-card__label">${i18n.t('assignedTickets')}</span>
             <span class="stat-card__value">${stats.assigned}</span>
@@ -266,7 +263,7 @@ function renderDashboard() {
             ${Icons.user}
           </div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" style="--stat-accent: var(--status-resolved)">
           <div class="stat-card__info">
             <span class="stat-card__label">${i18n.t('resolvedTickets')}</span>
             <span class="stat-card__value">${stats.closed}</span>
@@ -279,7 +276,7 @@ function renderDashboard() {
       </div>
 
       <!-- Analytics Breakdown (Status + Categories from Neon DB) -->
-      <div class="dashboard-analytics">
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-6); margin-bottom: var(--space-6);">
         <!-- Distribution by Status (Real Neon DB Statuses) -->
         <div class="detail-card">
           <div class="detail-card__header">
@@ -303,7 +300,7 @@ function renderDashboard() {
           <div class="detail-card__body">
             ${stats.categories && stats.categories.length > 0 ? `
               <div class="chart-bar-group">
-                ${stats.categories.slice(0, 5).map(cat => renderChartBar(cat.name, cat.count, stats.total, 'var(--color-primary)')).join('')}
+                ${stats.categories.slice(0, 5).map(cat => renderChartBar(cat.name, cat.count, stats.total, 'var(--purple-500)')).join('')}
               </div>
             ` : `
               <p style="color:var(--color-text-secondary); text-align:center; padding:var(--space-4);">Nenhuma categoria cadastrada.</p>
@@ -318,7 +315,7 @@ function renderDashboard() {
           <h3 class="detail-card__title">${i18n.t('recentTickets')}</h3>
           <a href="#chamados" class="btn btn-ghost btn-sm">${i18n.t('viewAll')}</a>
         </div>
-        <div class="detail-card__body table-scroll" style="padding:0;" tabindex="0" role="region" aria-label="Chamados recentes">
+        <div class="detail-card__body" style="padding:0;">
           ${recentTickets.length > 0 ? `
             <table class="data-table">
               <thead>
@@ -363,11 +360,11 @@ function renderDashboard() {
 function renderChartBar(label, value, total, color) {
   const pct = total > 0 ? Math.round((value / total) * 100) : 0;
   return `
-    <div class="chart-bar-item" aria-label="${label}: ${value} (${pct}%)">
+    <div class="chart-bar-item">
       <span class="chart-bar-item__label">${label}</span>
       <div class="chart-bar-item__track">
         <div class="chart-bar-item__fill" style="width:${pct}%; background:${color};">
-          ${pct >= 25 ? pct + '%' : ''}
+          ${pct > 10 ? pct + '%' : ''}
         </div>
       </div>
       <span class="chart-bar-item__value">${value}</span>
@@ -398,17 +395,17 @@ function renderTicketsList(filteredData) {
           <div class="table-toolbar__filters">
             <div class="table-toolbar__search">
               <span class="table-toolbar__search-icon">${Icons.search}</span>
-              <input type="text" class="table-toolbar__search-input" id="searchTickets" aria-label="${i18n.t('searchPlaceholder')}" placeholder="${i18n.t('searchPlaceholder')}">
+              <input type="text" class="table-toolbar__search-input" id="searchTickets" placeholder="${i18n.t('searchPlaceholder')}">
             </div>
-            <select class="filter-select" id="filterStatus" aria-label="${i18n.t('allStatuses')}">
+            <select class="filter-select" id="filterStatus">
               <option value="">${i18n.t('allStatuses')}</option>
               ${statusList.map(s => `<option value="${s.id}">${s.label}</option>`).join('')}
             </select>
-            <select class="filter-select" id="filterPriority" aria-label="${i18n.t('allPriorities')}">
+            <select class="filter-select" id="filterPriority">
               <option value="">${i18n.t('allPriorities')}</option>
               ${priorityList.map(p => `<option value="${p.id}">${p.label}</option>`).join('')}
             </select>
-            <select class="filter-select" id="filterCategory" aria-label="${i18n.t('allCategories')}">
+            <select class="filter-select" id="filterCategory">
               <option value="">${i18n.t('allCategories')}</option>
               ${CATEGORIES.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
             </select>
@@ -827,10 +824,10 @@ function renderTicketModal(ticket = null) {
 
   return `
     <div class="modal-overlay active" id="ticketModal">
-      <div class="modal modal--lg" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal modal--lg">
         <div class="modal__header">
-          <h2 class="modal__title" id="modalTitle">${title}</h2>
-          <button class="modal__close" aria-label="Fechar janela" onclick="App.closeModal()">${Icons.x}</button>
+          <h2 class="modal__title">${title}</h2>
+          <button class="modal__close" onclick="App.closeModal()">${Icons.x}</button>
         </div>
         <div class="modal__body">
           <form id="ticketForm" novalidate>
@@ -883,10 +880,10 @@ function renderTicketModal(ticket = null) {
 function renderDeleteModal(ticket) {
   return `
     <div class="modal-overlay active" id="deleteModal">
-      <div class="modal modal--sm" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal modal--sm">
         <div class="modal__header">
-          <h2 class="modal__title" id="modalTitle">${i18n.t('confirmDelete')}</h2>
-          <button class="modal__close" aria-label="Fechar janela" onclick="App.closeModal()">${Icons.x}</button>
+          <h2 class="modal__title">${i18n.t('confirmDelete')}</h2>
+          <button class="modal__close" onclick="App.closeModal()">${Icons.x}</button>
         </div>
         <div class="modal__body">
           <p class="confirm-dialog__text">

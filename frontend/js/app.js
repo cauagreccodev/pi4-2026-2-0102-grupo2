@@ -14,16 +14,6 @@ const App = (() => {
   };
   let sortField = 'createdAt';
   let sortDir = 'desc';
-  let modalTrigger = null;
-
-  function showModal(content) {
-    modalTrigger = document.activeElement;
-    const container = document.getElementById('modalContainer');
-    container.innerHTML = content;
-    document.body.style.overflow = 'hidden';
-    const initialFocus = container.querySelector('.form-input') || container.querySelector('.modal__close, button');
-    initialFocus?.focus();
-  }
 
   // ── Initialization ──
   async function init() {
@@ -42,7 +32,7 @@ const App = (() => {
       <div class="sidebar-overlay" id="sidebarOverlay"></div>
       <div class="main-wrapper" id="mainWrapper">
         <div id="headerContainer"></div>
-        <main class="page-content" id="pageContent" tabindex="-1"></main>
+        <main class="page-content" id="pageContent"></main>
       </div>
       <div class="toast-container" id="toastContainer"></div>
       <div id="modalContainer"></div>
@@ -173,7 +163,9 @@ const App = (() => {
 
   // ── CRUD: Create ──
   function openNewTicket() {
-    showModal(renderTicketModal(null));
+    const container = document.getElementById('modalContainer');
+    container.innerHTML = renderTicketModal(null);
+    document.body.style.overflow = 'hidden';
   }
 
   // ── CRUD: Read (View) ──
@@ -186,7 +178,9 @@ const App = (() => {
     try {
       const ticket = await Api.fetchTicketById(id);
       if (!ticket) return;
-      showModal(renderTicketModal(ticket));
+      const container = document.getElementById('modalContainer');
+      container.innerHTML = renderTicketModal(ticket);
+      document.body.style.overflow = 'hidden';
     } catch (error) {
       console.error('Error loading ticket for edit:', error);
       showToast('error', i18n.t('error'), i18n.t('loadError'));
@@ -278,7 +272,9 @@ const App = (() => {
   function confirmDeleteTicket(id) {
     const ticket = tickets.find(t => t.id === id);
     if (!ticket) return;
-    showModal(renderDeleteModal(ticket));
+    const container = document.getElementById('modalContainer');
+    container.innerHTML = renderDeleteModal(ticket);
+    document.body.style.overflow = 'hidden';
   }
 
   async function deleteTicket(id) {
@@ -376,8 +372,6 @@ const App = (() => {
       setTimeout(() => {
         container.innerHTML = '';
         document.body.style.overflow = '';
-        if (modalTrigger?.isConnected) modalTrigger.focus();
-        modalTrigger = null;
       }, 200);
     }
   }
@@ -471,20 +465,6 @@ const App = (() => {
 
     // ESC key closes modal
     document.addEventListener('keydown', (e) => {
-      const modal = document.querySelector('#modalContainer .modal');
-      if (e.key === 'Tab' && modal) {
-        const focusable = [...modal.querySelectorAll('button, a[href], input, select, textarea, [tabindex="0"]')]
-          .filter(el => !el.disabled && el.getClientRects().length > 0);
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last?.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first?.focus();
-        }
-      }
       if (e.key === 'Escape') {
         closeModal();
         // Close mobile sidebar too
@@ -674,7 +654,6 @@ const App = (() => {
   // ── Public API ──
   return {
     init,
-    openNewTicket,
     viewTicket,
     editTicket,
     saveTicket,

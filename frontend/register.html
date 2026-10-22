@@ -10,27 +10,14 @@
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/login.css">
     
+    <!-- Icones (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
     <div class="login-wrapper">
-        <aside class="auth-story" aria-label="Sobre o HelpDesk">
-            <a class="auth-wordmark" href="login.html"><span class="auth-symbol"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14v-3a9 9 0 0 1 18 0v3"/><rect x="3" y="13" width="4" height="8" rx="2"/><rect x="17" y="13" width="4" height="8" rx="2"/></svg></span> HelpDesk<span class="auth-product">SUPORTE DE TI</span></a>
-            <div class="auth-story__content">
-                <span class="auth-eyebrow">MENOS ATRITO. MAIS SOLUÇÕES.</span>
-                <h2>Seu trabalho segue.<br>A gente cuida<br>do suporte.</h2>
-                <p>Um lugar para conectar sua equipe de TI a quem precisa de ajuda.</p>
-                <ol class="auth-steps">
-                    <li><span>01</span><div><strong>Abra sua solicitação</strong><small>Conte o que você precisa resolver.</small></div></li>
-                    <li><span>02</span><div><strong>Acompanhe cada etapa</strong><small>Saiba como seu atendimento está evoluindo.</small></div></li>
-                    <li><span>03</span><div><strong>Volte ao que importa</strong><small>Consulte soluções e o histórico quando precisar.</small></div></li>
-                </ol>
-            </div>
-            <span class="auth-story__footer">Pessoas conectadas. Problemas resolvidos.</span>
-        </aside>
-        <main class="auth-main">
         <div class="login-card">
             <div class="brand">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 14v-3a9 9 0 0 1 18 0v3"/><rect x="3" y="13" width="4" height="8" rx="2"/><rect x="17" y="13" width="4" height="8" rx="2"/></svg>
+                <i data-lucide="ticket"></i>
                 <h1>HelpDesk</h1>
             </div>
             
@@ -43,66 +30,65 @@
                 <div class="input-group">
                     <label for="regName">Nome Completo</label>
                     <div class="input-field">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2"/></svg>
-                        <input type="text" id="regName" autocomplete="name" placeholder="Seu nome completo" required />
+                        <i data-lucide="user"></i>
+                        <input type="text" id="regName" placeholder="Seu nome completo" required />
                     </div>
                 </div>
 
                 <div class="input-group">
                     <label for="regEmail">E-mail Corporativo</label>
                     <div class="input-field">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
-                        <input type="email" id="regEmail" autocomplete="email" placeholder="nome@empresa.com.br" required />
+                        <i data-lucide="mail"></i>
+                        <input type="email" id="regEmail" placeholder="nome@empresa.com.br" required />
                     </div>
                 </div>
 
                 <div class="input-group">
                     <label for="regJobTitle">Cargo</label>
                     <div class="input-field">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M8 7V3h8v4M2 12h20M12 11v3"/></svg>
-                        <input type="text" id="regJobTitle" autocomplete="organization-title" placeholder="Ex: Analista de Suporte" required />
+                        <i data-lucide="briefcase"></i>
+                        <input type="text" id="regJobTitle" placeholder="Ex: Analista de Suporte" required />
                     </div>
                 </div>
 
                 <div class="input-group">
                     <label for="regDepartment">Departamento</label>
                     <div class="input-field">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg>
-                        <input type="text" id="regDepartment" autocomplete="organization" placeholder="Ex: Tecnologia da Informação" required />
+                        <i data-lucide="building"></i>
+                        <input type="text" id="regDepartment" placeholder="Ex: Tecnologia da Informacao" required />
                     </div>
                 </div>
                 
                 <div class="input-group">
                     <label for="regPassword">Senha</label>
                     <div class="input-field">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                        <input type="password" id="regPassword" autocomplete="new-password" placeholder="Mínimo 6 caracteres" required minlength="6" />
+                        <i data-lucide="lock"></i>
+                        <input type="password" id="regPassword" placeholder="Minimo 6 caracteres" required minlength="6" />
                     </div>
                 </div>
 
                 <div class="input-group">
                     <label for="regPasswordConfirm">Confirmar Senha</label>
                     <div class="input-field">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                        <input type="password" id="regPasswordConfirm" autocomplete="new-password" placeholder="Repita a senha" required minlength="6" />
+                        <i data-lucide="lock"></i>
+                        <input type="password" id="regPasswordConfirm" placeholder="Repita a senha" required minlength="6" />
                     </div>
                 </div>
                 
-                <div class="error-message" role="alert" id="registerError"></div>
+                <div class="error-message" id="registerError"></div>
                 
                 <button type="submit" class="btn-primary" id="btnRegister">Criar Conta</button>
             </form>
 
             <div class="auth-footer">
-                <span>Já tem uma conta?</span>
+                <span>Ja tem uma conta?</span>
                 <a href="login.html">Entrar</a>
             </div>
         </div>
-        <p class="auth-caption">HelpDesk · Central de suporte de TI</p>
-        </main>
     </div>
 
     <!-- Scripts -->
+    <script>lucide.createIcons();</script>
     <script src="js/register.js"></script>
 </body>
 </html>

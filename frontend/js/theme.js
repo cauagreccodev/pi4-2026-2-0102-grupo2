@@ -62,7 +62,7 @@ const ThemeManager = (() => {
     if (metaThemeColor) {
       metaThemeColor.setAttribute(
         'content',
-        theme === THEMES.DARK ? '#111916' : '#F5F6F3'
+        theme === THEMES.DARK ? '#0F0D15' : '#F8F7FC'
       );
     }
   }

@@ -64,6 +64,11 @@
   50%      { opacity: 0.5; }
 }
 
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.4); }
+  50%      { box-shadow: 0 0 0 8px rgba(124, 58, 237, 0); }
+}
+
 /* ── Shimmer (Skeleton Loading) ── */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
@@ -194,7 +199,7 @@
 
 /* ── Notification Dot Pulse ── */
 .notification-dot {
-  animation: none;
+  animation: pulseGlow 2s infinite;
 }
 
 /* ── Hover Glow Effect ── */
@@ -203,7 +208,8 @@
 }
 
 .hover-glow:hover {
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--shadow-purple);
+  transform: translateY(-2px);
 }
 
 /* ── Bar Chart Animation ── */
@@ -220,7 +226,7 @@
 
 /* ── Table Row Animation ── */
 .data-table tbody tr {
-  animation: none;
+  animation: fadeInUp 0.3s ease-out;
   animation-fill-mode: backwards;
 }
 
@@ -237,7 +243,7 @@
 
 /* ── Stat Card Counter Animation ── */
 .stat-card {
-  animation: none;
+  animation: fadeInUp 0.4s ease-out;
   animation-fill-mode: backwards;
 }
 
