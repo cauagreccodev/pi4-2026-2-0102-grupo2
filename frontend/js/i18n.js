@@ -52,8 +52,8 @@ const i18n = (() => {
     // ── UI Labels ──
     ui: {
       // Dashboard
-      dashboard:              'Dashboard',
-      dashboardSubtitle:      'Visão analítica dos chamados em tempo real (Neon DB)',
+      dashboard:              'Visão geral',
+      dashboardSubtitle:      'Acompanhe a operação e os próximos atendimentos.',
       totalTickets:           'Total de Chamados',
       openTickets:            'Aguardando Atendimento',
       assignedTickets:        'Em Atendimento',
@@ -64,9 +64,9 @@ const i18n = (() => {
       distributionByPriority: 'Chamados por Prioridade',
       recentTickets:          'Chamados Recentes',
       viewAll:                'Ver todos',
-      backendConnected:       'Conectado ao Neon',
-      backendOffline:         'Sem conexão com a API',
-      refreshData:            'Recarregar Dados',
+      backendConnected:       'Dados sincronizados',
+      backendOffline:         'Sem conexão',
+      refreshData:            'Atualizar',
 
       // Tickets list
       tickets:               'Chamados',
