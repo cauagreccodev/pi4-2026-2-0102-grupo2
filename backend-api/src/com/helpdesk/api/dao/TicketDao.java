@@ -61,7 +61,7 @@ public class TicketDao {
                 stmt.setInt(5, ticket.getClientId());
                 if (ticket.getSupportId() == null) stmt.setNull(6, java.sql.Types.INTEGER);
                 else stmt.setInt(6, ticket.getSupportId());
-                stmt.setString(7, ticket.getSupportId() == null ? "NEW" : "ASSIGNED");
+                stmt.setString(7, "NEW");
                 
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
@@ -195,7 +195,7 @@ public class TicketDao {
         return false;
     }
 
-    public boolean update(Ticket ticket) {
+    public boolean update(Ticket ticket) throws SQLException {
         String sql = "UPDATE tickets SET title = ?, description = ?, priority = ?, category_id = ?, " +
             "status = ?, support_id = ?, updated_at = CURRENT_TIMESTAMP, " +
             "closed_at = CASE WHEN ? IN ('CLOSED', 'UNRESOLVED') THEN COALESCE(closed_at, CURRENT_TIMESTAMP) ELSE NULL END WHERE id = ?";
@@ -214,12 +214,9 @@ public class TicketDao {
                 stmt.setInt(8, ticket.getId());
                 return stmt.executeUpdate() > 0;
             }
-        } catch (SQLException e) {
-            System.err.println("Erro ao atualizar chamado: " + e.getMessage());
         } finally {
             Database.releaseConnection(conn);
         }
-        return false;
     }
 
     // The conditional update and history insert are one atomic PostgreSQL statement.
