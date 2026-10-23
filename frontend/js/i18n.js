@@ -175,7 +175,7 @@ const i18n = (() => {
       logout:                'Sair',
 
       // Misc
-      loading:               'Carregando HelpDesk...',
+      loading:               'Carregando Resolve...',
       showing:               'Mostrando',
       of:                    'de',
       ticketsCount:          'chamados',

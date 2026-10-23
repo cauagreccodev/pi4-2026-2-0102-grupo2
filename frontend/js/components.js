@@ -51,7 +51,7 @@ function renderSidebar() {
     <aside class="sidebar" id="sidebar" aria-label="Menu principal">
       <div class="sidebar__logo">
         <div class="sidebar__logo-icon">${Icons.headphones}</div>
-        <div class="sidebar__logo-text">Help<span>Desk</span></div>
+        <div class="sidebar__logo-text">Resolve</div>
       </div>
 
       <div class="sidebar__workspace"><span class="workspace-mark">TI</span><div>Central de suporte<small>Ambiente corporativo</small></div></div>

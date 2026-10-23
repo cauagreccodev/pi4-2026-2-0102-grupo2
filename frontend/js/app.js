@@ -89,7 +89,7 @@ const App = (() => {
 
   // ── Page Rendering ──
   function renderPage(title, breadcrumbs, content) {
-    document.title = `${title} — HelpDesk`;
+    document.title = `${title} — Resolve`;
     document.getElementById('headerContainer').innerHTML = renderHeader(breadcrumbs);
     document.getElementById('pageContent').innerHTML = content;
 

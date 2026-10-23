@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loginError.style.display = 'block';
         } finally {
             btnLogin.disabled = false;
-            btnLogin.textContent = 'Entrar no HelpDesk';
+            btnLogin.textContent = 'Entrar no Resolve';
         }
     });
 });

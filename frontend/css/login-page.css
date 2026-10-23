@@ -1,4 +1,4 @@
-/* Reference-inspired login composition, in the HelpDesk green palette. */
+/* Shared login and registration composition in the Resolve green palette. */
 .login-page {
   --color-text: #F0F6F2;
   --color-text-secondary: #B4C8BD;
@@ -126,6 +126,12 @@
 .login-page .btn-primary:hover:not(:disabled) { box-shadow: 0 4px 18px rgba(146, 205, 178, 0.15); }
 .login-page .auth-footer { margin-top: 30px; padding-top: 26px; border-color: rgba(146, 205, 178, 0.24); text-align: center; font-size: 13px; }
 .login-page .auth-caption { margin-top: 40px; color: #B4C8BD; }
+
+.register-page .login-header p { max-width: 40ch; }
+
+@media (min-width: 641px) and (max-width: 1000px) {
+  .register-page #registerForm { grid-template-columns: minmax(0, 1fr); }
+}
 
 .password-toggle {
   display: grid;
