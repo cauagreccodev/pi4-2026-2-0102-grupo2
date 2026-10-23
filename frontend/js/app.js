@@ -6,12 +6,19 @@
 
 const App = (() => {
   // ── State ──
-  let currentFilters = {
+  const ticketFilters = {
     search: '',
     status: '',
     priority: '',
     category: ''
   };
+  const resolvedFilters = { search: '', status: '', priority: '', category: '' };
+  function isResolvedPage() {
+    return Router.getCurrentRoute() === 'resolvidos';
+  }
+  function getCurrentFilters() {
+    return isResolvedPage() ? resolvedFilters : ticketFilters;
+  }
   let sortField = 'createdAt';
   let sortDir = 'desc';
   let modalTrigger = null;
@@ -78,18 +85,21 @@ const App = (() => {
       renderPage(getDashboardTitle(), [i18n.t('home'), escapeHtml(getDashboardTitle())], renderDashboard());
     });
 
-    Router.register('chamados', async () => {
-      renderPage(i18n.t('tickets'), [i18n.t('home'), i18n.t('tickets')], renderTicketsList(getFilteredTickets()));
+    async function renderTicketsPage(route) {
+      const title = i18n.t(route === 'resolvidos' ? 'resolvedTickets' : 'tickets');
+      renderPage(title, [i18n.t('home'), title], renderTicketsList(getFilteredTickets(), { resolvedOnly: route === 'resolvidos' }));
       bindTicketsEvents();
       const synced = await reloadTickets();
-      if (Router.getCurrentRoute() !== 'chamados') return;
+      if (Router.getCurrentRoute() !== route) return;
       if (synced) {
         updateSidebarBadges();
         applyFilters();
       } else {
         showToast('error', i18n.t('error'), i18n.t('loadError'));
       }
-    });
+    }
+    Router.register('chamados', () => renderTicketsPage('chamados'));
+    Router.register('resolvidos', () => renderTicketsPage('resolvidos'));
 
     Router.register('chamado/:id', async (params) => {
       // Show loading state
@@ -134,7 +144,9 @@ const App = (() => {
 
   // ── Filters & Search ──
   function getFilteredTickets() {
+    const currentFilters = getCurrentFilters();
     let data = getVisibleTickets();
+    if (isResolvedPage()) data = data.filter(ticket => ticket.status === 'CLOSED');
 
     // Search filter
     if (currentFilters.search) {
@@ -147,7 +159,7 @@ const App = (() => {
     }
 
     // Status filter
-    if (currentFilters.status) {
+    if (!isResolvedPage() && currentFilters.status) {
       data = data.filter(t => t.status === currentFilters.status);
     }
 
@@ -201,7 +213,7 @@ const App = (() => {
   }
 
   function applyFilters() {
-    const content = renderTicketsList(getFilteredTickets());
+    const content = renderTicketsList(getFilteredTickets(), { resolvedOnly: isResolvedPage() });
     document.getElementById('pageContent').innerHTML = content;
     bindTicketsEvents();
   }
@@ -467,6 +479,8 @@ const App = (() => {
   }
 
   function updateSidebarBadges() {
+    const resolvedBadge = document.getElementById('sidebarResolvedCount');
+    if (resolvedBadge) resolvedBadge.textContent = getDashboardStats().closed;
     const badge = document.getElementById('sidebarTicketCount') || document.querySelector('.sidebar__link-badge');
     if (badge) {
       const stats = getDashboardStats();
@@ -541,7 +555,7 @@ const App = (() => {
       if (!await reloadTickets() || Router.getCurrentRoute() !== route) return;
       updateSidebarBadges();
       updateNotificationBadges();
-      if (route === 'chamados') applyFilters();
+      if (route === 'chamados' || route === 'resolvidos') applyFilters();
       else Router.resolve();
     });
     document.addEventListener('change', (event) => {
@@ -712,7 +726,7 @@ const App = (() => {
         if (e.key === 'Enter') {
           const query = globalSearch.value.trim();
           if (query) {
-            currentFilters.search = query;
+            ticketFilters.search = query;
             Router.navigate('#chamados');
           }
         }
@@ -721,6 +735,7 @@ const App = (() => {
   }
 
   function bindTicketsEvents() {
+    const currentFilters = getCurrentFilters();
     // New ticket button
     const btnNew = document.getElementById('btnNewTicket');
     if (btnNew) btnNew.addEventListener('click', openNewTicket);
@@ -745,7 +760,7 @@ const App = (() => {
     // Filters
     const filterStatus = document.getElementById('filterStatus');
     if (filterStatus) {
-      filterStatus.value = currentFilters.status;
+      filterStatus.value = isResolvedPage() ? 'CLOSED' : currentFilters.status;
       filterStatus.addEventListener('change', () => {
         currentFilters.status = filterStatus.value;
         applyFilters();

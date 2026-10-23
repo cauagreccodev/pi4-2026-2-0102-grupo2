@@ -66,6 +66,11 @@ function renderSidebar() {
           <span class="sidebar__link-text">${i18n.t('tickets')}</span>
           <span class="sidebar__link-badge" id="sidebarTicketCount">${stats.total}</span>
         </a>
+        <a class="sidebar__link" data-route="resolvidos" href="#resolvidos">
+          <span class="sidebar__link-icon">${Icons.checkCircle}</span>
+          <span class="sidebar__link-text">${i18n.t('resolvedTickets')}</span>
+          <span class="sidebar__link-badge" id="sidebarResolvedCount">${stats.closed}</span>
+        </a>
         
         <div class="sidebar__section-title">${i18n.t('system')}</div>
         <a class="sidebar__link" data-route="configuracoes" href="#configuracoes">
@@ -380,8 +385,8 @@ function renderChartBar(label, value, total, color) {
 }
 
 // ── View: Tickets List ──
-function renderTicketsList(filteredData) {
-  const data = getVisibleTickets(filteredData || tickets);
+function renderTicketsList(filteredData, { resolvedOnly = false } = {}) {
+  const data = getVisibleTickets(filteredData || tickets).filter(ticket => !resolvedOnly || ticket.status === 'CLOSED');
   const statusList = i18n.getStatusList();
   const priorityList = i18n.getPriorityList();
 
@@ -389,8 +394,8 @@ function renderTicketsList(filteredData) {
     <div class="page-transition-enter">
       <div class="page-header">
         <div>
-          <h1 class="page-header__title">${i18n.t('tickets')}</h1>
-          <p class="page-header__subtitle" style="margin-bottom:0">${isTIUser() ? i18n.t('ticketsSubtitle') : `${escapeHtml(getCurrentDepartment() || i18n.t('noDepartment'))} — ${i18n.t('departmentTicketsSubtitle')}`}</p>
+          <h1 class="page-header__title">${i18n.t(resolvedOnly ? 'resolvedTickets' : 'tickets')}</h1>
+          <p class="page-header__subtitle" style="margin-bottom:0">${resolvedOnly ? (isTIUser() ? i18n.t('resolvedTicketsSubtitle') : `${escapeHtml(getCurrentDepartment() || i18n.t('noDepartment'))} — ${i18n.t('departmentResolvedSubtitle')}`) : (isTIUser() ? i18n.t('ticketsSubtitle') : `${escapeHtml(getCurrentDepartment() || i18n.t('noDepartment'))} — ${i18n.t('departmentTicketsSubtitle')}`)}</p>
         </div>
         <button class="btn btn-primary" id="btnNewTicket">
           ${Icons.plus} ${i18n.t('newTicket')}
@@ -404,10 +409,10 @@ function renderTicketsList(filteredData) {
               <span class="table-toolbar__search-icon">${Icons.search}</span>
               <input type="text" class="table-toolbar__search-input" id="searchTickets" aria-label="${i18n.t('searchPlaceholder')}" placeholder="${i18n.t('searchPlaceholder')}">
             </div>
-            <select class="filter-select" id="filterStatus" aria-label="${i18n.t('allStatuses')}">
+            ${resolvedOnly ? `<select class="filter-select" id="filterStatus" aria-label="${i18n.t('statusLabel')}" disabled><option value="CLOSED" selected>${i18n.status('CLOSED')}</option></select>` : `<select class="filter-select" id="filterStatus" aria-label="${i18n.t('allStatuses')}">
               <option value="">${i18n.t('allStatuses')}</option>
               ${statusList.map(s => `<option value="${s.id}">${s.label}</option>`).join('')}
-            </select>
+            </select>`}
             <select class="filter-select" id="filterPriority" aria-label="${i18n.t('allPriorities')}">
               <option value="">${i18n.t('allPriorities')}</option>
               ${priorityList.map(p => `<option value="${p.id}">${p.label}</option>`).join('')}
@@ -445,8 +450,8 @@ function renderTicketsList(filteredData) {
         ` : `
           <div class="table-empty">
             <div class="table-empty__icon">${Icons.inbox}</div>
-            <h3 class="table-empty__title">${i18n.t('noTicketsFound')}</h3>
-            <p class="table-empty__text">${i18n.t('noTicketsHint')}</p>
+            <h3 class="table-empty__title">${i18n.t(resolvedOnly ? 'noResolvedTickets' : 'noTicketsFound')}</h3>
+            <p class="table-empty__text">${i18n.t(resolvedOnly ? 'noResolvedTicketsHint' : 'noTicketsHint')}</p>
             <button class="btn btn-primary" id="btnNewTicketEmpty">
               ${Icons.plus} ${i18n.t('newTicket')}
             </button>
