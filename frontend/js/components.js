@@ -326,6 +326,7 @@ function renderDashboard() {
                 <tr>
                   <th>${i18n.t('thId')}</th>
                   <th>${i18n.t('thTitle')}</th>
+                  <th>${i18n.t('thDepartment')}</th>
                   <th>${i18n.t('thCategory')}</th>
                   <th>${i18n.t('thPriority')}</th>
                   <th>${i18n.t('thStatus')}</th>
@@ -335,12 +336,15 @@ function renderDashboard() {
               <tbody>
                 ${recentTickets.map(t => {
                   const catName = t.categoryName || (getCategoryById(t.categoryId)?.name) || '-';
+                  const requester = getUserById(t.clientId);
+                  const department = normalizeDepartment(requester?.department || requester?.departamento) || 'Não informado';
                   return `
                     <tr>
                       <td class="table-cell-id">#${String(t.id).padStart(4, '0')}</td>
                       <td class="table-cell-title">
                         <a href="#chamado/${t.id}" class="truncate" style="display:block;max-width:280px;">${t.title}</a>
                       </td>
+                      <td>${escapeHtml(department)}</td>
                       <td><span class="badge badge-normal">${catName}</span></td>
                       <td><span class="badge ${i18n.priorityClass(t.priority)}">${i18n.priority(t.priority)}</span></td>
                       <td><span class="badge ${i18n.statusClass(t.status)}"><span class="badge-dot"></span>${i18n.status(t.status)}</span></td>

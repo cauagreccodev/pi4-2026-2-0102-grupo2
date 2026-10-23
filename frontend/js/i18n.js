@@ -88,6 +88,7 @@ const i18n = (() => {
       // Table headers
       thId:                  'ID',
       thTitle:               'Título',
+      thDepartment:          'Departamento',
       thStatus:              'Status',
       thPriority:            'Prioridade',
       thCategory:            'Categoria',
