@@ -49,7 +49,7 @@ public class TicketDao {
     }
 
     public Ticket insert(Ticket ticket) {
-        String sql = "INSERT INTO tickets (title, description, priority, category_id, client_id) VALUES (?, ?, ?, ?, ?) RETURNING *";
+        String sql = "INSERT INTO tickets (title, description, priority, category_id, client_id, support_id, status) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *";
         Connection conn = null;
         try {
             conn = Database.getConnection();
@@ -59,6 +59,9 @@ public class TicketDao {
                 stmt.setString(3, ticket.getPriority());
                 stmt.setInt(4, ticket.getCategoryId());
                 stmt.setInt(5, ticket.getClientId());
+                if (ticket.getSupportId() == null) stmt.setNull(6, java.sql.Types.INTEGER);
+                else stmt.setInt(6, ticket.getSupportId());
+                stmt.setString(7, ticket.getSupportId() == null ? "NEW" : "ASSIGNED");
                 
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
@@ -187,6 +190,33 @@ public class TicketDao {
             if (conn != null) {
                 try { conn.setAutoCommit(true); } catch (SQLException ex) { ex.printStackTrace(); }
             }
+            Database.releaseConnection(conn);
+        }
+        return false;
+    }
+
+    public boolean update(Ticket ticket) {
+        String sql = "UPDATE tickets SET title = ?, description = ?, priority = ?, category_id = ?, " +
+            "status = ?, support_id = ?, updated_at = CURRENT_TIMESTAMP, " +
+            "closed_at = CASE WHEN ? IN ('CLOSED', 'UNRESOLVED') THEN COALESCE(closed_at, CURRENT_TIMESTAMP) ELSE NULL END WHERE id = ?";
+        Connection conn = null;
+        try {
+            conn = Database.getConnection();
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, ticket.getTitle());
+                stmt.setString(2, ticket.getDescription());
+                stmt.setString(3, ticket.getPriority());
+                stmt.setInt(4, ticket.getCategoryId());
+                stmt.setString(5, ticket.getStatus());
+                if (ticket.getSupportId() == null) stmt.setNull(6, java.sql.Types.INTEGER);
+                else stmt.setInt(6, ticket.getSupportId());
+                stmt.setString(7, ticket.getStatus());
+                stmt.setInt(8, ticket.getId());
+                return stmt.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao atualizar chamado: " + e.getMessage());
+        } finally {
             Database.releaseConnection(conn);
         }
         return false;

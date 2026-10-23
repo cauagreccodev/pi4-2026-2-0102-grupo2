@@ -3,6 +3,7 @@ package com.helpdesk.api.handler;
 import com.helpdesk.api.dao.UserDao;
 import com.helpdesk.api.model.User;
 import com.helpdesk.api.util.AuthUtil;
+import com.helpdesk.api.util.DepartmentPolicy;
 import com.helpdesk.api.util.HttpHelper;
 import com.helpdesk.api.util.JsonUtil;
 import com.sun.net.httpserver.HttpExchange;
@@ -65,8 +66,14 @@ public class UserHandler implements HttpHandler {
                 User newUser = new User();
                 newUser.setName(name);
                 newUser.setEmail(email);
-                newUser.setRole(role);
-                newUser.setDepartment(data.get("department"));
+                String department = DepartmentPolicy.normalize(data.get("department"));
+                if (department == null) {
+                    HttpHelper.sendError(exchange, 400, "Selecione um setor válido");
+                    return;
+                }
+                // Public registration never grants administrator/support roles.
+                newUser.setRole("CLIENT");
+                newUser.setDepartment(department);
                 newUser.setJobTitle(data.get("jobTitle"));
 
                 User created = userDao.insert(newUser, password);
