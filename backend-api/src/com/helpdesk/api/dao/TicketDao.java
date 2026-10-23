@@ -222,6 +222,28 @@ public class TicketDao {
         return false;
     }
 
+    // The conditional update and history insert are one atomic PostgreSQL statement.
+    // Two technicians opening the same NEW ticket cannot both claim it.
+    public boolean startService(int id, int technicianId, String message) throws SQLException {
+        String sql = "WITH started AS (UPDATE tickets SET status = 'ASSIGNED', support_id = ?, " +
+            "updated_at = CURRENT_TIMESTAMP WHERE id = ? AND status = 'NEW' RETURNING id) " +
+            "INSERT INTO ticket_timeline (ticket_id, author_id, event_type, message) " +
+            "SELECT id, ?, 'STATUS_CHANGE', ? FROM started";
+        Connection conn = null;
+        try {
+            conn = Database.getConnection();
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, technicianId);
+                stmt.setInt(2, id);
+                stmt.setInt(3, technicianId);
+                stmt.setString(4, message);
+                return stmt.executeUpdate() > 0;
+            }
+        } finally {
+            Database.releaseConnection(conn);
+        }
+    }
+
     public boolean updateStatus(int id, String newStatus, Integer newSupportId) {
         String sql = "UPDATE tickets SET status = ?, support_id = COALESCE(?, support_id), " +
                      "closed_at = CASE WHEN ? IN ('CLOSED', 'UNRESOLVED') THEN CURRENT_TIMESTAMP ELSE closed_at END " +

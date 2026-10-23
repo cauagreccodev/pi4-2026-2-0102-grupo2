@@ -31,6 +31,7 @@ public class HealthHandler implements HttpHandler {
             status.put("service", "Help Desk API");
             status.put("version", "v0.4.3");
             status.put("frontend", "https://help-desk-pi-iv.vercel.app");
+            status.put("ticketLifecycle", "NEW_UNTIL_TI_OPEN");
             status.put("timestamp", System.currentTimeMillis());
 
             HttpHelper.sendJson(exchange, 200, status);

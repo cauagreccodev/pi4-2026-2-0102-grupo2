@@ -1,6 +1,12 @@
 package com.helpdesk.api.handler;
 
 import com.helpdesk.api.dao.NotificationDao;
+import com.helpdesk.api.dao.UserDao;
+import com.helpdesk.api.dao.TicketDao;
+import com.helpdesk.api.model.User;
+import com.helpdesk.api.util.DepartmentPolicy;
+import java.util.Set;
+import java.util.stream.Collectors;
 import com.helpdesk.api.model.Notification;
 import com.helpdesk.api.util.AuthUtil;
 import com.helpdesk.api.util.HttpHelper;
@@ -37,6 +43,20 @@ public class NotificationHandler implements HttpHandler {
         try {
             if ("GET".equalsIgnoreCase(exchange.getRequestMethod()) && "/api/notificacoes".equals(path)) {
                 List<Notification> notifications = notificationDao.findByUserId(userId);
+                User actor = new UserDao().findById(userId);
+                if (actor == null) {
+                    HttpHelper.sendError(exchange, 401, "Usu?rio n?o encontrado");
+                    return;
+                }
+                if (!DepartmentPolicy.canManageTickets(actor)) {
+                    Set<Integer> members = DepartmentPolicy.departmentMemberIds(actor, new UserDao().findAll());
+                    Set<Integer> visibleTickets = new TicketDao().findAll(null, null, null).stream()
+                        .filter(ticket -> DepartmentPolicy.canViewTicket(actor, ticket, members))
+                        .map(ticket -> ticket.getId()).collect(Collectors.toSet());
+                    notifications = notifications.stream()
+                        .filter(notification -> notification.getTicketId() != null && visibleTickets.contains(notification.getTicketId()))
+                        .toList();
+                }
                 HttpHelper.sendJson(exchange, 200, notifications);
             } else if ("PUT".equalsIgnoreCase(exchange.getRequestMethod()) && path.startsWith("/api/notificacoes/")) {
                 String idStr = HttpHelper.getPathParam(path, 3);

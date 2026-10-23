@@ -84,6 +84,10 @@ public class TicketHandler implements HttpHandler {
                 Integer supportId = params.containsKey("supportId") && !params.get("supportId").isEmpty() ? Integer.parseInt(params.get("supportId")) : null;
 
                 List<Ticket> tickets = ticketDao.findAll(status, clientId, supportId);
+                if (!DepartmentPolicy.canManageTickets(actor)) {
+                    Set<Integer> members = DepartmentPolicy.departmentMemberIds(actor, userDao.findAll());
+                    tickets = tickets.stream().filter(ticket -> DepartmentPolicy.canViewTicket(actor, ticket, members)).toList();
+                }
                 HttpHelper.sendJson(exchange, 200, tickets);
 
             } else if ("POST".equalsIgnoreCase(method) && "/api/chamados".equals(path)) {
@@ -105,7 +109,7 @@ public class TicketHandler implements HttpHandler {
                     return;
                 }
                 t.setSupportId(supportId);
-                t.setStatus(supportId == null ? "NEW" : "ASSIGNED");
+                t.setStatus("NEW");
                 validateDetails(t);
 
                 Ticket created = ticketDao.insert(t);
@@ -132,11 +136,29 @@ public class TicketHandler implements HttpHandler {
                 }
                 int ticketId = Integer.parseInt(idStr);
 
-                if ("GET".equalsIgnoreCase(method)) {
+                if ("POST".equalsIgnoreCase(method) && path.equals("/api/chamados/" + ticketId + "/iniciar")) {
+                    if (!DepartmentPolicy.canManageTickets(actor)) {
+                        HttpHelper.sendError(exchange, 403, "Somente o departamento de TI pode iniciar o atendimento");
+                        return;
+                    }
+                    if (ticketDao.findById(ticketId) == null) {
+                        HttpHelper.sendError(exchange, 404, "Chamado não encontrado");
+                        return;
+                    }
+                    boolean started = ticketDao.startService(ticketId, userId,
+                        "Atendimento iniciado por " + actor.getName() + " (TI) ao abrir o chamado.");
+                    HttpHelper.sendJson(exchange, 200, Map.of("started", started));
+                } else if ("GET".equalsIgnoreCase(method)) {
                     // Detalhes + timeline
                     Ticket ticket = ticketDao.findById(ticketId);
                     if (ticket == null) {
                         HttpHelper.sendError(exchange, 404, "Chamado não encontrado");
+                        return;
+                    }
+                    Set<Integer> members = DepartmentPolicy.canManageTickets(actor) ? Set.of()
+                        : DepartmentPolicy.departmentMemberIds(actor, userDao.findAll());
+                    if (!DepartmentPolicy.canViewTicket(actor, ticket, members)) {
+                        HttpHelper.sendError(exchange, 404, "Chamado n?o encontrado");
                         return;
                     }
                     List<TicketTimeline> timeline = timelineDao.findByTicketId(ticketId);
@@ -170,7 +192,7 @@ public class TicketHandler implements HttpHandler {
                         return;
                     }
                     Integer newSupportId = data.containsKey("supportId") ? positiveId(data.get("supportId")) : ticket.getSupportId();
-                    if ("NEW".equals(newStatus)) newSupportId = null;
+                    if ("NEW".equals(newStatus) && !data.containsKey("supportId")) newSupportId = null;
                     if (newSupportId != null && userDao.findById(newSupportId) == null) {
                         HttpHelper.sendError(exchange, 400, "Responsável não encontrado");
                         return;
