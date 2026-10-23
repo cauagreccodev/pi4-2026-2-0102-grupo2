@@ -100,7 +100,7 @@ const Api = (() => {
 
   /**
    * Create a new ticket
-   * @param {Object} ticketData - {title, description, priority, categoryId}
+   * @param {Object} ticketData - {title, description, priority, categoryId, supportId}
    * @returns {Promise<Object>} Created ticket
    */
   async function createTicket(ticketData) {
@@ -108,7 +108,8 @@ const Api = (() => {
       title: ticketData.title,
       description: ticketData.description,
       priority: ticketData.priority,
-      categoryId: ticketData.categoryId
+      categoryId: ticketData.categoryId,
+      supportId: ticketData.supportId || null
     };
     const data = await request('POST', '/api/chamados', payload);
     return mapTicketFromApi(data);
@@ -121,6 +122,7 @@ const Api = (() => {
    * @returns {Promise<Object>} Response
    */
   async function updateTicket(id, updateData) {
+    if (!isTIUser()) throw new Error(i18n.t('noPermissionMsg'));
     return await request('PUT', `/api/chamados/${id}`, updateData);
   }
 
@@ -130,6 +132,7 @@ const Api = (() => {
    * @returns {Promise<Object>} Response
    */
   async function deleteTicket(id) {
+    if (!isTIUser()) throw new Error(i18n.t('noPermissionMsg'));
     return await request('DELETE', `/api/chamados/${id}`);
   }
 

@@ -117,7 +117,9 @@
 .login-page .input-group { gap: 10px; }
 .login-page .input-group label { color: #E4EFE8; font-size: 13px; }
 .login-page .input-field { height: 50px; background: #F8FBF9; border-color: #C9D8D0; color: #20392C; }
-.login-page .input-field input { font-size: 14px; }
+.login-page .input-field input, .login-page .input-field select { font-size: 14px; }
+.login-page .input-field select { color-scheme: light; }
+.login-page .input-field select option { background: #F8FBF9; color: #20392C; }
 .login-page .input-field input::placeholder { color: #60776A; }
 .login-page .input-field > svg { color: #60776A; }
 .login-page .input-field:focus-within { border-color: #92CDB2; box-shadow: 0 0 0 4px rgba(146, 205, 178, 0.18); }

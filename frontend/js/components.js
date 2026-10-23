@@ -487,7 +487,7 @@ function renderTicketRow(t) {
         ${supportUser ? `
           <div class="table-cell-user">
             <div class="table-cell-user__avatar">${supportUser.initials}</div>
-            <span style="font-size:var(--text-sm)">${supportUser.name.split(' ')[0]}</span>
+            <span style="font-size:var(--text-sm)">${escapeHtml(supportUser.name)}<small class="assignee-department">${escapeHtml(normalizeDepartment(supportUser.department) || 'Não informado')}</small></span>
           </div>
         ` : (supportName ? `<span style="font-size:var(--text-sm)">${supportName}</span>` : `<span style="font-size:var(--text-sm);color:var(--color-text-tertiary)">${i18n.t('notAssigned')}</span>`)}
       </td>
@@ -497,12 +497,12 @@ function renderTicketRow(t) {
           <button class="btn-icon" title="${i18n.t('view')}" onclick="App.viewTicket(${t.id})">
             ${Icons.eye}
           </button>
-          <button class="btn-icon" title="${i18n.t('edit')}" onclick="App.editTicket(${t.id})">
+          ${isTIUser() ? `<button class="btn-icon" title="${i18n.t('edit')}" onclick="App.editTicket(${t.id})">
             ${Icons.edit}
           </button>
           <button class="btn-icon danger" title="${i18n.t('delete')}" onclick="App.confirmDeleteTicket(${t.id})">
             ${Icons.trash}
-          </button>
+          </button>` : ''}
         </div>
       </td>
     </tr>
@@ -545,7 +545,7 @@ function renderTicketDetail(ticketData) {
   const supportName = ticketData.supportName || (ticketData.supportId ? getUserById(ticketData.supportId)?.name : null) || i18n.t('notAssigned');
   const categoryName = ticketData.categoryName || (getCategoryById(ticketData.categoryId)?.name) || '-';
   const statusList = i18n.getStatusList();
-  const technicians = USERS.filter(u => isTIUser(u));
+  const technicians = getAssignmentUsers();
 
   return `
     <div class="page-transition-enter">
@@ -557,10 +557,10 @@ function renderTicketDetail(ticketData) {
             <p class="page-header__subtitle" style="margin-bottom:0">${i18n.t('openedAt')} ${formatDateTime(ticketData.createdAt)}</p>
           </div>
         </div>
-        <div style="display:flex; gap:var(--space-2);">
+        ${isTIUser() ? `<div style="display:flex; gap:var(--space-2);">
           <button class="btn btn-secondary" onclick="App.editTicket(${ticketData.id})">${Icons.edit} ${i18n.t('edit')}</button>
           <button class="btn btn-danger" onclick="App.confirmDeleteTicket(${ticketData.id})">${Icons.trash} ${i18n.t('delete')}</button>
-        </div>
+        </div>` : ''}
       </div>
 
       <div class="ticket-detail">
@@ -641,7 +641,8 @@ function renderTicketDetail(ticketData) {
                   <span class="info-item__icon">${Icons.user}</span>
                   <div class="info-item__content">
                     <span class="info-item__label">${i18n.t('technicianResponsible')}</span>
-                    <span class="info-item__value">${supportName}</span>
+                    <span class="info-item__value">${escapeHtml(supportName)}</span>
+                    ${ticketData.supportId && getUserById(ticketData.supportId)?.department ? `<small class="assignee-department">${escapeHtml(normalizeDepartment(getUserById(ticketData.supportId).department))}</small>` : ''}
                   </div>
                 </div>
                 <div class="info-item">
@@ -687,7 +688,7 @@ function renderTicketDetail(ticketData) {
               </select>
               <select class="form-select" id="quickTechnicianChange" onchange="App.quickTechnicianChange(${ticketData.id}, this.value)">
                 <option value="" disabled selected>${i18n.t('assignTechnician')}</option>
-                ${technicians.map(u => `<option value="${u.id}" ${u.id === ticketData.supportId ? 'disabled' : ''}>${u.name}</option>`).join('')}
+                ${technicians.map(u => `<option value="${u.id}" ${u.id === ticketData.supportId ? 'disabled' : ''}>${escapeHtml(u.name)} (${escapeHtml(normalizeDepartment(u.department) || 'Não informado')})</option>`).join('')}
               </select>
             </div>
           </div>
@@ -777,50 +778,58 @@ function renderSettings() {
 }
 
 // ── Modal: Create/Edit Ticket ──
+function renderAssigneeOptions(department = '', selectedId = null) {
+  const users = getAssignmentUsers(department);
+  return `<option value="">${i18n.t('notAssigned')}</option>` +
+    users.map(user => `<option value="${user.id}" ${user.id === selectedId ? 'selected' : ''}>${escapeHtml(user.name)} (${escapeHtml(normalizeDepartment(user.department) || 'Não informado')})</option>`).join('') +
+    (users.length ? '' : `<option value="" disabled>${i18n.t('noDepartmentUsers')}</option>`);
+}
+
 function renderTicketModal(ticket = null) {
   const isEdit = ticket !== null;
+  if (isEdit && !isTIUser()) return '';
   const title = isEdit ? i18n.t('editTicket') : i18n.t('createTicket');
-  const technicians = USERS.filter(u => isTIUser(u));
-  const isTI = isTIUser(CURRENT_USER);
+  const selectedUser = ticket?.supportId ? getUserById(ticket.supportId) : null;
+  const department = normalizeDepartment(selectedUser?.department);
   const statusList = i18n.getStatusList();
   const priorityList = i18n.getPriorityList();
 
-  // Status + Technician section — only visible in edit mode for TI users
-  const statusTechSection = isEdit && isTI ? `
+  // Creation status follows assignment; subsequent status changes belong to TI.
+  const statusTechSection = `
+            <div class="form-group">
+              <label class="form-label" for="ticketStatus">${i18n.t('statusLabel')}</label>
+              <select class="form-select" id="ticketStatus" ${isEdit ? '' : 'disabled aria-describedby="initialStatusHint"'}>
+                ${statusList.map(status => `<option value="${status.id}" ${(ticket?.status || 'NEW') === status.id ? 'selected' : ''}>${status.label}</option>`).join('')}
+              </select>
+              ${isEdit ? '' : `<p class="form-hint" id="initialStatusHint">${i18n.t('initialStatusHint')}</p>`}
+              <span class="form-error" id="errorStatus"></span>
+            </div>
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label" for="ticketStatus">${i18n.t('statusLabel')}</label>
-                <select class="form-select" id="ticketStatus">
-                  ${statusList.map(s => `<option value="${s.id}" ${ticket.status === s.id ? 'selected' : ''}>${s.label}</option>`).join('')}
+                <label class="form-label" for="ticketDepartment">${i18n.t('departmentLabel')}</label>
+                <select class="form-select" id="ticketDepartment">
+                  <option value="">${i18n.t('allDepartments')}</option>
+                  ${getAssignmentDepartments().map(name => `<option value="${escapeHtml(name)}" ${department === name ? 'selected' : ''}>${escapeHtml(name)}</option>`).join('')}
                 </select>
               </div>
               <div class="form-group">
                 <label class="form-label" for="ticketTechnician">${i18n.t('technicianLabel')}</label>
                 <select class="form-select" id="ticketTechnician">
-                  <option value="">${i18n.t('notAssigned')}</option>
-                  ${technicians.map(u => `<option value="${u.id}" ${ticket.supportId === u.id ? 'selected' : ''}>${u.name}</option>`).join('')}
+                  ${renderAssigneeOptions(department, ticket?.supportId)}
                 </select>
+                <span class="form-error" id="errorTechnician"></span>
               </div>
             </div>
-  ` : '';
+  `;
 
-  // Requester section — only visible in edit mode for TI users
-  const requesterSection = isEdit && isTI ? `
-            <div class="form-group">
-              <label class="form-label" for="ticketRequester">${i18n.t('requesterLabel')}</label>
-              <select class="form-select" id="ticketRequester">
-                ${USERS.map(u => `<option value="${u.id}" ${ticket.clientId === u.id ? 'selected' : ''}>${u.name} (${u.department || 'Geral'})</option>`).join('')}
-              </select>
-            </div>
-  ` : '';
-
-  // In creation mode, show who is creating (read-only)
-  const requesterInfo = !isEdit && CURRENT_USER ? `
+  // The requester is immutable and comes from the authenticated session on create.
+  const requester = isEdit ? getUserById(ticket.clientId) : CURRENT_USER;
+  const requesterInfo = requester ? `
             <div class="form-group">
               <label class="form-label">${i18n.t('requesterLabel')}</label>
-              <div class="form-input form-input--readonly" style="background: var(--bg-tertiary); cursor: default; display: flex; align-items: center; gap: var(--space-2);">
+              <div class="form-input form-input--readonly" style="background: var(--color-surface-alt); cursor: default; display: flex; align-items: center; gap: var(--space-2);">
                 ${Icons.user}
-                <span>${CURRENT_USER.name} — ${CURRENT_USER.department || 'Geral'}</span>
+                <span>${escapeHtml(requester.name)} — ${escapeHtml(normalizeDepartment(requester.department) || 'Não informado')}</span>
               </div>
             </div>
   ` : '';
@@ -838,13 +847,13 @@ function renderTicketModal(ticket = null) {
             
             <div class="form-group">
               <label class="form-label" for="ticketTitle">${i18n.t('titleLabel')} <span class="required">*</span></label>
-              <input type="text" class="form-input" id="ticketTitle" placeholder="${i18n.t('titlePlaceholder')}" value="${isEdit ? ticket.title : ''}" required>
+              <input type="text" class="form-input" id="ticketTitle" placeholder="${i18n.t('titlePlaceholder')}" value="${isEdit ? escapeHtml(ticket.title) : ''}" required>
               <span class="form-error" id="errorTitle"></span>
             </div>
 
             <div class="form-group">
               <label class="form-label" for="ticketDescription">${i18n.t('descriptionLabel')} <span class="required">*</span></label>
-              <textarea class="form-textarea" id="ticketDescription" placeholder="${i18n.t('descriptionPlaceholder')}" required>${isEdit ? ticket.description : ''}</textarea>
+              <textarea class="form-textarea" id="ticketDescription" placeholder="${i18n.t('descriptionPlaceholder')}" required>${isEdit ? escapeHtml(ticket.description) : ''}</textarea>
               <span class="form-error" id="errorDescription"></span>
             </div>
 
@@ -866,13 +875,12 @@ function renderTicketModal(ticket = null) {
             </div>
 
             ${statusTechSection}
-            ${requesterSection}
             ${requesterInfo}
           </form>
         </div>
         <div class="modal__footer">
           <button class="btn btn-secondary" onclick="App.closeModal()">${i18n.t('cancel')}</button>
-          <button class="btn btn-primary" onclick="App.saveTicket()">${isEdit ? i18n.t('saveChanges') : i18n.t('createTicketBtn')}</button>
+          <button class="btn btn-primary" id="saveTicketBtn" onclick="App.saveTicket()">${isEdit ? i18n.t('saveChanges') : i18n.t('createTicketBtn')}</button>
         </div>
       </div>
     </div>

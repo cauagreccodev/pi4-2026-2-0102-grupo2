@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const registerForm = document.getElementById('registerForm');
     const registerError = document.getElementById('registerError');
     const btnRegister = document.getElementById('btnRegister');
+    const departmentSelect = document.getElementById('regDepartment');
+    DEPARTMENTS.forEach(department => departmentSelect.add(new Option(department, department)));
 
     // API URL BASE
     const API_URL = 'https://help-desk-pi-iv.onrender.com';
@@ -21,6 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const passwordConfirm = document.getElementById('regPasswordConfirm').value;
 
         registerError.style.display = 'none';
+
+        if (!DEPARTMENTS.includes(department)) {
+            registerError.textContent = 'Selecione um setor válido.';
+            registerError.style.display = 'block';
+            return;
+        }
 
         // Validacao de senhas
         if (password !== passwordConfirm) {

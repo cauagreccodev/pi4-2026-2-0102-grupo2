@@ -7,10 +7,10 @@ const i18n = (() => {
   const translations = {
     // ── Status (strictly matches Neon DB CHECK constraint) ──
     status: {
-      NEW:         'Novo',
-      ASSIGNED:    'Atribuído',
+      NEW:         'Em aberto',
+      ASSIGNED:    'Em atendimento',
       CLOSED:      'Resolvido',
-      UNRESOLVED:  'Não Solucionado'
+      UNRESOLVED:  'Não solucionado'
     },
 
     // ── Priority (strictly matches Neon DB CHECK constraint) ──
@@ -87,7 +87,7 @@ const i18n = (() => {
       thPriority:            'Prioridade',
       thCategory:            'Categoria',
       thRequester:           'Solicitante',
-      thTechnician:          'Técnico',
+      thTechnician:          'Responsável',
       thDate:                'Data',
       thActions:             'Ações',
 
@@ -99,7 +99,7 @@ const i18n = (() => {
       activity:              'Atividade',
       information:           'Informações',
       requester:             'Solicitante',
-      technicianResponsible: 'Técnico Responsável',
+      technicianResponsible: 'Responsável',
       category:              'Categoria',
       createdAt:             'Criado em',
       lastUpdate:            'Última Atualização',
@@ -107,7 +107,7 @@ const i18n = (() => {
       quickActions:          'Ações Rápidas',
       selfAssign:            'Me Atribuir',
       changeStatus:          'Alterar Status...',
-      assignTechnician:      'Atribuir Técnico...',
+      assignTechnician:      'Atribuir responsável...',
       edit:                  'Editar',
       delete:                'Excluir',
       view:                  'Visualizar',
@@ -127,7 +127,13 @@ const i18n = (() => {
       categoryRequired:      'Selecione uma categoria.',
       priorityLabel:         'Prioridade',
       statusLabel:           'Status',
-      technicianLabel:       'Técnico Responsável',
+      technicianLabel:       'Responsável',
+      departmentLabel:       'Setor do responsável',
+      allDepartments:        'Todos os setores',
+      assigneeRequired:      'Selecione uma pessoa do setor escolhido.',
+      noDepartmentUsers:     'Nenhuma pessoa cadastrada neste setor.',
+      initialStatusHint:     'Ao indicar um responsável, o chamado passa para Em atendimento.',
+      responsibleRequired:   'Selecione um responsável para este status.',
       requesterLabel:        'Solicitante',
       cancel:                'Cancelar',
       saveChanges:           'Salvar Alterações',
@@ -143,9 +149,9 @@ const i18n = (() => {
       ticketCreated:         'Chamado criado',
       ticketDeleted:         'Chamado excluído',
       statusChanged:         'Status alterado',
-      techAssigned:          'Técnico atribuído',
+      techAssigned:          'Responsável atribuído',
       noPermission:          'Sem permissão',
-      noPermissionMsg:       'Apenas técnicos e administradores podem se atribuir a chamados.',
+      noPermissionMsg:       'Somente pessoas do departamento de TI podem editar, excluir ou alterar chamados.',
       error:                 'Erro',
 
       // Settings

@@ -16,6 +16,12 @@ const App = (() => {
   let sortDir = 'desc';
   let modalTrigger = null;
 
+  function requireTIPermission() {
+    if (isTIUser()) return true;
+    showToast('error', i18n.t('noPermission'), i18n.t('noPermissionMsg'));
+    return false;
+  }
+
   function showModal(content) {
     modalTrigger = document.activeElement;
     const container = document.getElementById('modalContainer');
@@ -183,6 +189,7 @@ const App = (() => {
 
   // ── CRUD: Update (Edit) ──
   async function editTicket(id) {
+    if (!requireTIPermission()) return;
     try {
       const ticket = await Api.fetchTicketById(id);
       if (!ticket) return;
@@ -196,14 +203,21 @@ const App = (() => {
   // ── CRUD: Save (Create or Update) ──
   async function saveTicket() {
     const id = document.getElementById('ticketId').value;
+    if (id && !requireTIPermission()) return;
+    const saveButton = document.getElementById('saveTicketBtn');
+    if (saveButton.disabled) return;
     const title = document.getElementById('ticketTitle').value.trim();
     const description = document.getElementById('ticketDescription').value.trim();
     const categoryId = document.getElementById('ticketCategory').value;
     const priority = document.getElementById('ticketPriority').value || 'MEDIUM';
 
-    // Conditional fields (only exist for TI users in edit mode)
+    // Assignment is available on creation; only TI can change an existing ticket.
     const statusEl = document.getElementById('ticketStatus');
     const technicianEl = document.getElementById('ticketTechnician');
+    const department = document.getElementById('ticketDepartment').value;
+    const supportId = technicianEl.value ? Number(technicianEl.value) : null;
+    const assignee = supportId ? getUserById(supportId) : null;
+    const status = id ? statusEl.value : (supportId ? 'ASSIGNED' : 'NEW');
 
     // Validation
     let valid = true;
@@ -229,18 +243,33 @@ const App = (() => {
       clearFieldError('ticketCategory', 'errorCategory');
     }
 
+    clearFieldError('ticketTechnician', 'errorTechnician');
+    clearFieldError('ticketStatus', 'errorStatus');
+    if ((department && !supportId) || (supportId && (!assignee || (department && normalizeDepartment(assignee.department) !== department)))) {
+      showFieldError('ticketTechnician', 'errorTechnician', i18n.t('assigneeRequired'));
+      valid = false;
+    }
+    if (!i18n.getStatusList().some(item => item.id === status) || (['ASSIGNED', 'CLOSED'].includes(status) && !supportId)) {
+      showFieldError('ticketStatus', 'errorStatus', i18n.t('responsibleRequired'));
+      valid = false;
+    }
     if (!valid) return;
 
+    saveButton.disabled = true;
     try {
       if (id) {
         // ── UPDATE ──
-        const newStatus = statusEl ? statusEl.value : null;
-        const newSupportId = technicianEl && technicianEl.value ? parseInt(technicianEl.value) : null;
+        const newStatus = status;
+        const newSupportId = supportId;
 
         const changes = [];
         if (newStatus) changes.push(i18n.status(newStatus));
 
         const updatePayload = {
+          title,
+          description,
+          categoryId: Number(categoryId),
+          priority,
           status: newStatus || 'NEW',
           supportId: newSupportId,
           message: `Chamado atualizado por ${CURRENT_USER.name}. Alterações: ${changes.length > 0 ? changes.join(', ') : 'dados gerais'}.`
@@ -257,7 +286,8 @@ const App = (() => {
           title,
           description,
           priority,
-          categoryId: parseInt(categoryId)
+          categoryId: parseInt(categoryId),
+          supportId
         });
 
         await reloadTickets();
@@ -270,18 +300,22 @@ const App = (() => {
       refreshCurrentView();
     } catch (error) {
       console.error('Error saving ticket:', error);
-      showToast('error', i18n.t('error'), i18n.t('saveError'));
+      showToast('error', i18n.t('error'), error.message || i18n.t('saveError'));
+    } finally {
+      saveButton.disabled = false;
     }
   }
 
   // ── CRUD: Delete ──
   function confirmDeleteTicket(id) {
+    if (!requireTIPermission()) return;
     const ticket = tickets.find(t => t.id === id);
     if (!ticket) return;
     showModal(renderDeleteModal(ticket));
   }
 
   async function deleteTicket(id) {
+    if (!requireTIPermission()) return;
     try {
       await Api.deleteTicket(id);
       await reloadTickets();
@@ -303,11 +337,19 @@ const App = (() => {
 
   // ── Quick Actions ──
   async function quickStatusChange(ticketId, newStatus) {
+    if (!requireTIPermission()) return;
     if (!newStatus) return;
+    const ticket = tickets.find(item => item.id === ticketId);
+    if (!ticket || !i18n.getStatusList().some(item => item.id === newStatus)) return;
+    if (['ASSIGNED', 'CLOSED'].includes(newStatus) && !ticket.supportId) {
+      showToast('error', i18n.t('error'), i18n.t('responsibleRequired'));
+      return;
+    }
 
     try {
       await Api.updateTicket(ticketId, {
         status: newStatus,
+        ...(newStatus === 'NEW' ? { supportId: null } : {}),
         message: `Status alterado para "${i18n.status(newStatus)}" por ${CURRENT_USER.name}.`
       });
 
@@ -321,9 +363,11 @@ const App = (() => {
   }
 
   async function quickTechnicianChange(ticketId, technicianId) {
+    if (!requireTIPermission()) return;
     if (!technicianId) return;
 
     const technician = getUserById(parseInt(technicianId));
+    if (!technician) return;
     const techName = technician ? technician.name : 'Técnico';
 
     try {
@@ -334,7 +378,7 @@ const App = (() => {
       await Api.updateTicket(ticketId, {
         status: newStatus,
         supportId: parseInt(technicianId),
-        message: `Chamado atribuído ao técnico ${techName} por ${CURRENT_USER.name}.`
+        message: `Chamado atribuído a ${techName} (${normalizeDepartment(technician.department)}) por ${CURRENT_USER.name}.`
       });
 
       await reloadTickets();
@@ -448,6 +492,27 @@ const App = (() => {
 
   // ── Event Bindings ──
   function bindGlobalEvents() {
+    document.addEventListener('change', (event) => {
+      const form = event.target.closest('#ticketForm');
+      if (!form) return;
+      const department = form.querySelector('#ticketDepartment');
+      const assignee = form.querySelector('#ticketTechnician');
+      const status = form.querySelector('#ticketStatus');
+      if (event.target === department) {
+        assignee.innerHTML = renderAssigneeOptions(department.value);
+      } else if (event.target === assignee && assignee.value) {
+        department.value = normalizeDepartment(getUserById(Number(assignee.value))?.department);
+      } else if (event.target === status && status.value === 'NEW') {
+        department.value = '';
+        assignee.innerHTML = renderAssigneeOptions();
+      }
+      if (event.target === department || event.target === assignee) {
+        if (status.disabled || ['NEW', 'ASSIGNED'].includes(status.value)) {
+          status.value = assignee.value ? 'ASSIGNED' : 'NEW';
+        }
+        clearFieldError('ticketTechnician', 'errorTechnician');
+      }
+    });
     // Mobile & overlay events
     document.addEventListener('click', (e) => {
       // Mobile menu

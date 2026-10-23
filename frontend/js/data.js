@@ -54,9 +54,22 @@ function getCategoryById(id) {
 }
 
 function isTIUser(user = CURRENT_USER) {
-  if (!user || !user.role) return false;
-  const r = String(user.role).toUpperCase();
-  return r === 'ADMIN' || r === 'SUPPORT' || r === 'TECNICO' || user.role === 'admin' || user.role === 'tecnico';
+  return Boolean(user) && normalizeDepartment(user.department || user.departamento) === 'TI';
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[character]));
+}
+
+function getAssignmentDepartments() {
+  return [...new Set([...DEPARTMENTS, ...USERS.map(user => normalizeDepartment(user.department)).filter(Boolean)])];
+}
+
+function getAssignmentUsers(department = '') {
+  return USERS.filter(user => !department || normalizeDepartment(user.department) === department)
+    .slice().sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
 }
 
 // ── Dashboard Statistics (100% computed from real Neon DB data) ──
@@ -178,6 +191,13 @@ async function loadAppData() {
     USERS = Array.isArray(usersData) ? usersData : [];
     CATEGORIES = Array.isArray(categoriesData) ? categoriesData : [];
     notifications = Array.isArray(notificationsData) ? notificationsData : [];
+
+    // Use the current server profile so department changes take effect on reload.
+    const serverUser = USERS.find(user => user.id === CURRENT_USER?.id);
+    if (serverUser) {
+      CURRENT_USER = { ...CURRENT_USER, ...serverUser };
+      window.CURRENT_USER = CURRENT_USER;
+    }
 
     isBackendConnected = true;
     lastSyncTimestamp = new Date();

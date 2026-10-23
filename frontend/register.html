@@ -61,10 +61,12 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="regDepartment">Departamento</label>
+                    <label for="regDepartment">Setor</label>
                     <div class="input-field">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg>
-                        <input type="text" id="regDepartment" autocomplete="organization" placeholder="Ex: Tecnologia da Informação" required />
+                        <select id="regDepartment" required>
+                            <option value="">Selecione seu setor</option>
+                        </select>
                     </div>
                 </div>
                 
@@ -99,6 +101,7 @@
     </div>
 
     <!-- Scripts -->
+    <script src="js/departments.js"></script>
     <script src="js/register.js"></script>
 </body>
 </html>
