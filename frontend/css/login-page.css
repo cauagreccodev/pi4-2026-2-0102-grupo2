@@ -129,10 +129,6 @@
 
 .register-page .login-header p { max-width: 40ch; }
 
-@media (min-width: 641px) and (max-width: 1000px) {
-  .register-page #registerForm { grid-template-columns: minmax(0, 1fr); }
-}
-
 .password-toggle {
   display: grid;
   place-items: center;
@@ -181,4 +177,36 @@
   .login-emblem svg { width: 24px; height: 24px; }
   .login-page .login-header { margin-bottom: 26px; }
   .login-page .auth-caption { margin-top: 28px; }
+}
+
+/* Registration centers the form while retaining the green background detail. */
+.register-page .login-wrapper {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto;
+  align-items: center;
+}
+
+.register-page .login-wave {
+  position: fixed;
+  display: block;
+  width: min(32vw, 520px);
+  height: 100dvh;
+  opacity: 0.45;
+}
+
+.register-page .auth-main {
+  min-height: 100dvh;
+  padding: 40px 24px;
+}
+
+.register-page .login-header h1 {
+  margin-bottom: 10px;
+  font-size: clamp(25px, 2.3vw, 32px);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+
+@media (max-width: 480px) {
+  .register-page .auth-main { padding: 28px 20px; }
+  .register-page .login-wave { width: 40vw; opacity: 0.25; }
 }
