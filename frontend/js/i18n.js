@@ -159,6 +159,8 @@ const i18n = (() => {
       ticketCreated:         'Chamado criado',
       ticketDeleted:         'Chamado excluído',
       statusChanged:         'Status alterado',
+      changesSaved:          'Alteração salva',
+      savedSyncError:        'A alteração foi salva, mas não foi possível sincronizar todos os dados. Atualize a página para confirmar.',
       techAssigned:          'Responsável atribuído',
       noPermission:          'Sem permissão',
       noPermissionMsg:       'Somente pessoas do departamento de TI podem editar, excluir ou alterar chamados.',

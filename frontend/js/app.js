@@ -382,6 +382,16 @@ const App = (() => {
   }
 
   // ── Quick Actions ──
+  async function synchronizeSavedTicket(ticketId, changes) {
+    // The write already succeeded. Preserve it even if the subsequent GET fails.
+    const index = tickets.findIndex(ticket => String(ticket.id) === String(ticketId));
+    if (index >= 0) tickets[index] = { ...tickets[index], ...changes };
+    const synced = await reloadTickets();
+    refreshCurrentView();
+    if (!synced) showToast('warning', i18n.t('changesSaved'), i18n.t('savedSyncError'));
+    return synced;
+  }
+
   async function quickStatusChange(ticketId, newStatus) {
     if (!requireTIPermission()) return;
     if (!newStatus || quickActionPending || !i18n.getStatusList().some(item => item.id === newStatus)) return;
@@ -400,13 +410,16 @@ const App = (() => {
         message: `Status alterado para "${i18n.status(newStatus)}" por ${CURRENT_USER.name}.`
       });
 
-      await Api.fetchTicketById(ticketId);
-      if (!await reloadTickets()) throw new Error(i18n.t('loadError'));
-      showToast('success', i18n.t('statusChanged'), `${i18n.t('tickets')} #${String(ticketId).padStart(4, '0')} agora está "${i18n.status(newStatus)}".`);
-      refreshCurrentView();
+      const synced = await synchronizeSavedTicket(ticketId, {
+        status: newStatus,
+        ...(newStatus === 'NEW' ? { supportId: null } : {})
+      });
+      if (synced) showToast('success', i18n.t('statusChanged'), `${i18n.t('tickets')} #${String(ticketId).padStart(4, '0')} agora está "${i18n.status(newStatus)}".`);
     } catch (error) {
       console.error('Error updating status:', error);
-      showToast('error', i18n.t('error'), i18n.t('saveError'));
+      const select = document.getElementById('quickStatusChange');
+      if (select) select.value = '';
+      showToast('error', i18n.t('error'), error.message || i18n.t('saveError'));
     } finally {
       quickActionPending = false;
       disableQuickActions(false);
@@ -434,13 +447,11 @@ const App = (() => {
         message: `Chamado atribuído a ${techName} (${normalizeDepartment(technician.department)}) por ${CURRENT_USER.name}.`
       });
 
-      await Api.fetchTicketById(ticketId);
-      if (!await reloadTickets()) throw new Error(i18n.t('loadError'));
-      showToast('success', i18n.t('techAssigned'), `${techName} foi atribuído ao chamado #${String(ticketId).padStart(4, '0')}.`);
-      refreshCurrentView();
+      const synced = await synchronizeSavedTicket(ticketId, { status: newStatus, supportId: parseInt(technicianId) });
+      if (synced) showToast('success', i18n.t('techAssigned'), `${techName} foi atribuído ao chamado #${String(ticketId).padStart(4, '0')}.`);
     } catch (error) {
       console.error('Error assigning technician:', error);
-      showToast('error', i18n.t('error'), i18n.t('saveError'));
+      showToast('error', i18n.t('error'), error.message || i18n.t('saveError'));
     } finally {
       quickActionPending = false;
       disableQuickActions(false);
