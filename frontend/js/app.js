@@ -15,6 +15,13 @@ const App = (() => {
   let sortField = 'createdAt';
   let sortDir = 'desc';
   let modalTrigger = null;
+  let quickActionPending = false;
+
+  function disableQuickActions(disabled) {
+    document.querySelectorAll('#quickStatusChange, #quickTechnicianChange').forEach(control => {
+      control.disabled = disabled;
+    });
+  }
 
   function requireTIPermission() {
     if (isTIUser()) return true;
@@ -71,9 +78,17 @@ const App = (() => {
       renderPage(getDashboardTitle(), [i18n.t('home'), escapeHtml(getDashboardTitle())], renderDashboard());
     });
 
-    Router.register('chamados', () => {
+    Router.register('chamados', async () => {
       renderPage(i18n.t('tickets'), [i18n.t('home'), i18n.t('tickets')], renderTicketsList(getFilteredTickets()));
       bindTicketsEvents();
+      const synced = await reloadTickets();
+      if (Router.getCurrentRoute() !== 'chamados') return;
+      if (synced) {
+        updateSidebarBadges();
+        applyFilters();
+      } else {
+        showToast('error', i18n.t('error'), i18n.t('loadError'));
+      }
     });
 
     Router.register('chamado/:id', async (params) => {
@@ -86,10 +101,12 @@ const App = (() => {
 
       try {
         const ticketData = await Api.fetchTicketById(parseInt(params.id));
+        if (Router.getCurrentRoute() !== `chamado/${params.id}`) return;
         const title = ticketData ? `${i18n.t('tickets')} #${String(ticketData.id).padStart(4, '0')}` : i18n.t('tickets');
         renderPage(title, [i18n.t('home'), i18n.t('tickets'), title], renderTicketDetail(ticketData));
       } catch (error) {
         console.error('Error loading ticket:', error);
+        if (Router.getCurrentRoute() !== `chamado/${params.id}`) return;
         renderPage(i18n.t('tickets'), [i18n.t('home'), i18n.t('tickets')], renderTicketDetail(null));
       }
     });
@@ -350,41 +367,48 @@ const App = (() => {
   // ── Quick Actions ──
   async function quickStatusChange(ticketId, newStatus) {
     if (!requireTIPermission()) return;
-    if (!newStatus) return;
-    const ticket = tickets.find(item => item.id === ticketId);
-    if (!ticket || !i18n.getStatusList().some(item => item.id === newStatus)) return;
-    if (['ASSIGNED', 'CLOSED'].includes(newStatus) && !ticket.supportId) {
-      showToast('error', i18n.t('error'), i18n.t('responsibleRequired'));
-      return;
-    }
+    if (!newStatus || quickActionPending || !i18n.getStatusList().some(item => item.id === newStatus)) return;
+    quickActionPending = true;
+    disableQuickActions(true);
 
     try {
+      const ticket = await Api.fetchTicketById(ticketId);
+      if (['ASSIGNED', 'CLOSED'].includes(newStatus) && !ticket.supportId) {
+        showToast('error', i18n.t('error'), i18n.t('responsibleRequired'));
+        return;
+      }
       await Api.updateTicket(ticketId, {
         status: newStatus,
         ...(newStatus === 'NEW' ? { supportId: null } : {}),
         message: `Status alterado para "${i18n.status(newStatus)}" por ${CURRENT_USER.name}.`
       });
 
-      await reloadTickets();
+      await Api.fetchTicketById(ticketId);
+      if (!await reloadTickets()) throw new Error(i18n.t('loadError'));
       showToast('success', i18n.t('statusChanged'), `${i18n.t('tickets')} #${String(ticketId).padStart(4, '0')} agora está "${i18n.status(newStatus)}".`);
       refreshCurrentView();
     } catch (error) {
       console.error('Error updating status:', error);
       showToast('error', i18n.t('error'), i18n.t('saveError'));
+    } finally {
+      quickActionPending = false;
+      disableQuickActions(false);
     }
   }
 
   async function quickTechnicianChange(ticketId, technicianId) {
     if (!requireTIPermission()) return;
-    if (!technicianId) return;
+    if (!technicianId || quickActionPending) return;
 
     const technician = getUserById(parseInt(technicianId));
     if (!technician) return;
     const techName = technician ? technician.name : 'Técnico';
+    quickActionPending = true;
+    disableQuickActions(true);
 
     try {
       // Get current ticket to check status
-      const ticket = tickets.find(t => t.id === ticketId);
+      const ticket = await Api.fetchTicketById(ticketId);
       const newStatus = (ticket && ticket.status === 'NEW') ? 'ASSIGNED' : (ticket ? ticket.status : 'ASSIGNED');
 
       await Api.updateTicket(ticketId, {
@@ -393,12 +417,16 @@ const App = (() => {
         message: `Chamado atribuído a ${techName} (${normalizeDepartment(technician.department)}) por ${CURRENT_USER.name}.`
       });
 
-      await reloadTickets();
+      await Api.fetchTicketById(ticketId);
+      if (!await reloadTickets()) throw new Error(i18n.t('loadError'));
       showToast('success', i18n.t('techAssigned'), `${techName} foi atribuído ao chamado #${String(ticketId).padStart(4, '0')}.`);
       refreshCurrentView();
     } catch (error) {
       console.error('Error assigning technician:', error);
       showToast('error', i18n.t('error'), i18n.t('saveError'));
+    } finally {
+      quickActionPending = false;
+      disableQuickActions(false);
     }
   }
 
@@ -505,6 +533,17 @@ const App = (() => {
 
   // ── Event Bindings ──
   function bindGlobalEvents() {
+    // Refresh when returning to a tab where another session may have changed tickets.
+    document.addEventListener('visibilitychange', async () => {
+      if (document.visibilityState !== 'visible' || quickActionPending || document.querySelector('#modalContainer .modal')) return;
+      const route = Router.getCurrentRoute();
+      if (!route || route === 'configuracoes') return;
+      if (!await reloadTickets() || Router.getCurrentRoute() !== route) return;
+      updateSidebarBadges();
+      updateNotificationBadges();
+      if (route === 'chamados') applyFilters();
+      else Router.resolve();
+    });
     document.addEventListener('change', (event) => {
       const form = event.target.closest('#ticketForm');
       if (!form) return;

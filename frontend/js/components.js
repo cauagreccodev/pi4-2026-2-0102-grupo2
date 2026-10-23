@@ -336,8 +336,7 @@ function renderDashboard() {
               <tbody>
                 ${recentTickets.map(t => {
                   const catName = t.categoryName || (getCategoryById(t.categoryId)?.name) || '-';
-                  const requester = getUserById(t.clientId);
-                  const department = normalizeDepartment(requester?.department || requester?.departamento) || 'Não informado';
+                  const department = getRequesterDepartment(t);
                   return `
                     <tr>
                       <td class="table-cell-id">#${String(t.id).padStart(4, '0')}</td>
@@ -427,6 +426,7 @@ function renderTicketsList(filteredData) {
                 <tr>
                   <th data-sort="id">${i18n.t('thId')} <span class="sort-icon">${Icons.chevronsSort}</span></th>
                   <th data-sort="title">${i18n.t('thTitle')} <span class="sort-icon">${Icons.chevronsSort}</span></th>
+                  <th>${i18n.t('thDepartment')}</th>
                   <th data-sort="status">${i18n.t('thStatus')} <span class="sort-icon">${Icons.chevronsSort}</span></th>
                   <th data-sort="priority">${i18n.t('thPriority')} <span class="sort-icon">${Icons.chevronsSort}</span></th>
                   <th>${i18n.t('thCategory')}</th>
@@ -470,6 +470,7 @@ function renderTicketRow(t) {
       <td class="table-cell-title">
         <a href="#chamado/${t.id}">${t.title}</a>
       </td>
+      <td>${escapeHtml(getRequesterDepartment(t))}</td>
       <td>
         <span class="badge ${i18n.statusClass(t.status)}">
           <span class="badge-dot"></span>
@@ -640,6 +641,7 @@ function renderTicketDetail(ticketData) {
                   <div class="info-item__content">
                     <span class="info-item__label">${i18n.t('requester')}</span>
                     <span class="info-item__value">${clientName}</span>
+                    <small class="assignee-department">${escapeHtml(getRequesterDepartment(ticketData))}</small>
                   </div>
                 </div>
                 <div class="info-item">

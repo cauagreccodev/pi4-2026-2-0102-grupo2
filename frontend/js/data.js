@@ -42,7 +42,13 @@ async function markAllNotificationsAsRead() {
 
 // ── Helpers: Users & Categories ──
 function getUserById(id) {
-  return USERS.find(u => u.id === id) || null;
+  return USERS.find(u => String(u.id) === String(id)) || null;
+}
+
+function getRequesterDepartment(ticket) {
+  const requester = getUserById(ticket.clientId) ||
+    (CURRENT_USER && String(CURRENT_USER.id) === String(ticket.clientId) ? CURRENT_USER : null);
+  return normalizeDepartment(requester?.department || requester?.departamento || ticket.clientDepartment) || 'Não informado';
 }
 
 function getUserByName(name) {
@@ -100,7 +106,7 @@ function escapeHtml(value) {
 }
 
 function getAssignmentDepartments() {
-  return [...new Set([...DEPARTMENTS, ...USERS.map(user => normalizeDepartment(user.department)).filter(Boolean)])];
+  return [...DEPARTMENTS];
 }
 
 function getAssignmentUsers(department = '') {

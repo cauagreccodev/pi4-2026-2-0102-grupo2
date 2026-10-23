@@ -32,6 +32,7 @@ const Api = (() => {
     }
 
     const options = { method, headers };
+    if (method === 'GET') options.cache = 'no-store';
     if (body && (method === 'POST' || method === 'PUT')) {
       options.body = JSON.stringify(body);
     }
@@ -97,6 +98,11 @@ const Api = (() => {
     ticket.timeline = Array.isArray(data.timeline)
       ? data.timeline.map(mapTimelineFromApi)
       : [];
+
+    // Keep list and detail views on the same server snapshot.
+    const index = tickets.findIndex(item => String(item.id) === String(ticket.id));
+    if (index >= 0) tickets[index] = ticket;
+    else tickets.push(ticket);
 
     return ticket;
   }
@@ -202,6 +208,7 @@ const Api = (() => {
       closedAt: apiTicket.closedAt || null,
       // Extra fields from JOINs
       clientName: apiTicket.clientName || null,
+      clientDepartment: apiTicket.clientDepartment || null,
       supportName: apiTicket.supportName || null,
       categoryName: apiTicket.categoryName || null,
       // Timeline (populated separately on detail view)
