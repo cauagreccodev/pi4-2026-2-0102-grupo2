@@ -37,7 +37,12 @@ const Router = (() => {
    * Resolve a rota atual baseada no hash da URL.
    */
   function resolve() {
-    const hash = window.location.hash.slice(1) || 'dashboard';
+    const requested = window.location.hash.slice(1);
+    const home = getHomeRoute();
+    if (!requested || (requested === 'dashboard' && !isTIUser()) || (requested === 'meu-departamento' && isTIUser())) {
+      window.history.replaceState(null, '', `#${home}`);
+    }
+    const hash = window.location.hash.slice(1) || home;
     const parts = hash.split('/');
     
     // Tenta match exato primeiro
@@ -77,7 +82,7 @@ const Router = (() => {
     }
 
     // Rota não encontrada — redireciona para dashboard
-    navigate('#dashboard');
+    navigate(`#${home}`);
   }
 
   /**

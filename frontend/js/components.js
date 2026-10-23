@@ -54,12 +54,12 @@ function renderSidebar() {
         <div class="sidebar__logo-text">Resolve</div>
       </div>
 
-      <div class="sidebar__workspace"><span class="workspace-mark">TI</span><div>Central de suporte<small>Ambiente corporativo</small></div></div>
+      <div class="sidebar__workspace"><span class="workspace-mark">${isTIUser() ? 'TI' : Icons.headphones}</span><div>${escapeHtml(getCurrentDepartment() || i18n.t('noDepartment'))}<small>${isTIUser() ? 'Central de suporte' : i18n.t('departmentDashboard')}</small></div></div>
       <nav class="sidebar__nav" aria-label="Navegação principal">
         <div class="sidebar__section-title">${i18n.t('main')}</div>
-        <a class="sidebar__link active" data-route="dashboard" href="#dashboard">
+        <a class="sidebar__link active" data-route="${getHomeRoute()}" href="#${getHomeRoute()}">
           <span class="sidebar__link-icon">${Icons.layoutDashboard}</span>
-          <span class="sidebar__link-text">${i18n.t('dashboard')}</span>
+          <span class="sidebar__link-text">${isTIUser() ? i18n.t('dashboard') : i18n.t('departmentDashboard')}</span>
         </a>
         <a class="sidebar__link" data-route="chamados" href="#chamados">
           <span class="sidebar__link-icon">${Icons.ticket}</span>
@@ -163,7 +163,8 @@ function renderHeader(breadcrumbs) {
 
 // ── Component: Notifications List ──
 function renderNotificationsList() {
-  if (notifications.length === 0) {
+  const visibleNotifications = getVisibleNotifications();
+  if (visibleNotifications.length === 0) {
     return `<div class="dropdown__empty">
       ${Icons.bell}
       <p>${i18n.t('noNotifications')}</p>
@@ -188,7 +189,7 @@ function renderNotificationsList() {
     resolvido: 'notif--success'
   };
 
-  return notifications
+  return visibleNotifications
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .map(n => `
       <div class="dropdown__notif-item ${n.isRead ? '' : 'dropdown__notif-item--unread'}" data-notif-id="${n.id}" data-chamado-id="${n.ticketId}">
@@ -209,7 +210,7 @@ function renderNotificationsList() {
 // ── View: Dashboard ──
 function renderDashboard() {
   const stats = getDashboardStats();
-  const recentTickets = [...tickets]
+  const recentTickets = getVisibleTickets()
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 5);
 
@@ -221,9 +222,9 @@ function renderDashboard() {
     <div class="page-transition-enter">
       <div class="page-header dashboard-heading">
         <div>
-          <span class="page-eyebrow">CENTRAL DE SUPORTE</span>
-          <h1 class="page-header__title">${i18n.t('dashboard')}</h1>
-          <p class="page-header__subtitle" style="margin-bottom:0">${i18n.t('dashboardSubtitle')}</p>
+          <span class="page-eyebrow">${isTIUser() ? 'CENTRAL DE SUPORTE' : escapeHtml(getCurrentDepartment() || i18n.t('noDepartment'))}</span>
+          <h1 class="page-header__title">${escapeHtml(getDashboardTitle())}</h1>
+          <p class="page-header__subtitle" style="margin-bottom:0">${i18n.t(isTIUser() ? 'dashboardSubtitle' : 'departmentDashboardSubtitle')}</p>
         </div>
         <div class="page-header__actions">
           ${connectionBadge}
@@ -377,7 +378,7 @@ function renderChartBar(label, value, total, color) {
 
 // ── View: Tickets List ──
 function renderTicketsList(filteredData) {
-  const data = filteredData || tickets;
+  const data = getVisibleTickets(filteredData || tickets);
   const statusList = i18n.getStatusList();
   const priorityList = i18n.getPriorityList();
 
@@ -386,7 +387,7 @@ function renderTicketsList(filteredData) {
       <div class="page-header">
         <div>
           <h1 class="page-header__title">${i18n.t('tickets')}</h1>
-          <p class="page-header__subtitle" style="margin-bottom:0">${i18n.t('ticketsSubtitle')}</p>
+          <p class="page-header__subtitle" style="margin-bottom:0">${isTIUser() ? i18n.t('ticketsSubtitle') : `${escapeHtml(getCurrentDepartment() || i18n.t('noDepartment'))} — ${i18n.t('departmentTicketsSubtitle')}`}</p>
         </div>
         <button class="btn btn-primary" id="btnNewTicket">
           ${Icons.plus} ${i18n.t('newTicket')}
@@ -530,7 +531,7 @@ function renderPagination(total) {
 
 // ── View: Ticket Detail ──
 function renderTicketDetail(ticketData) {
-  if (!ticketData) {
+  if (!canViewTicket(ticketData)) {
     return `
       <div class="page-transition-enter" style="text-align:center; padding:var(--space-16);">
         <div style="font-size:48px; margin-bottom:var(--space-4); opacity:0.3;">${Icons.alertCircle}</div>

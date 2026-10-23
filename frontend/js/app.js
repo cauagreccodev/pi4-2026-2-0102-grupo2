@@ -56,7 +56,19 @@ const App = (() => {
 
     // Register routes
     Router.register('dashboard', () => {
+      if (!isTIUser()) {
+        Router.navigate('#meu-departamento');
+        return;
+      }
       renderPage(i18n.t('dashboard'), [i18n.t('home'), i18n.t('dashboard')], renderDashboard());
+    });
+
+    Router.register('meu-departamento', () => {
+      if (isTIUser()) {
+        Router.navigate('#dashboard');
+        return;
+      }
+      renderPage(getDashboardTitle(), [i18n.t('home'), escapeHtml(getDashboardTitle())], renderDashboard());
     });
 
     Router.register('chamados', () => {
@@ -105,7 +117,7 @@ const App = (() => {
 
   // ── Filters & Search ──
   function getFilteredTickets() {
-    let data = [...tickets];
+    let data = getVisibleTickets();
 
     // Search filter
     if (currentFilters.search) {
@@ -469,6 +481,7 @@ const App = (() => {
     showToast('info', 'Sincronizando...', 'Buscando dados atualizados do Neon DB.');
     const ok = await loadAppData();
     if (ok) {
+      document.getElementById('sidebar').outerHTML = renderSidebar();
       refreshCurrentView();
       showToast('success', 'Sincronizado', 'Dados sincronizados com sucesso do banco de dados.');
     } else {

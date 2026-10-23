@@ -53,6 +53,11 @@ const i18n = (() => {
     ui: {
       // Dashboard
       dashboard:              'Visão geral',
+      departmentDashboard:    'Painel do setor',
+      departmentDashboardSubtitle: 'Acompanhe os chamados abertos pelo seu setor ou atribuídos a ele.',
+      departmentTicketsSubtitle: 'Chamados abertos pelo seu setor ou atribuídos a integrantes dele.',
+      noDepartment:           'Sem departamento cadastrado',
+      ticketAccessDenied:     'Você não tem acesso aos chamados de outro departamento.',
       dashboardSubtitle:      'Acompanhe a operação e os próximos atendimentos.',
       totalTickets:           'Total de Chamados',
       openTickets:            'Aguardando Atendimento',
@@ -93,7 +98,7 @@ const i18n = (() => {
 
       // Ticket detail
       ticketNotFound:        'Chamado não encontrado',
-      ticketNotFoundMsg:     'O chamado não existe ou foi removido.',
+      ticketNotFoundMsg:     'O chamado não existe, foi removido ou não está disponível para seu departamento.',
       backToTickets:         'Voltar aos chamados',
       description:           'Descrição',
       activity:              'Atividade',

@@ -17,7 +17,7 @@ let lastSyncTimestamp = null;
 
 // ── Notification Helpers (synced with Neon DB) ──
 function getUnreadNotificationsCount() {
-  return notifications.filter(n => !n.isRead).length;
+  return getVisibleNotifications().filter(n => !n.isRead).length;
 }
 
 async function markNotificationAsRead(id) {
@@ -31,9 +31,9 @@ async function markNotificationAsRead(id) {
 }
 
 async function markAllNotificationsAsRead() {
-  notifications.forEach(n => n.isRead = true);
+  const unread = getVisibleNotifications().filter(n => !n.isRead);
+  unread.forEach(n => n.isRead = true);
   try {
-    const unread = notifications.filter(n => !n.isRead);
     await Promise.all(unread.map(n => Api.markNotificationAsRead(n.id)));
   } catch (err) {
     console.warn('Could not sync all notifications read status to backend:', err);
@@ -57,6 +57,42 @@ function isTIUser(user = CURRENT_USER) {
   return Boolean(user) && normalizeDepartment(user.department || user.departamento) === 'TI';
 }
 
+function getCurrentDepartment() {
+  return normalizeDepartment(CURRENT_USER?.department || CURRENT_USER?.departamento);
+}
+
+function getHomeRoute() {
+  return isTIUser() ? 'dashboard' : 'meu-departamento';
+}
+
+function getDashboardTitle() {
+  return isTIUser() ? i18n.t('dashboard') : `${i18n.t('departmentDashboard')} — ${getCurrentDepartment() || i18n.t('noDepartment')}`;
+}
+
+// A sector can follow requests opened by its members or assigned to its members.
+// Unknown departments never grant access to unrelated tickets.
+function canViewTicket(ticket, user = CURRENT_USER) {
+  if (!ticket || !user) return false;
+  if (isTIUser(user)) return true;
+  const department = normalizeDepartment(user.department || user.departamento);
+  if (!DEPARTMENTS.includes(department)) return false;
+  return [ticket.clientId, ticket.supportId].some(id => {
+    if (!id) return false;
+    const member = String(id) === String(user.id) ? user : getUserById(id);
+    return member && normalizeDepartment(member.department || member.departamento) === department;
+  });
+}
+
+function getVisibleTickets(source = tickets) {
+  return source.filter(ticket => canViewTicket(ticket));
+}
+
+function getVisibleNotifications() {
+  if (isTIUser()) return [...notifications];
+  const visibleIds = new Set(getVisibleTickets().map(ticket => String(ticket.id)));
+  return notifications.filter(notification => notification.ticketId && visibleIds.has(String(notification.ticketId)));
+}
+
 function escapeHtml(value) {
   return String(value ?? '').replace(/[&<>"']/g, character => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -74,6 +110,7 @@ function getAssignmentUsers(department = '') {
 
 // ── Dashboard Statistics (100% computed from real Neon DB data) ──
 function getDashboardStats() {
+  const tickets = getVisibleTickets();
   const total = tickets.length;
 
   // Real Neon DB Status counts (CHECK: status IN ('NEW', 'ASSIGNED', 'CLOSED', 'UNRESOLVED'))

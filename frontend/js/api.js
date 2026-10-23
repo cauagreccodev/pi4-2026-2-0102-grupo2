@@ -88,9 +88,12 @@ const Api = (() => {
    * @returns {Promise<Object>} Ticket with timeline
    */
   async function fetchTicketById(id) {
+    const cached = tickets.find(ticket => String(ticket.id) === String(id));
+    if (cached && !canViewTicket(cached)) throw new Error(i18n.t('ticketAccessDenied'));
     const data = await request('GET', `/api/chamados/${id}`);
 
     const ticket = mapTicketFromApi(data.ticket);
+    if (!canViewTicket(ticket)) throw new Error(i18n.t('ticketAccessDenied'));
     ticket.timeline = Array.isArray(data.timeline)
       ? data.timeline.map(mapTimelineFromApi)
       : [];
