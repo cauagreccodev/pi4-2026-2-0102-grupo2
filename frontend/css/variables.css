@@ -33,14 +33,14 @@
   --gray-950: #030712;
 
   /* ── Status Colors ── */
-  --status-new:         #3566A3;
-  --status-new-bg:      #EFF6FF;
-  --status-assigned:    #276E88;
-  --status-assigned-bg: #F0F9FF;
-  --status-open:        #3566A3;
-  --status-open-bg:     #EFF6FF;
-  --status-progress:    #94600E;
-  --status-progress-bg: #FFFBEB;
+  --status-new:         #B91C1C;
+  --status-new-bg:      #FEF2F2;
+  --status-assigned:    #3566A3;
+  --status-assigned-bg: #EFF6FF;
+  --status-open:        var(--status-new);
+  --status-open-bg:     var(--status-new-bg);
+  --status-progress:    var(--status-assigned);
+  --status-progress-bg: var(--status-assigned-bg);
   --status-pending:     #EF4444;
   --status-pending-bg:  #FEF2F2;
   --status-resolved:    #217453;
@@ -186,10 +186,8 @@
    ============================================ */
 [data-theme="dark"] {
   color-scheme: dark;
-  --status-new: #88B6EC;
-  --status-assigned: #81C8DD;
-  --status-open: #88B6EC;
-  --status-progress: #EBC675;
+  --status-new: #F6A0A0;
+  --status-assigned: #88B6EC;
   --status-pending: #F6A0A0;
   --status-resolved: #79D2A4;
   --status-closed: #B3BEC6;
@@ -244,10 +242,8 @@
   --color-info:          #60A5FA;
   --color-info-bg:       rgba(59, 130, 246, 0.12);
 
-  --status-new-bg:      rgba(59, 130, 246, 0.12);
-  --status-assigned-bg: rgba(14, 165, 233, 0.12);
-  --status-open-bg:     rgba(59, 130, 246, 0.12);
-  --status-progress-bg: rgba(245, 158, 11, 0.12);
+  --status-new-bg:      rgba(239, 68, 68, 0.12);
+  --status-assigned-bg: rgba(59, 130, 246, 0.12);
   --status-pending-bg:  rgba(239, 68, 68, 0.12);
   --status-resolved-bg: rgba(16, 185, 129, 0.12);
   --status-closed-bg:   rgba(107, 114, 128, 0.12);
