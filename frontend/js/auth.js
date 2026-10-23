@@ -7,6 +7,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
     const loginError = document.getElementById('loginError');
     const btnLogin = document.getElementById('btnLogin');
+    const passwordInput = document.getElementById('loginPassword');
+    const passwordToggle = document.getElementById('togglePassword');
+
+    passwordToggle?.addEventListener('click', () => {
+        const showPassword = passwordInput.type === 'password';
+        passwordInput.type = showPassword ? 'text' : 'password';
+        passwordToggle.setAttribute('aria-pressed', String(showPassword));
+        passwordToggle.setAttribute('aria-label', showPassword ? 'Ocultar senha' : 'Mostrar senha');
+    });
 
     // API URL BASE
     const API_URL = 'https://help-desk-pi-iv.onrender.com';

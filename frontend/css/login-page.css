@@ -1,0 +1,178 @@
+/* Reference-inspired login composition, in the HelpDesk green palette. */
+.login-page {
+  --color-text: #F0F6F2;
+  --color-text-secondary: #B4C8BD;
+  --color-primary: #92CDB2;
+  --color-primary-hover: #B0DEC8;
+  --color-primary-light: rgba(146, 205, 178, 0.2);
+  background: #102C25;
+}
+
+.login-page .login-wrapper {
+  grid-template-columns: minmax(0, 44fr) minmax(0, 56fr);
+  align-items: stretch;
+  background: #102C25;
+  isolation: isolate;
+}
+
+.login-welcome {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 48px;
+  width: 100%;
+  padding: 48px clamp(28px, 5vw, 80px);
+}
+
+.login-wave {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(100% + 70px);
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.login-wave__edge { fill: #2D6653; }
+
+.welcome-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.welcome-brand h1 {
+  color: #F0F6F2;
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+
+.welcome-brand > svg { flex-shrink: 0; }
+
+.welcome-message { padding-bottom: 100px; }
+.welcome-message p {
+  margin-bottom: 18px;
+  color: #DAEDE2;
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.welcome-message h2 {
+  margin-bottom: 24px;
+  color: #F0F6F2;
+  font-size: clamp(34px, 4.2vw, 62px);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+}
+
+.welcome-message > span { color: #DAEDE2; font-size: 14px; }
+.welcome-caption { color: #C0DBCD; font-size: 10px; letter-spacing: 0.15em; }
+
+.login-page .auth-main {
+  position: relative;
+  justify-content: center;
+  padding: 100px clamp(32px, 5vw, 80px) 56px;
+}
+
+.login-page-label {
+  position: absolute;
+  top: 36px;
+  right: clamp(32px, 5vw, 80px);
+  padding: 6px 14px;
+  border: 1px solid rgba(146, 205, 178, 0.22);
+  border-radius: 999px;
+  background: rgba(146, 205, 178, 0.06);
+  color: #C9DFD3;
+  font-size: 11px;
+}
+
+.login-page .login-card {
+  max-width: 440px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.login-emblem {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  margin: 0 auto 26px;
+  border: 1px solid #5D9A7F;
+  border-radius: 50%;
+  background: rgba(146, 205, 178, 0.08);
+  color: #A6D9BD;
+}
+
+.login-page .login-header { margin-bottom: 32px; text-align: center; }
+.login-page .login-header h2 { font-size: clamp(25px, 2.3vw, 32px); }
+.login-page .login-header p { max-width: 36ch; margin-inline: auto; font-size: 14px; }
+.login-page form { gap: 24px; }
+.login-page .input-group { gap: 10px; }
+.login-page .input-group label { color: #E4EFE8; font-size: 13px; }
+.login-page .input-field { height: 50px; background: #F8FBF9; border-color: #C9D8D0; color: #20392C; }
+.login-page .input-field input { font-size: 14px; }
+.login-page .input-field input::placeholder { color: #60776A; }
+.login-page .input-field > svg { color: #60776A; }
+.login-page .input-field:focus-within { border-color: #92CDB2; box-shadow: 0 0 0 4px rgba(146, 205, 178, 0.18); }
+.login-page .input-field:focus-within > svg { color: #246957; }
+.login-page .btn-primary { height: 50px; margin-top: 8px; color: #102C25; font-size: 14px; font-weight: 600; }
+.login-page .btn-primary:hover:not(:disabled) { box-shadow: 0 4px 18px rgba(146, 205, 178, 0.15); }
+.login-page .auth-footer { margin-top: 30px; padding-top: 26px; border-color: rgba(146, 205, 178, 0.24); text-align: center; font-size: 13px; }
+.login-page .auth-caption { margin-top: 40px; color: #B4C8BD; }
+
+.password-toggle {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-right: -8px;
+  border-radius: 4px;
+  color: #4F685A;
+  flex-shrink: 0;
+}
+
+.password-toggle:hover { background: #E1EEEA; }
+.login-page .input-field .password-toggle svg { color: currentColor; }
+.password-toggle:focus-visible { outline-color: #246957; }
+.password-toggle .password-toggle__slash { display: none; }
+.password-toggle[aria-pressed="true"] .password-toggle__slash { display: block; }
+
+@media (max-width: 900px) {
+  .login-page .login-wrapper { grid-template-columns: minmax(0, 38fr) minmax(0, 62fr); }
+  .login-welcome { padding-inline: 28px; }
+  .welcome-message { padding-bottom: 60px; }
+  .welcome-message h2 { font-size: 38px; }
+  .welcome-message > span { display: block; max-width: 16ch; line-height: 1.7; }
+  .welcome-caption { max-width: 18ch; line-height: 1.7; }
+  .login-page .auth-main { padding-inline: 32px; }
+}
+
+@media (max-width: 640px) {
+  .login-page .login-wrapper { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; }
+  .login-welcome {
+    padding: 28px 24px 36px;
+    gap: 24px;
+    background: linear-gradient(110deg, #1C5546, #39836F);
+    border-bottom-right-radius: 48px;
+  }
+  .login-wave { display: none; }
+  .welcome-brand h1 { font-size: 23px; }
+  .welcome-message { padding: 0; }
+  .welcome-message p { margin-bottom: 8px; font-size: 13px; }
+  .welcome-message h2 { font-size: 30px; margin: 0; }
+  .welcome-message h2 br { display: none; }
+  .welcome-message > span, .welcome-caption { display: none; }
+  .login-page .auth-main { padding: 32px 24px; }
+  .login-page-label { display: none; }
+  .login-emblem { width: 52px; height: 52px; margin-bottom: 20px; }
+  .login-emblem svg { width: 24px; height: 24px; }
+  .login-page .login-header { margin-bottom: 26px; }
+  .login-page .auth-caption { margin-top: 28px; }
+}
