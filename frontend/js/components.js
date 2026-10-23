@@ -806,7 +806,7 @@ function renderTicketModal(ticket = null) {
   const statusList = i18n.getStatusList();
   const priorityList = i18n.getPriorityList();
 
-  // Creation status follows assignment; subsequent status changes belong to TI.
+  // Creation always starts NEW; opening the detail page as TI starts service.
   const statusTechSection = `
             <div class="form-group">
               <label class="form-label" for="ticketStatus">${i18n.t('statusLabel')}</label>

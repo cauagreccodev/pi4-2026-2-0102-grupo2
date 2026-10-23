@@ -110,8 +110,13 @@ const App = (() => {
       `);
 
       try {
-        const ticketData = await Api.fetchTicketById(parseInt(params.id));
+        let ticketData = await Api.fetchTicketById(parseInt(params.id));
         if (Router.getCurrentRoute() !== `chamado/${params.id}`) return;
+        if (isTIUser() && ticketData.status === 'NEW') {
+          ticketData = await Api.startTicket(ticketData.id);
+          if (Router.getCurrentRoute() !== `chamado/${params.id}`) return;
+          updateSidebarBadges();
+        }
         const title = ticketData ? `${i18n.t('tickets')} #${String(ticketData.id).padStart(4, '0')}` : i18n.t('tickets');
         renderPage(title, [i18n.t('home'), i18n.t('tickets'), title], renderTicketDetail(ticketData));
       } catch (error) {
@@ -258,7 +263,7 @@ const App = (() => {
     const department = document.getElementById('ticketDepartment').value;
     const supportId = technicianEl.value ? Number(technicianEl.value) : null;
     const assignee = supportId ? getUserById(supportId) : null;
-    const status = id ? statusEl.value : (supportId ? 'ASSIGNED' : 'NEW');
+    const status = id ? statusEl.value : 'NEW';
 
     // Validation
     let valid = true;
@@ -421,7 +426,7 @@ const App = (() => {
     try {
       // Get current ticket to check status
       const ticket = await Api.fetchTicketById(ticketId);
-      const newStatus = (ticket && ticket.status === 'NEW') ? 'ASSIGNED' : (ticket ? ticket.status : 'ASSIGNED');
+      const newStatus = ticket.status;
 
       await Api.updateTicket(ticketId, {
         status: newStatus,
@@ -547,17 +552,25 @@ const App = (() => {
 
   // ── Event Bindings ──
   function bindGlobalEvents() {
-    // Refresh when returning to a tab where another session may have changed tickets.
-    document.addEventListener('visibilitychange', async () => {
-      if (document.visibilityState !== 'visible' || quickActionPending || document.querySelector('#modalContainer .modal')) return;
+    // Synchronize the requester and TI sessions without treating list reads as service starts.
+    let syncing = false;
+    async function synchronizeVisiblePage() {
+      if (syncing || document.visibilityState !== 'visible' || quickActionPending || document.querySelector('#modalContainer .modal')) return;
       const route = Router.getCurrentRoute();
       if (!route || route === 'configuracoes') return;
-      if (!await reloadTickets() || Router.getCurrentRoute() !== route) return;
-      updateSidebarBadges();
-      updateNotificationBadges();
-      if (route === 'chamados' || route === 'resolvidos') applyFilters();
-      else Router.resolve();
-    });
+      syncing = true;
+      try {
+        if (!await reloadTickets() || Router.getCurrentRoute() !== route || quickActionPending || document.querySelector('#modalContainer .modal')) return;
+        updateSidebarBadges();
+        updateNotificationBadges();
+        if (route === 'chamados' || route === 'resolvidos') applyFilters();
+        else Router.resolve();
+      } finally {
+        syncing = false;
+      }
+    }
+    document.addEventListener('visibilitychange', synchronizeVisiblePage);
+    setInterval(synchronizeVisiblePage, 15000);
     document.addEventListener('change', (event) => {
       const form = event.target.closest('#ticketForm');
       if (!form) return;
@@ -573,9 +586,7 @@ const App = (() => {
         assignee.innerHTML = renderAssigneeOptions();
       }
       if (event.target === department || event.target === assignee) {
-        if (status.disabled || ['NEW', 'ASSIGNED'].includes(status.value)) {
-          status.value = assignee.value ? 'ASSIGNED' : 'NEW';
-        }
+        if (status.disabled) status.value = 'NEW';
         clearFieldError('ticketTechnician', 'errorTechnician');
       }
     });

@@ -135,6 +135,13 @@ const Api = (() => {
     return await request('PUT', `/api/chamados/${id}`, updateData);
   }
 
+  // Called only when TI opens the detail page, never by background reads or editing.
+  async function startTicket(id) {
+    if (!isTIUser()) throw new Error(i18n.t('noPermissionMsg'));
+    await request('POST', `/api/chamados/${id}/iniciar`);
+    return fetchTicketById(id);
+  }
+
   /**
    * Delete a ticket
    * @param {number} id - Ticket ID
@@ -294,6 +301,7 @@ const Api = (() => {
     fetchTicketById,
     createTicket,
     updateTicket,
+    startTicket,
     deleteTicket,
     fetchUsers,
     fetchCategories,

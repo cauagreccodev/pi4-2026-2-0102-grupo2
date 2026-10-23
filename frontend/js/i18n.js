@@ -142,7 +142,7 @@ const i18n = (() => {
       allDepartments:        'Todos os setores',
       assigneeRequired:      'Selecione uma pessoa do setor escolhido.',
       noDepartmentUsers:     'Nenhuma pessoa cadastrada neste setor.',
-      initialStatusHint:     'Ao indicar um responsável, o chamado passa para Em atendimento.',
+      initialStatusHint:     'O chamado começa Em aberto. O atendimento inicia quando uma pessoa da TI abrir os detalhes.',
       responsibleRequired:   'Selecione um responsável para este status.',
       requesterLabel:        'Solicitante',
       cancel:                'Cancelar',
