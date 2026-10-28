@@ -5,7 +5,6 @@ import com.helpdesk.api.handler.CategoryHandler;
 import com.helpdesk.api.handler.HealthHandler;
 import com.helpdesk.api.handler.LoginHandler;
 import com.helpdesk.api.handler.NotificationHandler;
-import com.helpdesk.api.handler.StatsHandler;
 import com.helpdesk.api.handler.TicketHandler;
 import com.helpdesk.api.handler.UserHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -49,10 +48,6 @@ public class Main {
             server.createContext("/chamados", new TicketHandler());
             server.createContext("/api/notificacoes", new NotificationHandler());
             server.createContext("/notificacoes", new NotificationHandler());
-
-            // Estatísticas (requer autenticação)
-            server.createContext("/api/stats", new StatsHandler());
-            server.createContext("/stats", new StatsHandler());
 
             // Executa com um thread pool para lidar com múltiplas requisições simultâneas
             server.setExecutor(Executors.newFixedThreadPool(10));

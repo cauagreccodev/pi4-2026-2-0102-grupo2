@@ -43,6 +43,34 @@ public class CategoryDao {
         return categories;
     }
 
+    public Category insert(Category category) {
+        String sql = "INSERT INTO categories (name, icon, description, is_active) VALUES (?, ?, ?, ?) RETURNING *";
+        Connection conn = null;
+        try {
+            conn = Database.getConnection();
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, category.getName());
+                stmt.setString(2, category.getIcon());
+                stmt.setString(3, category.getDescription());
+                stmt.setBoolean(4, category.isActive());
+
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        return mapResultSetToCategory(rs);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao inserir categoria: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                Database.releaseConnection(conn);
+            }
+        }
+        return null;
+    }
+
     public Category findById(int id) {
         String sql = "SELECT * FROM categories WHERE id = ?";
         Connection conn = null;
