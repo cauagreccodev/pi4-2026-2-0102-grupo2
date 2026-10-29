@@ -8,8 +8,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 /**
- * Gerenciador de conexões JDBC para o PostgreSQL em nuvem no Neon.tech.
- * Compatível com as mesmas variáveis de ambiente da Backend API no Render:
+ * Gerenciador de conexoes JDBC para o PostgreSQL em nuvem no Neon.tech.
+ * Compativel com as mesmas variaveis de ambiente da Backend API no Render:
  * DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD (ou DB_URL / DATABASE_URL).
  */
 public class Database {
@@ -28,13 +28,13 @@ public class Database {
             Class.forName("org.postgresql.Driver");
             driverLoaded = true;
         } catch (ClassNotFoundException e) {
-            System.err.println("[DB] Driver PostgreSQL não encontrado em lib/postgresql.jar: " + e.getMessage());
+            System.err.println("[DB] Driver PostgreSQL nao encontrado em lib/postgresql.jar: " + e.getMessage());
         }
     }
 
     /**
      * Monta a URL JDBC do Neon.tech a partir de DB_URL ou de DB_HOST/DB_PORT/DB_NAME,
-     * garantindo sslmode=require para conexões em nuvem.
+     * garantindo sslmode=require para conexoes em nuvem.
      */
     private static String resolveJdbcUrl() {
         String explicitUrl = getEnv("DB_URL", getEnv("DATABASE_URL", null));
@@ -57,7 +57,7 @@ public class Database {
 
         if (host == null || host.isBlank()) {
             throw new IllegalStateException(
-                    "Variáveis do Neon DB ausentes! Configure DB_URL ou (DB_HOST, DB_NAME, DB_USER, DB_PASSWORD).");
+                    "Variaveis do Neon DB ausentes! Configure DB_URL ou (DB_HOST, DB_NAME, DB_USER, DB_PASSWORD).");
         }
 
         return "jdbc:postgresql://" + host.trim() + ":" + port.trim() + "/" + dbName.trim() + "?sslmode=require";
@@ -69,7 +69,7 @@ public class Database {
         if (!pool.offer(testConn)) {
             testConn.close();
         }
-        System.out.println("  [DB - Neon.tech] Conexão TLS validada com sucesso!");
+        System.out.println("  [DB - Neon.tech] Conexao TLS validada com sucesso!");
     }
 
     private static Connection createNewConnection() throws SQLException {
@@ -92,9 +92,9 @@ public class Database {
     }
 
     /**
-     * Obtém uma conexão ativa com o Neon.
-     * Como o Neon Serverless hiberna conexões inativas, valida com isValid(3)
-     * e abre uma nova caso a conexão tenha sido encerrada pelo pooler do Neon.
+     * Obtem uma conexao ativa com o Neon.
+     * Como o Neon Serverless hiberna conexoes inativas, valida com isValid(3)
+     * e abre uma nova caso a conexao tenha sido encerrada pelo pooler do Neon.
      */
     public static Connection getConnection() throws SQLException {
         Connection conn = pool.poll();
@@ -121,7 +121,7 @@ public class Database {
                     }
                 }
             } catch (SQLException e) {
-                System.err.println("[DB] Erro ao devolver conexão ao pool: " + e.getMessage());
+                System.err.println("[DB] Erro ao devolver conexao ao pool: " + e.getMessage());
             }
         }
     }

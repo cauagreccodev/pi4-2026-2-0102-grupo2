@@ -1,18 +1,19 @@
 package com.helpdesk.socket;
 
-import com.helpdesk.socket.util.WebSocketUtil;
+import com.helpdesk.socket.config.Database;
+import com.helpdesk.socket.dao.UserDao;
+import com.helpdesk.socket.server.ServerState;
+import com.helpdesk.socket.server.WebSocketClientHandler;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Entry point do Servidor WebSocket (Help Desk PI IV — Render + Neon Cloud).
- * Etapa 1: Aceitadora de conexões testando as rotas HTTP (/health, /) e o Handshake WebSocket (RFC 6455).
+ * Entry point do Servidor WebSocket (Help Desk PI IV - Render + Neon Cloud).
+ * Escuta na porta PORT (injetada pelo Render, ou 5000 por padrao) falando o protocolo WebSocket (RFC 6455).
  */
 public class Main {
 
@@ -21,52 +22,34 @@ public class Main {
                 "PORT", System.getenv().getOrDefault("WS_PORT", "5000")));
 
         System.out.println("==========================================================");
-        System.out.println("  Help Desk — WebSocket Server (Etapa 1: HTTP + WS Test)  ");
+        System.out.println("  Help Desk - WebSocket Server (Render + Neon.tech Cloud) ");
         System.out.println("==========================================================");
 
+        // 1. Valida a conexao TLS inicial com o Neon.tech (sem derrubar o boot caso o Neon esteja acordando do idle)
+        try {
+            Database.init();
+        } catch (Exception e) {
+            System.err.println("  [Aviso Neon DB] Nao foi possivel validar no boot imediato ("
+                    + e.getMessage() + "). Tentara conectar sob demanda no CT19.");
+        }
+
+        // 2. Inicializa estado concorrente e workers (ADR 0001)
+        ServerState.getInstance();
+        UserDao userDao = new UserDao();
         ExecutorService connectionPool = Executors.newCachedThreadPool();
 
+        // 3. Inicia o Servidor WebSocket na porta publica (CT19, CT18 e CT22)
         try (ServerSocket wsServerSocket = new ServerSocket(wsPort)) {
-            System.out.println("  [Servidor Ativo] Escutando na porta " + wsPort);
-            System.out.println("  -> Teste HTTP:      http://localhost:" + wsPort + "/health");
-            System.out.println("  -> Teste WebSocket: ws://localhost:" + wsPort + "/ws");
+            System.out.println("  [WebSocket Server] Escutando conexoes ws:// e wss:// na porta " + wsPort);
             System.out.println("==========================================================");
 
             while (!Thread.currentThread().isInterrupted()) {
                 Socket clientSocket = wsServerSocket.accept();
-                connectionPool.submit(() -> handleConnection(clientSocket));
+                connectionPool.submit(new WebSocketClientHandler(clientSocket, userDao));
             }
         } catch (IOException e) {
-            System.err.println("[Main] Erro fatal no ServerSocket (" + wsPort + "): " + e.getMessage());
+            System.err.println("[Main] Erro fatal no ServerSocket WebSocket (" + wsPort + "): " + e.getMessage());
             System.exit(1);
-        }
-    }
-
-    private static void handleConnection(Socket socket) {
-        try (socket) {
-            socket.setSoTimeout(15_000);
-            InputStream in = socket.getInputStream();
-            OutputStream out = socket.getOutputStream();
-
-            // Faz o Handshake WebSocket (ou responde 200 OK se for GET /health ou GET /)
-            boolean isWebSocket = WebSocketUtil.performHandshake(in, out);
-            if (!isWebSocket) {
-                System.out.println("[HTTP] Health Check / Keep-Alive respondido com 200 OK.");
-                return;
-            }
-
-            System.out.println("[WebSocket] Handshake 101 concluído! Cliente conectado: " + socket.getRemoteSocketAddress());
-            socket.setSoTimeout(0);
-
-            // Lê frames WebSocket enviados pelo navegador para testarmos a comunicação na Etapa 1
-            String frame;
-            while ((frame = WebSocketUtil.readTextFrame(in, out)) != null) {
-                System.out.println("[WebSocket] Mensagem recebida: " + frame);
-                WebSocketUtil.writeTextFrame(out, "{\"type\":\"echoTesteEtapa1\",\"recebido\":" + frame + "}");
-            }
-            System.out.println("[WebSocket] Cliente desconectou.");
-        } catch (IOException e) {
-            System.err.println("[WebSocket] Conexão encerrada: " + e.getMessage());
         }
     }
 }
