@@ -46,7 +46,7 @@ public class WebSocketUtil {
         if (wsKey == null) {
             // Health Check / Keep-Alive do Render (GET /health, GET /api/health, GET /, HEAD /)
             boolean isHead = requestLine.startsWith("HEAD ");
-            String body = "{\"status\":\"UP\",\"service\":\"backend-socket\",\"protocol\":\"websocket\",\"version\":\"v0.4.3\",\"frontend\":\"https://help-desk-pi-iv.vercel.app\"}";
+            String body = "{\"status\":\"UP\",\"service\":\"backend-socket\",\"protocol\":\"websocket\",\"version\":\"v0.5.0\",\"frontend\":\"https://help-desk-pi-iv.vercel.app\"}";
             byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
             String httpResponse = "HTTP/1.1 200 OK\r\n"
                     + "Content-Type: application/json; charset=utf-8\r\n"
