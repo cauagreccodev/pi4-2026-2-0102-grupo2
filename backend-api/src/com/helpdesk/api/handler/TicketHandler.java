@@ -4,6 +4,7 @@ import com.helpdesk.api.dao.TicketDao;
 import com.helpdesk.api.dao.TicketTimelineDao;
 import com.helpdesk.api.model.Ticket;
 import com.helpdesk.api.model.TicketTimeline;
+import com.helpdesk.api.socket.SocketEventPublisher;
 import com.helpdesk.api.util.AuthUtil;
 import com.helpdesk.api.util.HttpHelper;
 import com.helpdesk.api.util.JsonUtil;
@@ -74,6 +75,9 @@ public class TicketHandler implements HttpHandler {
                     tl.setMessage("Chamado criado com prioridade " + created.getPriority());
                     timelineDao.insert(tl);
 
+                    // CT18: avisa o socket que um chamado foi criado
+                    SocketEventPublisher.publishTicketChanged("CREATION", created.getId(), created.getStatus(), tl.getMessage());
+
                     HttpHelper.sendJson(exchange, 201, created);
                 } else {
                     HttpHelper.sendError(exchange, 500, "Erro ao criar chamado");
@@ -126,6 +130,9 @@ public class TicketHandler implements HttpHandler {
                         tl.setMessage(message);
                         timelineDao.insert(tl);
 
+                        // CT18: avisa o socket que o chamado mudou
+                        SocketEventPublisher.publishTicketChanged("STATUS_CHANGE", ticketId, newStatus, message);
+
                         HttpHelper.sendJson(exchange, 200, "{\"success\": true}");
                     } else {
                         HttpHelper.sendError(exchange, 404, "Chamado não encontrado");
@@ -134,6 +141,8 @@ public class TicketHandler implements HttpHandler {
                     // Deletar chamado
                     boolean deleted = ticketDao.deleteById(ticketId);
                     if (deleted) {
+                        // CT18: avisa o socket que o chamado foi excluído
+                        SocketEventPublisher.publishTicketChanged("DELETION", ticketId, null, "Chamado #" + ticketId + " excluído");
                         HttpHelper.sendJson(exchange, 200, "{\"success\": true}");
                     } else {
                         HttpHelper.sendError(exchange, 404, "Chamado não encontrado");
