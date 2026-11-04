@@ -135,6 +135,7 @@ const App = (() => {
 
     // Start router
     Router.init();
+    if (typeof TicketSocket !== 'undefined') TicketSocket.connect();
   }
 
   // ── Page Rendering ──
@@ -529,6 +530,40 @@ const App = (() => {
     }
   }
 
+  // Atualiza a tela após eventos do socket sem reabrir rotas que iniciam atendimento.
+  function renderLiveViews() {
+    updateSidebarBadges();
+    updateNotificationBadges();
+    const route = Router.getCurrentRoute() || '';
+    const page = document.getElementById('pageContent');
+    if (!page || quickActionPending) return;
+    if (route === 'dashboard' || route === 'meu-departamento') page.innerHTML = renderDashboard();
+    else if (route === 'chamados' || route === 'resolvidos') applyFilters();
+    else if (route.startsWith('chamado/')) {
+      const ticket = tickets.find(item => String(item.id) === route.split('/')[1]);
+      page.innerHTML = renderTicketDetail(ticket && canViewTicket(ticket) ? ticket : null);
+    }
+  }
+
+  // Consulta a API para obter o chamado completo e aplicar suas regras de visibilidade.
+  let socketSyncPending = false;
+  let socketSyncAgain = false;
+  async function handleTicketUpdated(data) {
+    if (!data || !['CREATED', 'UPDATED'].includes(data.action) ||
+        !Number.isInteger(data.ticketId) || data.ticketId <= 0) return;
+    socketSyncAgain = true;
+    if (socketSyncPending) return;
+    socketSyncPending = true;
+    try {
+      do {
+        socketSyncAgain = false;
+        if (await reloadTickets()) renderLiveViews();
+      } while (socketSyncAgain);
+    } finally {
+      socketSyncPending = false;
+    }
+  }
+
   function refreshCurrentView() {
     updateSidebarBadges();
     updateNotificationBadges();
@@ -735,6 +770,7 @@ const App = (() => {
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
       logoutBtn.addEventListener('click', () => {
+        if (typeof TicketSocket !== 'undefined') TicketSocket.disconnect();
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         window.location.href = 'login.html';
@@ -839,6 +875,8 @@ const App = (() => {
     quickStatusChange,
     quickTechnicianChange,
     selfAssignTicket,
+    handleTicketUpdated,
+    renderLiveViews,
     refreshData,
     updateSidebarBadges
   };
