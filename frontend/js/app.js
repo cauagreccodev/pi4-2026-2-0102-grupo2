@@ -291,11 +291,11 @@ const App = (() => {
     const categoryId = document.getElementById('ticketCategory').value;
     const priority = document.getElementById('ticketPriority').value || 'MEDIUM';
 
-    // Assignment is available on creation; only TI can change an existing ticket.
+    // New tickets are unassigned; TI manages assignment during service.
     const statusEl = document.getElementById('ticketStatus');
     const technicianEl = document.getElementById('ticketTechnician');
-    const department = document.getElementById('ticketDepartment').value;
-    const supportId = technicianEl.value ? Number(technicianEl.value) : null;
+    const department = id ? document.getElementById('ticketDepartment').value : '';
+    const supportId = id && technicianEl?.value ? Number(technicianEl.value) : null;
     const assignee = supportId ? getUserById(supportId) : null;
     const status = id ? statusEl.value : 'NEW';
 
@@ -366,8 +366,7 @@ const App = (() => {
           title,
           description,
           priority,
-          categoryId: parseInt(categoryId),
-          supportId
+          categoryId: parseInt(categoryId)
         });
 
         await reloadTickets();
@@ -659,6 +658,7 @@ const App = (() => {
       const department = form.querySelector('#ticketDepartment');
       const assignee = form.querySelector('#ticketTechnician');
       const status = form.querySelector('#ticketStatus');
+      if (!department || !assignee) return;
       if (event.target === department) {
         assignee.innerHTML = renderAssigneeOptions(department.value);
       } else if (event.target === assignee && assignee.value) {

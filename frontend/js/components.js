@@ -811,7 +811,7 @@ function renderTicketModal(ticket = null) {
               ${isEdit ? '' : `<p class="form-hint" id="initialStatusHint">${i18n.t('initialStatusHint')}</p>`}
               <span class="form-error" id="errorStatus"></span>
             </div>
-            <div class="form-row">
+            ${isEdit ? `<div class="form-row">
               <div class="form-group">
                 <label class="form-label" for="ticketDepartment">${i18n.t('departmentLabel')}</label>
                 <select class="form-select" id="ticketDepartment">
@@ -826,7 +826,7 @@ function renderTicketModal(ticket = null) {
                 </select>
                 <span class="form-error" id="errorTechnician"></span>
               </div>
-            </div>
+            </div>` : ''}
   `;
 
   // The requester is immutable and comes from the authenticated session on create.
