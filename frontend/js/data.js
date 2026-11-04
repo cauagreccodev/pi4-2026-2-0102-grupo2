@@ -10,6 +10,50 @@ let USERS = [];
 let CATEGORIES = [];
 let CURRENT_USER = null;
 let notifications = [];
+let ticketAlerts = [];
+let seenTicketIds = new Set();
+let ticketAlertsUser = null;
+
+function saveTicketAlerts() {
+  try {
+    localStorage.setItem(`helpdesk-ticket-alerts:${CURRENT_USER.id}`, JSON.stringify({
+      seen: [...seenTicketIds], items: ticketAlerts
+    }));
+  } catch { /* Notifications still work when browser storage is unavailable. */ }
+}
+
+function syncTicketAlerts(announce = true) {
+  if (!isTIUser()) {
+    ticketAlerts = [];
+    ticketAlertsUser = null;
+    return;
+  }
+  if (ticketAlertsUser !== String(CURRENT_USER.id)) {
+    ticketAlertsUser = String(CURRENT_USER.id);
+    let saved;
+    try { saved = JSON.parse(localStorage.getItem(`helpdesk-ticket-alerts:${CURRENT_USER.id}`)); } catch {}
+    ticketAlerts = Array.isArray(saved?.items) ? saved.items : [];
+    seenTicketIds = new Set(Array.isArray(saved?.seen) ? saved.seen.map(String) : tickets.map(t => String(t.id)));
+  }
+  const added = [];
+  for (const ticket of tickets) {
+    const id = String(ticket.id);
+    if (seenTicketIds.has(id)) continue;
+    seenTicketIds.add(id);
+    const department = getRequesterDepartment(ticket);
+    if (department === 'TI') continue;
+    const alert = {
+      id: `ticket-opened:${id}`, ticketId: ticket.id, type: 'chamado_novo',
+      title: `Chamado aberto (${department})`, message: `#${id} — ${String(ticket.title || '').slice(0, 160)}`,
+      createdAt: ticket.createdAt || new Date().toISOString(), isRead: false, local: true
+    };
+    ticketAlerts.unshift(alert);
+    added.push(alert);
+  }
+  ticketAlerts = ticketAlerts.slice(0, 100);
+  saveTicketAlerts();
+  if (announce && added.length && typeof App !== 'undefined') App.notifyNewTickets(added);
+}
 
 // ── Connection & Synchronization State ──
 let isBackendConnected = false;
@@ -21,7 +65,13 @@ function getUnreadNotificationsCount() {
 }
 
 async function markNotificationAsRead(id) {
-  const notif = notifications.find(n => n.id === id);
+  const alert = ticketAlerts.find(n => String(n.id) === String(id));
+  if (alert) {
+    alert.isRead = true;
+    saveTicketAlerts();
+    return;
+  }
+  const notif = notifications.find(n => String(n.id) === String(id));
   if (notif) notif.isRead = true;
   try {
     await Api.markNotificationAsRead(id);
@@ -33,8 +83,9 @@ async function markNotificationAsRead(id) {
 async function markAllNotificationsAsRead() {
   const unread = getVisibleNotifications().filter(n => !n.isRead);
   unread.forEach(n => n.isRead = true);
+  saveTicketAlerts();
   try {
-    await Promise.all(unread.map(n => Api.markNotificationAsRead(n.id)));
+    await Promise.all(unread.filter(n => !n.local).map(n => Api.markNotificationAsRead(n.id)));
   } catch (err) {
     console.warn('Could not sync all notifications read status to backend:', err);
   }
@@ -94,7 +145,14 @@ function getVisibleTickets(source = tickets) {
 }
 
 function getVisibleNotifications() {
-  if (isTIUser()) return [...notifications];
+  if (isTIUser()) {
+    const localIds = new Set(ticketAlerts.map(n => String(n.ticketId)));
+    return [...ticketAlerts, ...notifications.filter(n => {
+      if (n.type !== 'chamado_novo') return true;
+      const ticket = tickets.find(t => String(t.id) === String(n.ticketId));
+      return !localIds.has(String(n.ticketId)) && ticket && getRequesterDepartment(ticket) !== 'TI';
+    })];
+  }
   const visibleIds = new Set(getVisibleTickets().map(ticket => String(ticket.id)));
   return notifications.filter(notification => notification.ticketId && visibleIds.has(String(notification.ticketId)));
 }
@@ -241,6 +299,7 @@ async function loadAppData() {
       CURRENT_USER = { ...CURRENT_USER, ...serverUser };
       window.CURRENT_USER = CURRENT_USER;
     }
+    syncTicketAlerts(false);
 
     isBackendConnected = true;
     lastSyncTimestamp = new Date();
@@ -265,6 +324,8 @@ async function reloadTickets() {
 
     tickets = Array.isArray(ticketsData) ? ticketsData : [];
     notifications = Array.isArray(notificationsData) ? notificationsData : [];
+
+    syncTicketAlerts();
 
     isBackendConnected = true;
     lastSyncTimestamp = new Date();

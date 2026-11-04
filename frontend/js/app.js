@@ -23,6 +23,39 @@ const App = (() => {
   let sortDir = 'desc';
   let modalTrigger = null;
   let quickActionPending = false;
+  let notificationAudio = null;
+
+  async function enableNotificationAudio() {
+    if (!isTIUser()) return;
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    try {
+      notificationAudio ||= new AudioContext();
+      if (notificationAudio.state === 'suspended') await notificationAudio.resume();
+    } catch { /* Visual alerts remain available if audio is blocked. */ }
+  }
+
+  function notifyNewTickets(alerts) {
+    if (!isTIUser()) return;
+    alerts.forEach(alert => showToast('info', escapeHtml(alert.title), escapeHtml(alert.message)));
+    if (notificationAudio?.state !== 'running') return;
+    try {
+      const start = notificationAudio.currentTime;
+      [660, 880].forEach((frequency, index) => {
+        const oscillator = notificationAudio.createOscillator();
+        const gain = notificationAudio.createGain();
+        const time = start + index * 0.18;
+        oscillator.frequency.value = frequency;
+        gain.gain.setValueAtTime(0, time);
+        gain.gain.linearRampToValueAtTime(0.12, time + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.16);
+        oscillator.connect(gain);
+        gain.connect(notificationAudio.destination);
+        oscillator.start(time);
+        oscillator.stop(time + 0.18);
+      });
+    } catch { /* Audio must never interrupt synchronization. */ }
+  }
 
   function disableQuickActions(disabled) {
     document.querySelectorAll('#quickStatusChange, #quickTechnicianChange').forEach(control => {
@@ -522,10 +555,11 @@ const App = (() => {
     }
     const markAllBtn = document.getElementById('markAllReadBtn');
     if (markAllBtn) {
+      markAllBtn.disabled = unreadCount === 0;
       if (unreadCount > 0) {
         markAllBtn.textContent = `${unreadCount} ${unreadCount > 1 ? i18n.t('unreads') : i18n.t('unread')} — ${i18n.t('markAll')}`;
       } else {
-        markAllBtn.outerHTML = `<span class="dropdown__action-muted">${i18n.t('allRead')}</span>`;
+        markAllBtn.textContent = i18n.t('allRead');
       }
     }
   }
@@ -598,19 +632,21 @@ const App = (() => {
 
   // ── Event Bindings ──
   function bindGlobalEvents() {
+    document.addEventListener('pointerdown', enableNotificationAudio);
+    document.addEventListener('keydown', enableNotificationAudio);
     // Synchronize the requester and TI sessions without treating list reads as service starts.
     let syncing = false;
     async function synchronizeVisiblePage() {
       if (syncing || document.visibilityState !== 'visible' || quickActionPending || document.querySelector('#modalContainer .modal')) return;
       const route = Router.getCurrentRoute();
-      if (!route || route === 'configuracoes') return;
+      if (!route) return;
       syncing = true;
       try {
         if (!await reloadTickets() || Router.getCurrentRoute() !== route || quickActionPending || document.querySelector('#modalContainer .modal')) return;
         updateSidebarBadges();
         updateNotificationBadges();
         if (route === 'chamados' || route === 'resolvidos') applyFilters();
-        else Router.resolve();
+        else if (route !== 'configuracoes') Router.resolve();
       } finally {
         syncing = false;
       }
@@ -638,6 +674,14 @@ const App = (() => {
     });
     // Mobile & overlay events
     document.addEventListener('click', (e) => {
+      const notification = e.target.closest('.dropdown__notif-item[data-chamado-id]');
+      if (notification) {
+        markNotificationAsRead(notification.getAttribute('data-notif-id'));
+        updateNotificationBadges();
+        document.querySelectorAll('.header__dropdown.open').forEach(d => d.classList.remove('open'));
+        Router.navigate(`#chamado/${notification.getAttribute('data-chamado-id')}`);
+        return;
+      }
       // Mobile menu
       const menuBtn = e.target.closest('#mobileMenuBtn');
       if (menuBtn) {
@@ -746,16 +790,6 @@ const App = (() => {
       });
     }
 
-    // Notification items — navigate to ticket
-    document.querySelectorAll('.dropdown__notif-item[data-chamado-id]').forEach(item => {
-      item.addEventListener('click', () => {
-        const ticketId = item.getAttribute('data-chamado-id');
-        const notifId = item.getAttribute('data-notif-id');
-        if (notifId) markNotificationAsRead(parseInt(notifId));
-        closeAllDropdowns();
-        if (ticketId) Router.navigate(`#chamado/${ticketId}`);
-      });
-    });
 
     // Profile menu items
     const profileGoSettings = document.getElementById('profileGoSettings');
@@ -876,6 +910,7 @@ const App = (() => {
     quickTechnicianChange,
     selfAssignTicket,
     handleTicketUpdated,
+    notifyNewTickets,
     renderLiveViews,
     refreshData,
     updateSidebarBadges

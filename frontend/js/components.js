@@ -122,7 +122,7 @@ function renderHeader(breadcrumbs) {
           <div class="header__dropdown header__dropdown--notifications" id="notificationsDropdown">
             <div class="dropdown__header">
               <h3 class="dropdown__title">${i18n.t('notifications')}</h3>
-              ${unreadCount > 0 ? `<button class="dropdown__action" id="markAllReadBtn">${unreadCount} ${unreadCount > 1 ? i18n.t('unreads') : i18n.t('unread')} — ${i18n.t('markAll')}</button>` : `<span class="dropdown__action-muted">${i18n.t('allRead')}</span>`}
+              <button class="dropdown__action" id="markAllReadBtn" ${unreadCount ? '' : 'disabled'}>${unreadCount > 0 ? `${unreadCount} ${unreadCount > 1 ? i18n.t('unreads') : i18n.t('unread')} — ${i18n.t('markAll')}` : i18n.t('allRead')}</button>
             </div>
             <div class="dropdown__list" id="notificationsList">
               ${renderNotificationsList()}
@@ -197,8 +197,8 @@ function renderNotificationsList() {
           ${notifIconMap[n.type] || Icons.bell}
         </div>
         <div class="dropdown__notif-content">
-          <div class="dropdown__notif-title">${n.title}</div>
-          <p class="dropdown__notif-message">${n.message}</p>
+          <div class="dropdown__notif-title">${escapeHtml(n.title)}</div>
+          <p class="dropdown__notif-message">${escapeHtml(n.message)}</p>
           <span class="dropdown__notif-time">${formatTimeAgo(n.createdAt)}</span>
         </div>
         ${!n.isRead ? '<div class="dropdown__notif-unread-dot"></div>' : ''}
