@@ -66,11 +66,6 @@ function renderSidebar() {
           <span class="sidebar__link-text">${i18n.t('tickets')}</span>
           <span class="sidebar__link-badge" id="sidebarTicketCount">${stats.total}</span>
         </a>
-        <a class="sidebar__link" data-route="resolvidos" href="#resolvidos">
-          <span class="sidebar__link-icon">${Icons.checkCircle}</span>
-          <span class="sidebar__link-text">${i18n.t('resolvedTickets')}</span>
-          <span class="sidebar__link-badge" id="sidebarResolvedCount">${stats.closed}</span>
-        </a>
         
         <div class="sidebar__section-title">${i18n.t('system')}</div>
         <a class="sidebar__link" data-route="configuracoes" href="#configuracoes">
