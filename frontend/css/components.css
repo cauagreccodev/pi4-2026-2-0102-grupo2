@@ -594,29 +594,22 @@
 .table-toolbar__filters {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
+  gap: var(--space-2);
+  flex-wrap: nowrap;
 }
 
 .table-toolbar__search {
   position: relative;
 }
 
-.table-toolbar__extra-filters {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  width: 100%;
-}
-
 .table-toolbar__date {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-shrink: 0;
   gap: var(--space-2);
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
+  white-space: nowrap;
 }
 
 .filter-select.filter-date {
@@ -1649,7 +1642,9 @@
 .table-container, .detail-card, .settings-card,
 .ticket-detail__main, .ticket-detail__sidebar { min-width: 0; }
 .table-toolbar__filters { width: 100%; }
-.table-toolbar__search { flex: 1 1 240px; }
+.table-toolbar__search { flex: 0 1 200px; min-width: 180px; }
+.table-toolbar__filters > .filter-select { flex: 1 1 130px; min-width: 110px; max-width: 190px; }
+.table-toolbar__filters > .btn { flex-shrink: 0; white-space: nowrap; padding-inline: var(--space-2); }
 .table-toolbar__search-input { width: 100%; min-height: 40px; background: var(--color-input-bg); }
 .filter-select { min-height: 40px; background-color: var(--color-input-bg); }
 .chart-bar-item__label { overflow-wrap: anywhere; }
@@ -1676,6 +1671,9 @@
 }
 
 @media (max-width: 768px) {
+  .table-toolbar__filters { flex-wrap: wrap; }
+  .table-toolbar__search { flex: 1 1 100%; }
+  .table-toolbar__filters > .filter-select { max-width: none; }
   .dashboard-analytics { grid-template-columns: minmax(0, 1fr); }
   .stat-card { border-bottom: 1px solid var(--color-border); }
   .stat-card:nth-child(2n) { border-right: 0; }

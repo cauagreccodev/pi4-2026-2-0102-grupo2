@@ -416,7 +416,6 @@ function renderTicketsList(filteredData, { resolvedOnly = false } = {}) {
               <option value="">${i18n.t('allCategories')}</option>
               ${CATEGORIES.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
             </select>
-            <div class="table-toolbar__extra-filters">
               <select class="filter-select" id="filterTechnician" aria-label="${i18n.t('allTITechnicians')}">
                 <option value="">${i18n.t('allTITechnicians')}</option>
                 ${getAssignmentUsers().filter(user => isTIUser(user)).map(user => `<option value="${escapeHtml(user.id)}">${escapeHtml(user.name)}</option>`).join('')}
@@ -430,7 +429,6 @@ function renderTicketsList(filteredData, { resolvedOnly = false } = {}) {
                 <input type="date" class="filter-select filter-date" id="filterDate">
               </label>
               <button type="button" class="btn btn-ghost" id="btnClearFilters">${i18n.t('clearFilters')}</button>
-            </div>
           </div>
         </div>
 
