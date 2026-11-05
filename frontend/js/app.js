@@ -10,9 +10,12 @@ const App = (() => {
     search: '',
     status: '',
     priority: '',
-    category: ''
+    category: '',
+    technician: '',
+    department: '',
+    date: ''
   };
-  const resolvedFilters = { search: '', status: '', priority: '', category: '' };
+  const resolvedFilters = { ...ticketFilters };
   function isResolvedPage() {
     return Router.getCurrentRoute() === 'resolvidos';
   }
@@ -210,6 +213,26 @@ const App = (() => {
     // Category filter
     if (currentFilters.category) {
       data = data.filter(t => t.categoryId === parseInt(currentFilters.category));
+    }
+
+    if (currentFilters.technician) {
+      data = data.filter(t => String(t.supportId) === currentFilters.technician && isTIUser(getUserById(t.supportId)));
+    }
+
+    if (currentFilters.department) {
+      data = data.filter(t => getRequesterDepartment(t) === currentFilters.department);
+    }
+
+    if (currentFilters.date) {
+      data = data.filter(t => {
+        if (!t.createdAt) return false;
+        // Compare the same local calendar day displayed in the ticket table.
+        if (/^\d{4}-\d{2}-\d{2}$/.test(t.createdAt)) return t.createdAt === currentFilters.date;
+        const date = new Date(t.createdAt);
+        if (Number.isNaN(date.getTime())) return false;
+        const day = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        return day === currentFilters.date;
+      });
     }
 
     // Sorting (strictly Neon DB fields)
@@ -876,6 +899,21 @@ const App = (() => {
         applyFilters();
       });
     }
+
+    ['technician', 'department', 'date'].forEach(key => {
+      const control = document.getElementById(`filter${key[0].toUpperCase()}${key.slice(1)}`);
+      if (!control) return;
+      control.value = currentFilters[key];
+      control.addEventListener('change', () => {
+        currentFilters[key] = control.value;
+        applyFilters();
+      });
+    });
+
+    document.getElementById('btnClearFilters')?.addEventListener('click', () => {
+      Object.keys(currentFilters).forEach(key => { currentFilters[key] = ''; });
+      applyFilters();
+    });
 
     // Table sort
     const table = document.getElementById('ticketsTable');
