@@ -5,6 +5,7 @@ import com.helpdesk.api.dao.TicketTimelineDao;
 import com.helpdesk.api.dao.UserDao;
 import com.helpdesk.api.model.Ticket;
 import com.helpdesk.api.model.TicketTimeline;
+import com.helpdesk.api.socket.SocketEventPublisher;
 import com.helpdesk.api.model.User;
 import com.helpdesk.api.util.AuthUtil;
 import com.helpdesk.api.util.DepartmentPolicy;
@@ -123,6 +124,9 @@ public class TicketHandler implements HttpHandler {
                         (assignee == null ? ". Em aberto." : ". Atribuído a " + assignee.getName() + " (" + assignee.getDepartment() + ")."));
                     timelineDao.insert(tl);
 
+                    // CT18: avisa o backend-socket que um chamado foi criado
+                    SocketEventPublisher.ticketCreated(ticketDao.findById(created.getId()));
+
                     HttpHelper.sendJson(exchange, 201, created);
                 } else {
                     HttpHelper.sendError(exchange, 500, "Erro ao criar chamado");
@@ -147,6 +151,10 @@ public class TicketHandler implements HttpHandler {
                     }
                     boolean started = ticketDao.startService(ticketId, userId,
                         "Atendimento iniciado por " + actor.getName() + " (TI) ao abrir o chamado.");
+                    if (started) {
+                        // CT18: atendimento iniciado muda o status do chamado
+                        SocketEventPublisher.ticketUpdated(ticketDao.findById(ticketId));
+                    }
                     HttpHelper.sendJson(exchange, 200, Map.of("started", started));
                 } else if ("GET".equalsIgnoreCase(method)) {
                     // Detalhes + timeline
@@ -220,6 +228,9 @@ public class TicketHandler implements HttpHandler {
                         tl.setEventType("STATUS_CHANGE"); // simplificado
                         tl.setMessage(message);
                         timelineDao.insert(tl);
+
+                        // CT18: avisa o backend-socket que o chamado foi atualizado
+                        SocketEventPublisher.ticketUpdated(ticketDao.findById(ticketId));
 
                         HttpHelper.sendJson(exchange, 200, "{\"success\": true}");
                     } else {
