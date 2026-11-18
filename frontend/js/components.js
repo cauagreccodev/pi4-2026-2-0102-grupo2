@@ -381,7 +381,6 @@ function renderChartBar(label, value, total, color) {
 
 // ── View: Tickets List ──
 function renderTicketsList(filteredData, { resolvedOnly = false } = {}) {
-  const data = getVisibleTickets(filteredData || tickets).filter(ticket => !resolvedOnly || ticket.status === 'CLOSED');
   const statusList = i18n.getStatusList();
   const priorityList = i18n.getPriorityList();
 
@@ -432,7 +431,15 @@ function renderTicketsList(filteredData, { resolvedOnly = false } = {}) {
           </div>
         </div>
 
-        ${data.length > 0 ? `
+        <div id="ticketListResults">${renderTicketListResults(filteredData, { resolvedOnly })}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderTicketListResults(filteredData, { resolvedOnly = false } = {}) {
+  const data = getVisibleTickets(filteredData || tickets).filter(ticket => !resolvedOnly || ticket.status === 'CLOSED');
+  return `${data.length > 0 ? `
           <div style="overflow-x:auto;">
             <table class="data-table" id="ticketsTable">
               <thead>
@@ -464,10 +471,7 @@ function renderTicketsList(filteredData, { resolvedOnly = false } = {}) {
               ${Icons.plus} ${i18n.t('newTicket')}
             </button>
           </div>
-        `}
-      </div>
-    </div>
-  `;
+        `}`;
 }
 
 function renderTicketRow(t) {

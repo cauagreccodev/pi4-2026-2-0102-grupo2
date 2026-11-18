@@ -27,6 +27,16 @@ const App = (() => {
   let modalTrigger = null;
   let quickActionPending = false;
   let notificationAudio = null;
+  const renderedContent = new WeakMap();
+
+  function updateContent(element, content) {
+    // Cache source markup: browsers normalize innerHTML (for example SVG tags).
+    if (renderedContent.get(element) === content) return false;
+    renderedContent.set(element, content);
+    if (element.innerHTML === content) return false;
+    element.innerHTML = content;
+    return true;
+  }
 
   async function enableNotificationAudio() {
     if (!isTIUser()) return;
@@ -178,7 +188,9 @@ const App = (() => {
   function renderPage(title, breadcrumbs, content) {
     document.title = `${title} — Resolve`;
     document.getElementById('headerContainer').innerHTML = renderHeader(breadcrumbs);
-    document.getElementById('pageContent').innerHTML = content;
+    const page = document.getElementById('pageContent');
+    renderedContent.delete(page);
+    page.innerHTML = content;
 
     // Re-bind header events
     bindHeaderEvents();
@@ -275,9 +287,16 @@ const App = (() => {
   }
 
   function applyFilters() {
-    const content = renderTicketsList(getFilteredTickets(), { resolvedOnly: isResolvedPage() });
-    document.getElementById('pageContent').innerHTML = content;
-    bindTicketsEvents();
+    const results = document.getElementById('ticketListResults');
+    if (!results) {
+      updateContent(document.getElementById('pageContent'), renderTicketsList(getFilteredTickets(), { resolvedOnly: isResolvedPage() }));
+      bindTicketsEvents();
+      return;
+    }
+    // Keep the toolbar mounted, including focus, selection and pending search input.
+    const content = renderTicketListResults(getFilteredTickets(), { resolvedOnly: isResolvedPage() });
+    if (!updateContent(results, content)) return;
+    bindTicketResultsEvents();
   }
 
   // ── CRUD: Create ──
@@ -552,11 +571,11 @@ const App = (() => {
 
   function updateSidebarBadges() {
     const resolvedBadge = document.getElementById('sidebarResolvedCount');
-    if (resolvedBadge) resolvedBadge.textContent = getDashboardStats().closed;
+    if (resolvedBadge && resolvedBadge.textContent !== String(getDashboardStats().closed)) resolvedBadge.textContent = getDashboardStats().closed;
     const badge = document.getElementById('sidebarTicketCount') || document.querySelector('.sidebar__link-badge');
     if (badge) {
       const stats = getDashboardStats();
-      badge.textContent = stats.total;
+      if (badge.textContent !== String(stats.total)) badge.textContent = stats.total;
     }
   }
 
@@ -573,7 +592,8 @@ const App = (() => {
     }
     const list = document.getElementById('notificationsList');
     if (list) {
-      list.innerHTML = renderNotificationsList();
+      const content = renderNotificationsList();
+      updateContent(list, content);
     }
     const markAllBtn = document.getElementById('markAllReadBtn');
     if (markAllBtn) {
@@ -593,11 +613,15 @@ const App = (() => {
     const route = Router.getCurrentRoute() || '';
     const page = document.getElementById('pageContent');
     if (!page || quickActionPending) return;
-    if (route === 'dashboard' || route === 'meu-departamento') page.innerHTML = renderDashboard();
+    if (route === 'dashboard' || route === 'meu-departamento') {
+      const content = renderDashboard();
+      updateContent(page, content);
+    }
     else if (route === 'chamados' || route === 'resolvidos') applyFilters();
     else if (route.startsWith('chamado/')) {
       const ticket = tickets.find(item => String(item.id) === route.split('/')[1]);
-      page.innerHTML = renderTicketDetail(ticket && canViewTicket(ticket) ? ticket : null);
+      const content = renderTicketDetail(ticket && canViewTicket(ticket) ? ticket : null);
+      updateContent(page, content);
     }
   }
 
@@ -665,16 +689,12 @@ const App = (() => {
       syncing = true;
       try {
         if (!await reloadTickets() || Router.getCurrentRoute() !== route || quickActionPending || document.querySelector('#modalContainer .modal')) return;
-        updateSidebarBadges();
-        updateNotificationBadges();
-        if (route === 'chamados' || route === 'resolvidos') applyFilters();
-        else if (route !== 'configuracoes') Router.resolve();
+        renderLiveViews();
       } finally {
         syncing = false;
       }
     }
     document.addEventListener('visibilitychange', synchronizeVisiblePage);
-    setInterval(synchronizeVisiblePage, 15000);
     document.addEventListener('change', (event) => {
       const form = event.target.closest('#ticketForm');
       if (!form) return;
@@ -851,12 +871,11 @@ const App = (() => {
 
   function bindTicketsEvents() {
     const currentFilters = getCurrentFilters();
+    const results = document.getElementById('ticketListResults');
+    if (results) renderedContent.set(results, renderTicketListResults(getFilteredTickets(), { resolvedOnly: isResolvedPage() }));
     // New ticket button
     const btnNew = document.getElementById('btnNewTicket');
     if (btnNew) btnNew.addEventListener('click', openNewTicket);
-
-    const btnNewEmpty = document.getElementById('btnNewTicketEmpty');
-    if (btnNewEmpty) btnNewEmpty.addEventListener('click', openNewTicket);
 
     // Search
     const searchInput = document.getElementById('searchTickets');
@@ -912,8 +931,19 @@ const App = (() => {
 
     document.getElementById('btnClearFilters')?.addEventListener('click', () => {
       Object.keys(currentFilters).forEach(key => { currentFilters[key] = ''; });
+      ['searchTickets', 'filterStatus', 'filterPriority', 'filterCategory', 'filterTechnician', 'filterDepartment', 'filterDate'].forEach(id => {
+        const control = document.getElementById(id);
+        if (control) control.value = id === 'filterStatus' && isResolvedPage() ? 'CLOSED' : '';
+      });
       applyFilters();
     });
+
+    bindTicketResultsEvents();
+  }
+
+  function bindTicketResultsEvents() {
+    const btnNewEmpty = document.getElementById('btnNewTicketEmpty');
+    if (btnNewEmpty) btnNewEmpty.addEventListener('click', openNewTicket);
 
     // Table sort
     const table = document.getElementById('ticketsTable');
