@@ -398,7 +398,6 @@ const App = (() => {
         };
 
         await Api.updateTicket(parseInt(id), updatePayload);
-        await reloadTickets();
 
         closeModal();
         showToast('success', i18n.t('ticketUpdated'), `${i18n.t('tickets')} #${String(id).padStart(4, '0')} foi atualizado com sucesso.`);
@@ -411,14 +410,15 @@ const App = (() => {
           categoryId: parseInt(categoryId)
         });
 
-        await reloadTickets();
+
 
         closeModal();
         showToast('success', i18n.t('ticketCreated'), `${i18n.t('tickets')} #${String(newTicket.id).padStart(4, '0')} foi criado com sucesso.`);
       }
 
-      // Refresh view
-      refreshCurrentView();
+      const synced = await reloadTickets({ changed: true });
+      refreshAfterTicketWrite();
+      if (!synced) showToast('warning', i18n.t('changesSaved'), i18n.t('savedSyncError'));
     } catch (error) {
       console.error('Error saving ticket:', error);
       showToast('error', i18n.t('error'), error.message || i18n.t('saveError'));
@@ -439,7 +439,7 @@ const App = (() => {
     if (!requireTIPermission()) return;
     try {
       await Api.deleteTicket(id);
-      await reloadTickets();
+      await reloadTickets({ changed: true });
 
       closeModal();
       showToast('success', i18n.t('ticketDeleted'), `${i18n.t('tickets')} #${String(id).padStart(4, '0')} foi excluído com sucesso.`);
@@ -461,8 +461,8 @@ const App = (() => {
     // The write already succeeded. Preserve it even if the subsequent GET fails.
     const index = tickets.findIndex(ticket => String(ticket.id) === String(ticketId));
     if (index >= 0) tickets[index] = { ...tickets[index], ...changes };
-    const synced = await reloadTickets();
-    refreshCurrentView();
+    const synced = await reloadTickets({ changed: true });
+    refreshAfterTicketWrite();
     if (!synced) showToast('warning', i18n.t('changesSaved'), i18n.t('savedSyncError'));
     return synced;
   }
@@ -626,21 +626,28 @@ const App = (() => {
   }
 
   // Consulta a API para obter o chamado completo e aplicar suas regras de visibilidade.
-  let socketSyncPending = false;
-  let socketSyncAgain = false;
+  let socketRefresh = null;
   async function handleTicketUpdated(data) {
     if (!data || !['CREATED', 'UPDATED'].includes(data.action) ||
         !Number.isInteger(data.ticketId) || data.ticketId <= 0) return;
-    socketSyncAgain = true;
-    if (socketSyncPending) return;
-    socketSyncPending = true;
+    const refresh = reloadTickets({ changed: true });
+    if (socketRefresh === refresh) return refresh;
+    socketRefresh = refresh;
     try {
-      do {
-        socketSyncAgain = false;
-        if (await reloadTickets()) renderLiveViews();
-      } while (socketSyncAgain);
+      if (await refresh) renderLiveViews();
     } finally {
-      socketSyncPending = false;
+      if (socketRefresh === refresh) socketRefresh = null;
+    }
+  }
+
+  function refreshAfterTicketWrite() {
+    const route = Router.getCurrentRoute();
+    if (route === 'chamados' || route === 'resolvidos') {
+      updateSidebarBadges();
+      updateNotificationBadges();
+      applyFilters();
+    } else {
+      refreshCurrentView();
     }
   }
 

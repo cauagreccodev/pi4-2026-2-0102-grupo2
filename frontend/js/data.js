@@ -311,17 +311,38 @@ async function loadAppData() {
   }
 }
 
-/**
- * Reload only tickets and notifications from the API (after CRUD operations)
- * @returns {Promise<boolean>}
- */
-async function reloadTickets() {
+// Share list reads. Changes received during a read require one fresh snapshot.
+let pendingTicketReload = null;
+let ticketReloadRequested = false;
+
+function reloadTickets({ changed = false } = {}) {
+  if (pendingTicketReload) {
+    if (changed) ticketReloadRequested = true;
+    return pendingTicketReload;
+  }
+  pendingTicketReload = Promise.resolve().then(async () => {
+    try {
+      let synced;
+      do {
+        ticketReloadRequested = false;
+        synced = await fetchTicketSnapshot();
+      } while (ticketReloadRequested);
+      return synced;
+    } finally {
+      pendingTicketReload = null;
+    }
+  });
+  return pendingTicketReload;
+}
+
+async function fetchTicketSnapshot() {
   try {
     const [ticketsData, notificationsData] = await Promise.all([
       Api.fetchTickets(),
       Api.fetchNotifications().catch(() => notifications)
     ]);
 
+    if (ticketReloadRequested) return false;
     tickets = Array.isArray(ticketsData) ? ticketsData : [];
     notifications = Array.isArray(notificationsData) ? notificationsData : [];
 
