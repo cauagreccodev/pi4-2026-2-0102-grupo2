@@ -125,7 +125,8 @@ public class TicketHandler implements HttpHandler {
                     timelineDao.insert(tl);
 
                     // CT18: avisa o backend-socket que um chamado foi criado
-                    SocketEventPublisher.ticketCreated(ticketDao.findById(created.getId()));
+                    // Reutiliza a entidade `created` já retornada por ticketDao.insert sem refazer findById
+                    SocketEventPublisher.ticketCreated(created);
 
                     HttpHelper.sendJson(exchange, 201, created);
                 } else {
@@ -230,7 +231,8 @@ public class TicketHandler implements HttpHandler {
                         timelineDao.insert(tl);
 
                         // CT18: avisa o backend-socket que o chamado foi atualizado
-                        SocketEventPublisher.ticketUpdated(ticketDao.findById(ticketId));
+                        // Reutiliza o objeto `ticket` já em memória sem refazer findById
+                        SocketEventPublisher.ticketUpdated(ticket);
 
                         HttpHelper.sendJson(exchange, 200, "{\"success\": true}");
                     } else {

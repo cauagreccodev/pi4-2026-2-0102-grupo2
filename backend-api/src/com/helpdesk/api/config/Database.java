@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Pool de conexões JDBC simples (sem lib externa).
@@ -20,7 +21,11 @@ public class Database {
             "DB_PASSWORD", System.getenv().getOrDefault("DB_PASS", "rootpassword"));
 
     private static final int POOL_SIZE = 10;
+    // Valida a conexão apenas se estiver ociosa há mais de X segundos,
+    // evitando a chamada isValid() (consulta ao banco) a cada checkout do pool.
+    private static final long VALIDATION_CACHE_SECONDS = 30;
     private static final BlockingQueue<Connection> pool = new ArrayBlockingQueue<>(POOL_SIZE);
+    private static final ConcurrentHashMap<Connection, Long> lastValidation = new ConcurrentHashMap<>();
     private static boolean initialized = false;
 
     /**
@@ -51,9 +56,16 @@ public class Database {
     public static Connection getConnection() throws SQLException {
         try {
             Connection conn = pool.take();
-            // Verifica se a conexão ainda é válida
-            if (conn.isClosed() || !conn.isValid(2)) {
-                conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+            long now = System.currentTimeMillis();
+            Long last = lastValidation.get(conn);
+            boolean needsValidation = (last == null) || ((now - last) / 1000 > VALIDATION_CACHE_SECONDS);
+
+            // Valida apenas se a conexão estiver fechada ou ociosa há mais de VALIDATION_CACHE_SECONDS
+            if (conn.isClosed() || needsValidation) {
+                if (!conn.isValid(2)) {
+                    conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
+                }
+                lastValidation.put(conn, System.currentTimeMillis());
             }
             return conn;
         } catch (InterruptedException e) {
@@ -72,6 +84,8 @@ public class Database {
                 if (!conn.isClosed()) {
                     conn.setAutoCommit(true); // Reseta estado
                     pool.offer(conn);
+                } else {
+                    lastValidation.remove(conn);
                 }
             } catch (SQLException e) {
                 System.err.println("Erro ao devolver conexão ao pool: " + e.getMessage());
