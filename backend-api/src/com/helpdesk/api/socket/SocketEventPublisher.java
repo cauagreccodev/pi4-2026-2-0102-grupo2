@@ -1,4 +1,4 @@
-﻿package com.helpdesk.api.socket;
+package com.helpdesk.api.socket;
 
 import com.helpdesk.api.model.Ticket;
 import com.helpdesk.api.util.JsonUtil;
