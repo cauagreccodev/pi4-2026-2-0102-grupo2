@@ -77,6 +77,10 @@ public class Database {
         String user = getEnv("DB_USER", null);
         String pass = getEnv("DB_PASSWORD", getEnv("DB_PASS", null));
 
+        if (user != null && !user.isBlank() && pass != null && !pass.isBlank()) {
+            return DriverManager.getConnection(jdbcUrl, user.trim(), pass.trim());
+        }
+
         Properties props = new Properties();
         if (user != null && !user.isBlank()) {
             props.setProperty("user", user.trim());

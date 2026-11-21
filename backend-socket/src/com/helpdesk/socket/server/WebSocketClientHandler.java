@@ -90,8 +90,15 @@ public class WebSocketClientHandler implements Runnable {
                     ? data.get("token").getAsString()
                     : null;
 
+            if (token == null || token.isBlank()) {
+                System.err.println("[CT19 - Auth] Token ausente na mensagem de autenticação.");
+                sendErrorAndClose(out, "TOKEN_INVALIDO");
+                return;
+            }
+
             Integer userId = AuthUtil.validateToken(token);
             if (userId == null) {
+                System.err.println("[CT19 - Auth] Falha na validação HMAC do token. A variável JWT_SECRET no Render do socket DEVE ser idêntica à da API.");
                 sendErrorAndClose(out, "TOKEN_INVALIDO");
                 return;
             }
@@ -99,11 +106,13 @@ public class WebSocketClientHandler implements Runnable {
             // 3. Consulta o usuário na tabela 'users' do Neon.tech (CT13)
             UserSessionInfo user = userDao.findSessionInfoById(userId);
             if (user == null) {
+                System.err.println("[CT19 - Auth] Usuário id=" + userId + " não encontrado no Neon DB (ou DB_URL do socket está ausente/inacessível no Render).");
                 sendErrorAndClose(out, "TOKEN_INVALIDO");
                 return;
             }
 
             if (!user.isActive()) {
+                System.err.println("[CT19 - Auth] Usuário id=" + userId + " está inativo.");
                 sendErrorAndClose(out, "USUARIO_INATIVO");
                 return;
             }
