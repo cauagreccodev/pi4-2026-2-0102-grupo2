@@ -190,6 +190,13 @@ public class WebSocketUtil {
         }
     }
 
+    /**
+     * Envia frame WebSocket de Ping (opcode 0x9) para manter conexões ativas no Render/Cloudflare.
+     */
+    public static void writePingFrame(OutputStream out) throws IOException {
+        sendFrame(out, 0x9, new byte[0]);
+    }
+
     private static synchronized void sendFrame(OutputStream out, int opcode, byte[] payload) throws IOException {
         int len = payload.length;
         out.write(0x80 | (opcode & 0x0F)); // FIN = 1

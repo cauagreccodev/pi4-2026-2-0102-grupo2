@@ -46,6 +46,9 @@ class Ct22ChamadoAtualizadoTest {
         dao.adicionar(203, "SUPPORT", true);
         dao.adicionar(204, "ADMIN", true);
         dao.adicionar(205, "CLIENT", true);
+        dao.adicionar(206, "CLIENT", "TI", true);
+        dao.adicionar(207, "CLIENT", "FINANCEIRO", true);
+        dao.adicionar(208, "CLIENT", "COMPRAS", true);
         servidor = new ServidorDeTeste(dao);
     }
 
@@ -142,5 +145,44 @@ class Ct22ChamadoAtualizadoTest {
 
         conferirAviso(abaUm);
         conferirAviso(abaDois);
+    }
+
+    @Test
+    @DisplayName("Usuario com departamento TI recebe aviso mesmo com role CLIENT")
+    void usuarioComDepartamentoTiRecebeAviso() throws Exception {
+        ClienteWs tiUser = conectarComo(206);
+        publicarComoApi(null);
+        conferirAviso(tiUser);
+    }
+
+    @Test
+    @DisplayName("Broadcast setorial entrega aviso para colega do mesmo departamento")
+    void colegaDoMesmoDepartamentoRecebeAviso() throws Exception {
+        ClienteWs colegaFinanceiro = conectarComo(207);
+        ClienteWs colegaCompras = conectarComo(208);
+
+        Map<String, Object> evento = new HashMap<>();
+        evento.put("secret", SEGREDO);
+        evento.put("action", "CREATED");
+        evento.put("ticketId", 88);
+        evento.put("title", "Ajuste na planilha financeira");
+        evento.put("status", "NEW");
+        evento.put("priority", "MEDIUM");
+        evento.put("clientId", 201);
+        evento.put("department", "FINANCEIRO");
+        evento.put("updatedAt", "2026-11-16T10:00:00Z");
+
+        try (ClienteWs api = new ClienteWs(servidor.getPorta())) {
+            api.enviar(JsonUtil.buildEnvelope("publicarEvento", evento));
+            assertEquals("{\"received\":true}", api.receber());
+        }
+
+        String texto = colegaFinanceiro.receber();
+        JsonObject mensagem = JsonUtil.parseObject(texto);
+        assertEquals("chamadoAtualizado", mensagem.get("type").getAsString());
+        assertEquals(88, mensagem.getAsJsonObject("data").get("ticketId").getAsInt());
+        assertEquals("FINANCEIRO", mensagem.getAsJsonObject("data").get("department").getAsString());
+
+        assertTrue(colegaCompras.ficouEmSilencio(700), "Colega de compras nao deve receber chamado do financeiro");
     }
 }

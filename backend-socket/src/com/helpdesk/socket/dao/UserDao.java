@@ -15,7 +15,7 @@ import java.sql.SQLException;
 public class UserDao { //Data Access Object (DAO) para a tabela 'users' no banco de dados Neon PostgreSQL.
 
     public UserSessionInfo findSessionInfoById(int userId) {
-        String sql = "SELECT id, name, email, role, is_active FROM users WHERE id = ?";
+        String sql = "SELECT id, name, email, role, department, is_active FROM users WHERE id = ?";
         Connection conn = null;
         try {
             conn = Database.getConnection();
@@ -28,6 +28,7 @@ public class UserDao { //Data Access Object (DAO) para a tabela 'users' no banco
                                 rs.getString("name"),
                                 rs.getString("email"),
                                 rs.getString("role"),
+                                rs.getString("department"),
                                 rs.getBoolean("is_active")
                         );
                     }

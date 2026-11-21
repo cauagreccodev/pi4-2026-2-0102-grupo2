@@ -110,7 +110,7 @@ public class WebSocketClientHandler implements Runnable {
 
             // 4. Autenticação aprovada! Remove timeout curto de leitura e registra a sessão WebSocket no ServerState
             socket.setSoTimeout(0);
-            clientConnection = new ClientConnection(socket, out, user.getId(), user.getRole());
+            clientConnection = new ClientConnection(socket, out, user.getId(), user.getRole(), user.getDepartment());
             clientConnection.startWriter();
             ServerState.getInstance().registerSession(clientConnection);
 

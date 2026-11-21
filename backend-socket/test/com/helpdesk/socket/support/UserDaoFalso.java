@@ -15,7 +15,11 @@ public class UserDaoFalso extends UserDao {
     private final Map<Integer, UserSessionInfo> usuarios = new HashMap<>();
 
     public void adicionar(int id, String perfil, boolean ativo) {
-        usuarios.put(id, new UserSessionInfo(id, "Usuario " + id, "user" + id + "@teste.com", perfil, ativo));
+        adicionar(id, perfil, null, ativo);
+    }
+
+    public void adicionar(int id, String perfil, String departamento, boolean ativo) {
+        usuarios.put(id, new UserSessionInfo(id, "Usuario " + id, "user" + id + "@teste.com", perfil, departamento, ativo));
     }
 
     @Override

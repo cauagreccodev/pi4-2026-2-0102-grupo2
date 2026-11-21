@@ -87,12 +87,22 @@ public class ServerState {
             targetUserIds.add(payload.getSupportId());
         }
 
-        // Adiciona todos os usuários com perfil SUPPORT ou ADMIN atualmente conectados no WebSocket
+        String eventDept = payload.getDepartment() != null ? payload.getDepartment().trim() : null;
+
+        // Adiciona:
+        // 1) Todos os usuários com perfil SUPPORT/ADMIN ou do departamento de TI
+        // 2) Todos os usuários conectados pertencentes ao mesmo departamento do chamado
         for (Map.Entry<Integer, Set<ClientConnection>> entry : sessionsByUser.entrySet()) {
             for (ClientConnection conn : entry.getValue()) {
-                if (!conn.isClosed() && conn.isSupportOrAdmin()) {
-                    targetUserIds.add(entry.getKey());
-                    break;
+                if (!conn.isClosed()) {
+                    if (conn.isSupportOrAdmin()) {
+                        targetUserIds.add(entry.getKey());
+                        break;
+                    } else if (eventDept != null && !eventDept.isEmpty()
+                            && eventDept.equalsIgnoreCase(conn.getDepartment())) {
+                        targetUserIds.add(entry.getKey());
+                        break;
+                    }
                 }
             }
         }

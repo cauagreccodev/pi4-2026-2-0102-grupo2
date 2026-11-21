@@ -17,6 +17,7 @@ public class TicketEventPayload {
     private Integer clientId;   // Obrigatório
     private Integer supportId;  // Opcional
     private String supportName; // Opcional
+    private String department;  // Opcional (setor do chamado)
     private String updatedAt;   // Obrigatório (ISO-8601)
 
     public String getSecret() {
@@ -53,6 +54,10 @@ public class TicketEventPayload {
 
     public String getSupportName() {
         return supportName;
+    }
+
+    public String getDepartment() {
+        return department;
     }
 
     public String getUpdatedAt() {
@@ -101,6 +106,9 @@ public class TicketEventPayload {
         }
         if (supportName != null && !supportName.isBlank()) {
             map.put("supportName", supportName);
+        }
+        if (department != null && !department.isBlank()) {
+            map.put("department", department);
         }
         map.put("updatedAt", updatedAt);
         return map;
