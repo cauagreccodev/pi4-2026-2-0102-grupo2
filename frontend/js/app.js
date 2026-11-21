@@ -626,17 +626,31 @@ const App = (() => {
   }
 
   // Consulta a API para obter o chamado completo e aplicar suas regras de visibilidade.
-  let socketRefresh = null;
+  let socketBatch = null;
   async function handleTicketUpdated(data) {
     if (!data || !['CREATED', 'UPDATED'].includes(data.action) ||
         !Number.isInteger(data.ticketId) || data.ticketId <= 0) return;
     const refresh = reloadTickets({ changed: true });
-    if (socketRefresh === refresh) return refresh;
-    socketRefresh = refresh;
+    const key = `${data.action}:${data.ticketId}`;
+    if (socketBatch?.refresh === refresh) {
+      socketBatch.events.set(key, data);
+      return refresh;
+    }
+    const events = new Map([[key, data]]);
+    socketBatch = { refresh, events };
     try {
-      if (await refresh) renderLiveViews();
+      if (!await refresh) return;
+      renderLiveViews();
+      for (const { action, ticketId } of events.values()) {
+        // A sincronização já anuncia novas aberturas à TI.
+        if (action === 'CREATED' && isTIUser()) continue;
+        const ticket = tickets.find(item => String(item.id) === String(ticketId));
+        if (!ticket || !canViewTicket(ticket)) continue;
+        const title = i18n.t(action === 'CREATED' ? 'ticketCreated' : 'ticketUpdated');
+        showToast('info', title, `#${ticketId} — ${escapeHtml(ticket.title)}`);
+      }
     } finally {
-      if (socketRefresh === refresh) socketRefresh = null;
+      if (socketBatch?.refresh === refresh) socketBatch = null;
     }
   }
 

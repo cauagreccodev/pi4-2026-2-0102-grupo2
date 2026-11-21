@@ -41,7 +41,6 @@ function syncTicketAlerts(announce = true) {
     if (seenTicketIds.has(id)) continue;
     seenTicketIds.add(id);
     const department = getRequesterDepartment(ticket);
-    if (department === 'TI') continue;
     const alert = {
       id: `ticket-opened:${id}`, ticketId: ticket.id, type: 'chamado_novo',
       title: `Chamado aberto (${department})`, message: `#${id} — ${String(ticket.title || '').slice(0, 160)}`,
@@ -149,8 +148,7 @@ function getVisibleNotifications() {
     const localIds = new Set(ticketAlerts.map(n => String(n.ticketId)));
     return [...ticketAlerts, ...notifications.filter(n => {
       if (n.type !== 'chamado_novo') return true;
-      const ticket = tickets.find(t => String(t.id) === String(n.ticketId));
-      return !localIds.has(String(n.ticketId)) && ticket && getRequesterDepartment(ticket) !== 'TI';
+      return !localIds.has(String(n.ticketId)) && tickets.some(t => String(t.id) === String(n.ticketId));
     })];
   }
   const visibleIds = new Set(getVisibleTickets().map(ticket => String(ticket.id)));
