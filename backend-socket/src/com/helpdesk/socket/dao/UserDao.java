@@ -33,7 +33,7 @@ public class UserDao { //Data Access Object (DAO) para a tabela 'users' no banco
                     }
                 }
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             System.err.println("[UserDao - Neon] Erro ao consultar usuario id=" + userId + ": " + e.getMessage());
         } finally {
             Database.releaseConnection(conn);
