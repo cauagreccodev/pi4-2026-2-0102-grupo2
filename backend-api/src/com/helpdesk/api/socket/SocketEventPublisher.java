@@ -112,6 +112,13 @@ public final class SocketEventPublisher {
         if (ticket.getSupportName() != null && !ticket.getSupportName().isBlank()) {
             data.put("supportName", ticket.getSupportName());
         }
+        try {
+            com.helpdesk.api.model.User client = new com.helpdesk.api.dao.UserDao().findById(ticket.getClientId());
+            if (client != null && client.getDepartment() != null && !client.getDepartment().isBlank()) {
+                data.put("department", client.getDepartment());
+            }
+        } catch (Exception ignored) {
+        }
         data.put("updatedAt", ticket.getUpdatedAt() != null ? ticket.getUpdatedAt() : Instant.now().toString());
 
         Map<String, Object> envelope = new LinkedHashMap<>();
