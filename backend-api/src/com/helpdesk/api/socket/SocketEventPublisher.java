@@ -147,6 +147,7 @@ public final class SocketEventPublisher {
                             @Override
                             public void onOpen(WebSocket webSocket) {
                                 System.out.println("[CT18] Conexão WebSocket persistente estabelecida com " + SOCKET_URL);
+                                webSocket.request(1);
                                 future.complete(webSocket);
                             }
 
@@ -157,7 +158,7 @@ public final class SocketEventPublisher {
                             }
 
                             @Override
-                            public void onClose(WebSocket w, int statusCode, String reason) {
+                            public CompletionStage<?> onClose(WebSocket w, int statusCode, String reason) {
                                 System.out.println("[CT18] WebSocket fechado (status=" + statusCode
                                         + ", reason=" + reason + "). Reconectará no próximo envio.");
                                 ACTIVE_WS.compareAndSet(w, null);
@@ -168,7 +169,7 @@ public final class SocketEventPublisher {
                             public void onError(WebSocket w, Throwable error) {
                                 System.err.println("[CT18] Erro no WebSocket persistente: " + error.getMessage());
                                 ACTIVE_WS.compareAndSet(w, null);
-                                return null;
+                                future.completeExceptionally(error);
                             }
                         });
 
