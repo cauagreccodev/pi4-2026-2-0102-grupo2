@@ -1,4 +1,4 @@
-package com.helpdesk.api.socket;
+﻿package com.helpdesk.api.socket;
 
 import com.helpdesk.api.model.Ticket;
 import com.helpdesk.api.util.JsonUtil;
@@ -112,13 +112,6 @@ public final class SocketEventPublisher {
         if (ticket.getSupportName() != null && !ticket.getSupportName().isBlank()) {
             data.put("supportName", ticket.getSupportName());
         }
-        try {
-            com.helpdesk.api.model.User client = new com.helpdesk.api.dao.UserDao().findById(ticket.getClientId());
-            if (client != null && client.getDepartment() != null && !client.getDepartment().isBlank()) {
-                data.put("department", client.getDepartment());
-            }
-        } catch (Exception ignored) {
-        }
         data.put("updatedAt", ticket.getUpdatedAt() != null ? ticket.getUpdatedAt() : Instant.now().toString());
 
         Map<String, Object> envelope = new LinkedHashMap<>();
@@ -154,7 +147,6 @@ public final class SocketEventPublisher {
                             @Override
                             public void onOpen(WebSocket webSocket) {
                                 System.out.println("[CT18] Conexão WebSocket persistente estabelecida com " + SOCKET_URL);
-                                webSocket.request(1);
                                 future.complete(webSocket);
                             }
 
@@ -165,7 +157,7 @@ public final class SocketEventPublisher {
                             }
 
                             @Override
-                            public CompletionStage<?> onClose(WebSocket w, int statusCode, String reason) {
+                            public void onClose(WebSocket w, int statusCode, String reason) {
                                 System.out.println("[CT18] WebSocket fechado (status=" + statusCode
                                         + ", reason=" + reason + "). Reconectará no próximo envio.");
                                 ACTIVE_WS.compareAndSet(w, null);
@@ -176,7 +168,7 @@ public final class SocketEventPublisher {
                             public void onError(WebSocket w, Throwable error) {
                                 System.err.println("[CT18] Erro no WebSocket persistente: " + error.getMessage());
                                 ACTIVE_WS.compareAndSet(w, null);
-                                future.completeExceptionally(error);
+                                return null;
                             }
                         });
 

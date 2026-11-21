@@ -71,12 +71,8 @@ public class UserHandler implements HttpHandler {
                     HttpHelper.sendError(exchange, 400, "Selecione um setor válido");
                     return;
                 }
-                // Se o usuário pertencer ao setor de TI, cadastra como ADMIN; caso contrário, CLIENT
-                if ("TI".equals(department)) {
-                    newUser.setRole("ADMIN");
-                } else {
-                    newUser.setRole("CLIENT");
-                }
+                // Public registration never grants administrator/support roles.
+                newUser.setRole("CLIENT");
                 newUser.setDepartment(department);
                 newUser.setJobTitle(data.get("jobTitle"));
 
