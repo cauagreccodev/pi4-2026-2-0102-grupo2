@@ -74,7 +74,8 @@ public class WebSocketClientHandler implements Runnable {
 
             // Caso A: A Backend API conectou via WebSocket para publicar um evento (CT18: publicarEvento ou NOTIFICATION_PING)
             if ("publicarEvento".equals(firstMsg.getType()) || "NOTIFICATION_PING".equals(firstMsg.getType())) {
-                handleCt18OverWebSocket(firstMsg, out);
+                socket.setSoTimeout(0);
+                handleCt18OverWebSocket(firstMsg, in, out);
                 return;
             }
 
@@ -142,64 +143,98 @@ public class WebSocketClientHandler implements Runnable {
     }
 
     /**
-     * Processa o contrato CT18 (publicarEvento) recebido via WebSocket a partir da Backend API.
+     * Processa eventos do contrato CT18 (publicarEvento / NOTIFICATION_PING) recebidos via WebSocket a partir da Backend API.
+     * Suporta tanto conexões pontuais (fecha após 1 evento) quanto conexões persistentes/reutilizáveis
+     * (mantém o loop ativo para receber múltiplos eventos na mesma conexão).
      */
-    private void handleCt18OverWebSocket(SocketMessage message, OutputStream out) throws IOException {
+    private void handleCt18OverWebSocket(SocketMessage firstMessage, InputStream in, OutputStream out) throws IOException {
         try {
-            if (message.getData() == null) {
-                WebSocketUtil.writeTextFrame(out, JsonUtil.toJson(Map.of("received", false)));
-                WebSocketUtil.writeCloseFrame(out);
+            boolean keepRunning = processSingleCt18Message(firstMessage, out);
+            if (!keepRunning) {
                 return;
             }
 
-            TicketEventPayload payload;
-            try {
-                payload = JsonUtil.fromJson(message.getData().toString(), TicketEventPayload.class);
-            } catch (Exception e) {
-                WebSocketUtil.writeTextFrame(out, JsonUtil.toJson(Map.of("received", false)));
-                WebSocketUtil.writeCloseFrame(out);
-                return;
-            }
-
-            // Regra 1 do CT18: secret errado ou ausente -> fecha a conexão imediatamente SEM responder
-            if (payload == null || payload.getSecret() == null || !isSecretValid(payload.getSecret())) {
-                System.err.println("[CT18 - WebSocket] Evento rejeitado: INTERNAL_SECRET ausente ou invalido.");
-                return;
-            }
-
-            // Suporte à ADR 0002 (NOTIFICATION_PING)
-            if ("NOTIFICATION_PING".equals(message.getType())) {
-                if (message.getData().has("userId")) {
-                    int targetUserId = message.getData().get("userId").getAsInt();
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> rawData = JsonUtil.fromJson(message.getData().toString(), Map.class);
-                    rawData.remove("secret");
-                    ServerState.getInstance().sendNotificationPing(targetUserId, rawData);
-                    WebSocketUtil.writeTextFrame(out, JsonUtil.toJson(Map.of("received", true)));
-                } else {
+            // Loop para conexões persistentes da Backend API
+            String nextFrame;
+            while ((nextFrame = WebSocketUtil.readTextFrame(in, out)) != null) {
+                SocketMessage nextMsg;
+                try {
+                    nextMsg = JsonUtil.fromJson(nextFrame, SocketMessage.class);
+                } catch (Exception e) {
                     WebSocketUtil.writeTextFrame(out, JsonUtil.toJson(Map.of("received", false)));
+                    continue;
                 }
-                WebSocketUtil.writeCloseFrame(out);
-                return;
-            }
 
-            // Regra 2 do CT18: Validar campos obrigatórios
-            if (!payload.hasRequiredFields()) {
-                WebSocketUtil.writeTextFrame(out, JsonUtil.toJson(Map.of("received", false)));
-                WebSocketUtil.writeCloseFrame(out);
-                return;
-            }
+                if (nextMsg == null || nextMsg.getType() == null) {
+                    WebSocketUtil.writeTextFrame(out, JsonUtil.toJson(Map.of("received", false)));
+                    continue;
+                }
 
-            // Regra 3 do CT18: Enfileira o broadcast do CT22 (chamadoAtualizado) e responde {"received": true}
-            boolean queued = ServerState.getInstance().publishTicketEventAsync(payload);
-            WebSocketUtil.writeTextFrame(out, JsonUtil.toJson(Map.of("received", queued)));
-            WebSocketUtil.writeCloseFrame(out);
+                if (!processSingleCt18Message(nextMsg, out)) {
+                    break;
+                }
+            }
         } finally {
+            try {
+                WebSocketUtil.writeCloseFrame(out);
+            } catch (Exception ignored) {
+            }
             try {
                 socket.close();
             } catch (IOException ignored) {
             }
         }
+    }
+
+    /**
+     * Processa uma única mensagem de evento CT18.
+     * Retorna true se a conexão deve continuar aberta, ou false se deve ser encerrada imediatamente (ex: secret inválido).
+     */
+    private boolean processSingleCt18Message(SocketMessage message, OutputStream out) throws IOException {
+        if (message.getData() == null) {
+            WebSocketUtil.writeTextFrame(out, JsonUtil.toJson(Map.of("received", false)));
+            return true;
+        }
+
+        TicketEventPayload payload;
+        try {
+            payload = JsonUtil.fromJson(message.getData().toString(), TicketEventPayload.class);
+        } catch (Exception e) {
+            WebSocketUtil.writeTextFrame(out, JsonUtil.toJson(Map.of("received", false)));
+            return true;
+        }
+
+        // Regra 1 do CT18: secret errado ou ausente -> fecha a conexão imediatamente SEM responder
+        if (payload == null || payload.getSecret() == null || !isSecretValid(payload.getSecret())) {
+            System.err.println("[CT18 - WebSocket] Evento rejeitado: INTERNAL_SECRET ausente ou invalido.");
+            return false;
+        }
+
+        // Suporte à ADR 0002 (NOTIFICATION_PING)
+        if ("NOTIFICATION_PING".equals(message.getType())) {
+            if (message.getData().has("userId")) {
+                int targetUserId = message.getData().get("userId").getAsInt();
+                @SuppressWarnings("unchecked")
+                Map<String, Object> rawData = JsonUtil.fromJson(message.getData().toString(), Map.class);
+                rawData.remove("secret");
+                ServerState.getInstance().sendNotificationPing(targetUserId, rawData);
+                WebSocketUtil.writeTextFrame(out, JsonUtil.toJson(Map.of("received", true)));
+            } else {
+                WebSocketUtil.writeTextFrame(out, JsonUtil.toJson(Map.of("received", false)));
+            }
+            return true;
+        }
+
+        // Regra 2 do CT18: Validar campos obrigatórios
+        if (!payload.hasRequiredFields()) {
+            WebSocketUtil.writeTextFrame(out, JsonUtil.toJson(Map.of("received", false)));
+            return true;
+        }
+
+        // Regra 3 do CT18: Enfileira o broadcast do CT22 (chamadoAtualizado) e responde {"received": true}
+        boolean queued = ServerState.getInstance().publishTicketEventAsync(payload);
+        WebSocketUtil.writeTextFrame(out, JsonUtil.toJson(Map.of("received", queued)));
+        return true;
     }
 
     private boolean isSecretValid(String receivedSecret) {
