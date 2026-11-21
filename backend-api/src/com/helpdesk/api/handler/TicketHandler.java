@@ -240,8 +240,12 @@ public class TicketHandler implements HttpHandler {
                     }
                 } else if ("DELETE".equalsIgnoreCase(method)) {
                     // Deletar chamado
+                    // Busca antes de deletar: o evento precisa de clientId/supportId
+                    Ticket toDelete = ticketDao.findById(ticketId);
                     boolean deleted = ticketDao.deleteById(ticketId);
                     if (deleted) {
+                        // CT18: avisa o backend-socket que o chamado foi excluído
+                        SocketEventPublisher.ticketDeleted(toDelete);
                         HttpHelper.sendJson(exchange, 200, "{\"success\": true}");
                     } else {
                         HttpHelper.sendError(exchange, 404, "Chamado não encontrado");

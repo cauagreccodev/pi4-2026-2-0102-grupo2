@@ -92,7 +92,9 @@ public final class SocketEventPublisher {
     public static void ticketUpdated(Ticket ticket) {
         publish("UPDATED", ticket);
     }
-
+    public static void ticketDeleted(Ticket ticket) {
+        publish("DELETED", ticket);
+    }
     private static void publish(String action, Ticket ticket) {
         if (SOCKET_URL == null || SOCKET_URL.isBlank() || ticket == null) {
             return;
