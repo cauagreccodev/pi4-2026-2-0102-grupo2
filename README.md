@@ -3,7 +3,7 @@
 > **Projeto Integrador IV** — Sistema de gerenciamento de chamados de suporte técnico com painel administrativo, fluxo de status em tempo real via WebSocket nativo e notificações push orientadas a eventos.
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Vers%C3%A3o-v0.5.0-00B4D8?style=for-the-badge&logo=git&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vers%C3%A3o-v1.0-00B4D8?style=for-the-badge&logo=git&logoColor=white" />
   <img src="https://img.shields.io/badge/Java-21_Puro-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" />
   <img src="https://img.shields.io/badge/WebSocket-RFC_6455-10B981?style=for-the-badge&logo=socketdotio&logoColor=white" />
   <img src="https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
@@ -20,7 +20,7 @@
 - [Acesso à Aplicação](#acesso-à-aplicação)
 - [Sobre o Projeto](#sobre-o-projeto)
   - [Fluxo e Ciclo de Vida dos Chamados](#fluxo-e-ciclo-de-vida-dos-chamados)
-- [Status Atual do Projeto (v0.5.0)](#status-atual-do-projeto-v050)
+- [Status Atual do Projeto (v1.0)](#status-atual-do-projeto-v10)
   - [O que estamos fazendo hoje](#o-que-estamos-fazendo-hoje)
   - [Descarte de Ideias e Alinhamento de Escopo](#descarte-de-ideias-e-alinhamento-de-escopo)
 - [Histórico de Versões (Changelog)](#histórico-de-versões-changelog)
@@ -72,32 +72,31 @@ O ciclo de vida garante integridade operacional: chamados novos criados por soli
 
 ---
 
-## Status Atual do Projeto (v0.5.0)
+## Status Atual do Projeto (v1.0)
 
-> **Módulo Backend Socket ativo com WebSocket RFC 6455 em Java puro, isolamento de escopo por departamento, início de atendimento atômico e formalização de decisões arquiteturais (ADRs).**
+> **Versão de Produção (v1.0): Sistema Help Desk completo e operacional. Ciclo de vida CRUD integral em tempo real via WebSocket (RFC 6455 em Java Puro), isolamento de visibilidade por departamento, esteira de CI/CD com SonarCloud automatizada e resiliência em nuvem.**
 
-### O que estamos fazendo hoje
+---
 
-1. **Ativação e Implementação do Backend Socket (Java Puro & RFC 6455)**:
-   - Implementação do servidor de sockets sobre `java.net.ServerSocket` nativo sem bibliotecas de terceiros (`WebSocketUtil.java` e `Main.java`).
-   - **Handshake HTTP -> WebSocket**: Detecção de `Sec-WebSocket-Key` e negociação formal via status `101 Switching Protocols` utilizando hash SHA-1 e codificação Base64 com o Magic GUID (`258EAFA5-E914-47DA-95CA-C5AB0DC85B11`).
-   - **Frames RFC 6455**: Codificação e decodificação de frames mascarados do navegador, suporte a payloads estendidos (16 e 64 bits), e tratamento de frames de controle (`Ping`, `Pong` e `Close`).
-   - **Health Check & Keep-Alive HTTP**: Atendimento na porta única a requisições `GET /health` e `GET /` com resposta `200 OK` para prevenção de *cold start* no Render.
-   - **Pipeline de Integração Contínua (CI)**: Configuração de GitHub Actions no repositório dedicado `pi4-2026-2-0102-grupo2-backend-socket` que sincroniza automaticamente o código-fonte com o repositório principal.
+## Histórico de Versões (Changelog)
 
-2. **Políticas de Departamento & Controle de Acesso (Backend API)**:
-   - Nova política de departamento (`DepartmentPolicy.java`):
-     - **Isolamento de Visibilidade (`canViewTicket`)**: Usuários comuns agora só podem visualizar chamados cujo solicitante ou técnico pertença ao seu mesmo departamento.
-     - **Privilégios de Gerenciamento (`canManageTickets`)**: Exclusividade para usuários vinculados ao departamento de `"TI"` para gerenciar chamados e iniciar atendimentos.
-     - **Notificações Filtradas**: Notificações restritas aos chamados visíveis pelo departamento do usuário.
+### [v1.0] — Release Final de Produção: Ciclo CRUD Completo, Tempo Real, SonarCloud e Resiliência em Nuvem
+*Versão estável de entrega oficial do Projeto Integrador IV*
 
-3. **Ciclo de Vida de Chamados & Início de Atendimento Atômico**:
-   - Correção do fluxo de criação: chamados recém-abertos persistem obrigatoriamente como status `NEW` até intervenção da TI.
-   - Endpoint dedicado: `POST /api/chamados/:id/iniciar` acionado quando o técnico abre ou inicia o chamado.
-   - Operação atômica em PostgreSQL via Common Table Expression (CTE) no `TicketDao.startService`:
-     ```sql
-     WITH started AS (
-       UPDATE tickets SET status = 'ASSIGNED', support_id = ?, updated_at = CURRENT_TIMESTAMP 
+- **Backend-Socket (v1.0.2)**:
+  - Servidor WebSocket RFC 6455 100% nativo em Java 21 Puro com Rating 'A' no SonarCloud.
+  - Suporte ao ciclo CRUD completo em tempo real (`CREATED`, `UPDATED`, `DELETED`).
+  - Heartbeat Keep-Alive (20s) com Ping frames (`opcode 0x9`) contra encerramento por inatividade em proxies reversos (Render/Cloudflare).
+  - Autenticação resiliente no `CT19` com fallback de sessão contra oscilações de conexão serverless no Neon DB.
+  - Broadcast departamental para colegas do mesmo setor e para toda a equipe de TI.
+  - Suíte completa de testes unitários automatizados com JUnit 5.
+- **Backend-API**:
+  - Exclusão de chamados otimizada com CTE atômica unificada no PostgreSQL (`TicketDao.deleteById`).
+  - Disparo de eventos assíncronos (`CT18`) para criação, atualização e exclusão (`DELETED`).
+  - Cadastro de novos membros do departamento de TI automaticamente como `ADMIN`.
+- **Qualidade & CI/CD**:
+  - Pipeline de análise estática contínua integrada ao **SonarCloud** (`.github/workflows/sonarqube.yml`).
+  - Deploy contínuo ativo no Render (API e Socket) e Vercel (Frontend). 
        WHERE id = ? AND status = 'NEW' RETURNING id
      )
      INSERT INTO ticket_timeline (ticket_id, author_id, event_type, message)
