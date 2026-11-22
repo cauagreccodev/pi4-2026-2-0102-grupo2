@@ -15,7 +15,8 @@ import java.security.SecureRandom;
  */
 public class ClienteWs implements AutoCloseable {
 
-    private static final int TEMPO_MAXIMO_MS = 3000;
+    private static final int TEMPO_MAXIMO_MS = 2_000;
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     private final Socket socket;
     private final InputStream entrada;
@@ -57,7 +58,7 @@ public class ClienteWs implements AutoCloseable {
     public void enviar(String texto) throws IOException {
         byte[] conteudo = texto.getBytes(StandardCharsets.UTF_8);
         byte[] mascara = new byte[4];
-        new SecureRandom().nextBytes(mascara);
+        RANDOM.nextBytes(mascara);
 
         saida.write(0x81);
         if (conteudo.length <= 125) {

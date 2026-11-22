@@ -58,6 +58,7 @@ class WebSocketUtilTest {
         WebSocketUtil.writeTextFrame(saida, "oi");
 
         byte[] bytes = saida.toByteArray();
+        assertTrue(bytes.length >= 4);
         assertEquals(4, bytes.length);
         assertEquals(0x81, bytes[0] & 0xFF); // texto, mensagem completa
         assertEquals(2, bytes[1]);           // tamanho 2, sem mascara

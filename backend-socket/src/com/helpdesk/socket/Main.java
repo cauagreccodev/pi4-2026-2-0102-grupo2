@@ -39,7 +39,7 @@ public class Main {
         ExecutorService connectionPool = Executors.newCachedThreadPool();
 
         // 3. Inicia o Servidor WebSocket na porta publica (CT19, CT18 e CT22)
-        try (ServerSocket wsServerSocket = new ServerSocket(wsPort)) {
+        try (connectionPool; ServerSocket wsServerSocket = new ServerSocket(wsPort)) {
             System.out.println("  [WebSocket Server] Escutando conexoes ws:// e wss:// na porta " + wsPort);
             System.out.println("==========================================================");
 
