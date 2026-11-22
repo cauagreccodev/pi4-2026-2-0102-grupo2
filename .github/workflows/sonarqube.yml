@@ -37,8 +37,8 @@ jobs:
           mkdir -p out
           javac -cp "lib/*" -d out $(find src -name "*.java")
 
-      - name: Executar SonarScanner
-        uses: sonarsource/sonarqube-scan-action@v4
+      - name: Executar SonarCloud Scanner
+        uses: SonarSource/sonarcloud-github-action@v3
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
