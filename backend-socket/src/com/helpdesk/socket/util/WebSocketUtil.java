@@ -25,6 +25,7 @@ public class WebSocketUtil {
      * - Se tiver Sec-WebSocket-Key: promove a conexão para WebSocket (101 Switching Protocols) e retorna true.
      * - Se for Health Check do Render (GET /health, GET /, HEAD): responde 200 OK e retorna false.
      */
+    @SuppressWarnings("java:S4790") // SHA-1 is mandated by RFC 6455 for WebSocket Sec-WebSocket-Accept handshake
     public static boolean performHandshake(InputStream in, OutputStream out) throws IOException { //handshake: aperto de mao
         String requestLine = readHttpLine(in);
         if (requestLine == null || requestLine.isEmpty()) {

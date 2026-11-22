@@ -13,8 +13,12 @@ FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-COPY --from=build /app/out/ out/
-COPY --from=build /app/lib/ lib/
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+COPY --from=build --chown=appuser:appgroup /app/out/ out/
+COPY --from=build --chown=appuser:appgroup /app/lib/ lib/
+
+USER appuser
 
 # Porta do Servidor WebSocket (RFC 6455)
 EXPOSE 5000
