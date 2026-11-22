@@ -68,7 +68,7 @@ public class TicketEventPayload {
      * Valida os campos obrigatórios definidos na ficha CT18.
      */
     public boolean hasRequiredFields() {
-        if (isBlank(action) || (!"CREATED".equals(action) && !"UPDATED".equals(action))) return false;
+        if (isBlank(action) || (!"CREATED".equals(action) && !"UPDATED".equals(action) && !"DELETED".equals(action))) return false;
         if (ticketId == null || ticketId <= 0) return false;
         if (isBlank(title)) return false;
         if (isBlank(status) || !isValidStatus(status)) return false;

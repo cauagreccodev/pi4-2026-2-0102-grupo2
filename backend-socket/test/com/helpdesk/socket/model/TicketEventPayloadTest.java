@@ -61,8 +61,12 @@ class TicketEventPayloadTest {
     @DisplayName("Valores fora da lista da ficha sao recusados")
     void valorInvalidoERecusado() {
         Map<String, Object> acao = eventoCompleto();
-        acao.put("action", "DELETED");
+        acao.put("action", "CANCELADO");
         assertFalse(montar(acao).hasRequiredFields());
+
+        Map<String, Object> deleted = eventoCompleto();
+        deleted.put("action", "DELETED");
+        assertTrue(montar(deleted).hasRequiredFields());
 
         Map<String, Object> status = eventoCompleto();
         status.put("status", "ABERTO");
