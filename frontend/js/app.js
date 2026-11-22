@@ -628,7 +628,7 @@ const App = (() => {
   // Consulta a API para obter o chamado completo e aplicar suas regras de visibilidade.
   let socketBatch = null;
   async function handleTicketUpdated(data) {
-    if (!data || !['CREATED', 'UPDATED'].includes(data.action) ||
+    if (!data || !['CREATED', 'UPDATED', 'DELETED'].includes(data.action) ||
         !Number.isInteger(data.ticketId) || data.ticketId <= 0) return;
     const refresh = reloadTickets({ changed: true });
     const key = `${data.action}:${data.ticketId}`;
@@ -642,6 +642,10 @@ const App = (() => {
       if (!await refresh) return;
       renderLiveViews();
       for (const { action, ticketId } of events.values()) {
+        if (action === 'DELETED') {
+          showToast('info', 'Chamado Excluído', `#${String(ticketId).padStart(4, '0')} foi removido.`);
+          continue;
+        }
         // A sincronização já anuncia novas aberturas à TI.
         if (action === 'CREATED' && isTIUser()) continue;
         const ticket = tickets.find(item => String(item.id) === String(ticketId));
