@@ -6,7 +6,6 @@
   <img src="https://img.shields.io/badge/Versao-v1.0.0-00B4D8?style=for-the-badge&logo=git&logoColor=white" />
   <img src="https://img.shields.io/badge/Java-21_Puro-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" />
   <img src="https://img.shields.io/badge/WebSocket-RFC_6455-10B981?style=for-the-badge&logo=socketdotio&logoColor=white" />
-  <img src="https://img.shields.io/badge/SonarCloud-Rating_A-4A90E2?style=for-the-badge&logo=sonarcloud&logoColor=white" />
   <img src="https://img.shields.io/badge/JUnit-5-25A162?style=for-the-badge&logo=junit5&logoColor=white" />
   <img src="https://img.shields.io/badge/PostgreSQL-15-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
   <img src="https://img.shields.io/badge/Docker-Multi--Stage-2496ED?style=for-the-badge&logo=docker&logoColor=white" />
