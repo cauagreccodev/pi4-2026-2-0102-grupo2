@@ -526,5 +526,6 @@ Projeto desenvolvido para a disciplina de **Projeto Integrador IV (2026-2)** —
 - **Vinicius Fortes Heinzl** — RA: 25008058
 - **Pedro Henrique Vieira Lima** — RA: 25018202
 - **Kaue Rodrigues Seixas** — RA: 23011884
+- Lucas Curti Rodrigues Pinto - RA: 25001822
 
 *Este projeto possui finalidade estritamente academica e de demonstracao de engenharia de software full-stack.*
