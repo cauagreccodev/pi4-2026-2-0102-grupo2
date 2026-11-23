@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PROJETO-0102-grupo02 — Documento de Projeto HelpDesk</title>
+  <style>
+    /* Estilos Gerais para Tela e Impressao A4 */
+    @page {
+      size: A4;
+      margin: 2.5cm 2.2cm 2.5cm 2.2cm;
+      @bottom-right {
+        content: counter(page);
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 9pt;
+        color: #64748b;
+      }
+      @bottom-left {
+        content: "PUC-Campinas · Projeto Integrador IV · Grupo 02";
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 8pt;
+        color: #94a3b8;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.6;
+      color: #1e293b;
+      background-color: #ffffff;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Quebras de Pagina */
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+    }
+
+    .avoid-break {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    /* Capa Academica */
+    .cover-page {
+      min-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .cover-header {
+      border-bottom: 2px solid #0284c7;
+      padding-bottom: 25px;
+    }
+
+    .cover-institution {
+      font-size: 15pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #0f172a;
+      margin: 0;
+    }
+
+    .cover-faculty {
+      font-size: 12pt;
+      font-weight: 600;
+      color: #334155;
+      margin-top: 5px;
+    }
+
+    .cover-course {
+      font-size: 11pt;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .cover-discipline {
+      font-size: 11.5pt;
+      font-weight: 600;
+      color: #0284c7;
+      margin-top: 8px;
+    }
+
+    .cover-body {
+      margin: 60px 0;
+    }
+
+    .cover-title {
+      font-size: 23pt;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.25;
+      margin: 0 0 15px 0;
+    }
+
+    .cover-subtitle {
+      font-size: 12.5pt;
+      font-weight: 400;
+      color: #475569;
+      font-style: italic;
+      max-width: 680px;
+      margin: 0 auto;
+      line-height: 1.45;
+    }
+
+    .cover-authors-box {
+      margin: 35px auto 0 auto;
+      max-width: 520px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 18px 25px;
+      text-align: left;
+    }
+
+    .cover-authors-title {
+      font-size: 10pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #0284c7;
+      margin-bottom: 8px;
+    }
+
+    .cover-author-item {
+      font-size: 10pt;
+      color: #1e293b;
+      margin: 4px 0;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .cover-author-ra {
+      color: #64748b;
+      font-family: 'Consolas', monospace;
+      font-size: 9.5pt;
+    }
+
+    .cover-footer {
+      border-top: 1px solid #e2e8f0;
+      padding-top: 20px;
+    }
+
+    .cover-advisor {
+      font-size: 11pt;
+      color: #334155;
+      margin-bottom: 15px;
+    }
+
+    .cover-advisor strong {
+      color: #0f172a;
+    }
+
+    .cover-location {
+      font-size: 10pt;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Sumario */
+    .toc {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 24px 30px;
+      margin: 25px 0 35px 0;
+    }
+
+    .toc h2 {
+      margin-top: 0;
+      font-size: 15pt;
+      color: #0f172a;
+      border-bottom: 2px solid #0284c7;
+      padding-bottom: 8px;
+    }
+
+    .toc ul {
+      list-style-type: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .toc li {
+      margin: 7px 0;
+      font-size: 10pt;
+    }
+
+    .toc li a {
+      color: #0369a1;
+      text-decoration: none;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .toc li a:hover {
+      text-decoration: underline;
+    }
+
+    .toc .toc-sub {
+      padding-left: 20px;
+      font-size: 9.5pt;
+      color: #475569;
+    }
+
+    /* Tipografia de Titulos */
+    h1, h2, h3, h4 {
+      color: #0f172a;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    h1 {
+      font-size: 17pt;
+      border-bottom: 2px solid #0284c7;
+      padding-bottom: 8px;
+      margin-top: 35px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      font-size: 13.5pt;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 5px;
+      margin-top: 25px;
+      margin-bottom: 14px;
+      color: #1e293b;
+    }
+
+    h3 {
+      font-size: 11.5pt;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      color: #334155;
+    }
+
+    h4 {
+      font-size: 10.5pt;
+      margin-top: 15px;
+      margin-bottom: 8px;
+      color: #475569;
+    }
+
+    p {
+      margin: 0 0 12px 0;
+      text-align: justify;
+    }
+
+    ul, ol {
+      margin: 0 0 14px 0;
+      padding-left: 24px;
+    }
+
+    li {
+      margin-bottom: 5px;
+    }
+
+    /* Tabelas */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 22px 0;
+      font-size: 9pt;
+    }
+
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 7px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      font-weight: 700;
+      border-bottom: 2px solid #94a3b8;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #f8fafc;
+    }
+
+    /* Caixas de Destaque */
+    .callout {
+      border-left: 4px solid #0284c7;
+      background-color: #f0f9ff;
+      padding: 12px 16px;
+      margin: 16px 0;
+      border-radius: 0 6px 6px 0;
+      font-size: 10pt;
+    }
+
+    .callout-title {
+      font-weight: 700;
+      color: #0369a1;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      font-size: 8.5pt;
+      letter-spacing: 0.5px;
+    }
+
+    .callout-success {
+      border-left-color: #10b981;
+      background-color: #ecfdf5;
+    }
+    .callout-success .callout-title { color: #047857; }
+
+    .callout-warning {
+      border-left-color: #f59e0b;
+      background-color: #fffbeb;
+    }
+    .callout-warning .callout-title { color: #b45309; }
+
+    /* Blocos de Codigo e Diagramas ASCII */
+    pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 8.5pt;
+      line-height: 1.45;
+      padding: 12px 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 14px 0 20px 0;
+      border: 1px solid #1e293b;
+    }
+
+    code {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 9pt;
+      background-color: #f1f5f9;
+      color: #0f172a;
+      padding: 1px 5px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      border: none;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      font-size: 7.5pt;
+      font-weight: 700;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-primary { background: #e0f2fe; color: #0369a1; }
+    .badge-success { background: #dcfce7; color: #15803d; }
+    .badge-warning { background: #fef3c7; color: #b45309; }
+
+    /* Estilos Especificos para Impressao */
+    @media print {
+      body {
+        font-size: 9.5pt;
+        color: #000;
+      }
+      .container {
+        max-width: 100%;
+        padding: 0;
+      }
+      a {
+        color: #000;
+        text-decoration: none;
+      }
+      pre {
+        background-color: #1e293b !important;
+        color: #fff !important;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+      .toc a {
+        color: #000;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ================= CAPA ================= -->
+  <div class="cover-page">
+    <div class="cover-header">
+      <div class="cover-institution">Pontificia Universidade Catolica de Campinas</div>
+      <div class="cover-faculty">Centro de Ciencias Exatas, Ambientais e de Tecnologias — CEATEC</div>
+      <div class="cover-course">Graduacao em Sistemas de Informacao / Analise e Desenvolvimento de Sistemas</div>
+      <div class="cover-discipline">Projeto Integrador IV (2026-2) — Turma 0102 — Grupo 02</div>
+    </div>
+
+    <div class="cover-body">
+      <h1 class="cover-title">HelpDesk — Sistema Corporativo de Gerenciamento de Chamados de TI</h1>
+      <div class="cover-subtitle">
+        Documento de Projeto de Software: Arquitetura Orientada a Eventos em Java 21 Puro, Protocolo WebSocket RFC 6455, API RESTful, PostgreSQL Neon e Single Page Application Vanilla
+      </div>
+
+      <div class="cover-authors-box">
+        <div class="cover-authors-title">Integrantes da Equipe / Responsaveis</div>
+        <div class="cover-author-item">
+          <span>Caua Vasconcelos Grecco De Faria</span>
+          <span class="cover-author-ra">RA: 25006367</span>
+        </div>
+        <div class="cover-author-item">
+          <span>Rafael Trevisan</span>
+          <span class="cover-author-ra">RA: 25002001</span>
+        </div>
+        <div class="cover-author-item">
+          <span>Vinicius Fortes Heinzl</span>
+          <span class="cover-author-ra">RA: 25008058</span>
+        </div>
+        <div class="cover-author-item">
+          <span>Pedro Henrique Vieira Lima</span>
+          <span class="cover-author-ra">RA: 25018202</span>
+        </div>
+        <div class="cover-author-item">
+          <span>Kaue Rodrigues Seixas</span>
+          <span class="cover-author-ra">RA: 23011884</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-footer">
+      <div class="cover-location">Campinas - SP · Novembro de 2026</div>
+    </div>
+  </div>
+
+  <!-- ================= SUMARIO ================= -->
+  <div class="page-break"></div>
+  <div class="toc">
+    <h2>Sumario do Documento</h2>
+    <ul>
+      <li><a href="#cap1"><span>1. Introducao</span> <span>Pag. 3</span></a></li>
+      <li class="toc-sub"><a href="#cap1-1">1.1 Contexto e Justificativa</a></li>
+      <li class="toc-sub"><a href="#cap1-2">1.2 Problema</a></li>
+      <li class="toc-sub"><a href="#cap1-3">1.3 Objetivos (Geral e Especificos)</a></li>
+      <li class="toc-sub"><a href="#cap1-4">1.4 Publico-Alvo e Personas</a></li>
+
+      <li><a href="#cap2"><span>2. Descricao da Solucao</span> <span>Pag. 4</span></a></li>
+      <li class="toc-sub"><a href="#cap2-1">2.1 Visao Geral do Produto</a></li>
+      <li class="toc-sub"><a href="#cap2-2">2.2 Principais Funcionalidades</a></li>
+      <li class="toc-sub"><a href="#cap2-3">2.3 Diferenciais e Proposta de Valor</a></li>
+
+      <li><a href="#cap3"><span>3. Metodologia e Processo de Desenvolvimento</span> <span>Pag. 5</span></a></li>
+      <li class="toc-sub"><a href="#cap3-1">3.1 Metodologia de Trabalho (Scrum/Kanban)</a></li>
+      <li class="toc-sub"><a href="#cap3-2">3.2 Papeis e Responsabilidades da Equipe</a></li>
+      <li class="toc-sub"><a href="#cap3-3">3.3 Ferramentas de Gestao e Comunicacao</a></li>
+
+      <li><a href="#cap4"><span>4. Arquitetura e Tecnologias</span> <span>Pag. 6</span></a></li>
+      <li class="toc-sub"><a href="#cap4-1">4.1 Visao Geral e Diagrama de Conteineres C4 (Nivel 2)</a></li>
+      <li class="toc-sub"><a href="#cap4-2">4.2 Camada Frontend (SPA Vanilla)</a></li>
+      <li class="toc-sub"><a href="#cap4-3">4.3 Backend API (Java 21 Puro REST)</a></li>
+      <li class="toc-sub"><a href="#cap4-4">4.4 Backend Socket (Java 21 Puro RFC 6455)</a></li>
+      <li class="toc-sub"><a href="#cap4-5">4.5 Banco de Dados Relacional (Neon PostgreSQL)</a></li>
+      <li class="toc-sub"><a href="#cap4-6">4.6 Infraestrutura, Conteinerizacao e Deploy</a></li>
+
+      <li><a href="#cap5"><span>5. Modelagem de Dados e Banco de Dados</span> <span>Pag. 8</span></a></li>
+      <li class="toc-sub"><a href="#cap5-1">5.1 Diagrama Entidade-Relacionamento (DER)</a></li>
+      <li class="toc-sub"><a href="#cap5-2">5.2 Modelo Logico e Integridade Referencial</a></li>
+      <li class="toc-sub"><a href="#cap5-3">5.3 Dicionario de Dados Detalhado (5 Tabelas)</a></li>
+
+      <li><a href="#cap6"><span>6. Historias de Usuario e Criterios de Aceite</span> <span>Pag. 10</span></a></li>
+      <li class="toc-sub"><a href="#cap6-1">6.1 Historias de Usuario (Matriz MoSCoW)</a></li>
+      <li class="toc-sub"><a href="#cap6-2">6.2 Criterios de Aceite em Formato BDD / Gherkin</a></li>
+
+      <li><a href="#cap7"><span>7. Casos de Uso e Diagramas de Atividades</span> <span>Pag. 11</span></a></li>
+      <li class="toc-sub"><a href="#cap7-1">7.1 Mapeamento dos Entregaveis Centrais (E1 a E9)</a></li>
+      <li class="toc-sub"><a href="#cap7-2">7.2 Diagramas de Sequencia dos Fluxos Criticos</a></li>
+
+      <li><a href="#cap8"><span>8. Qualidade e Testes de Software</span> <span>Pag. 13</span></a></li>
+      <li class="toc-sub"><a href="#cap8-1">8.1 Estrategia de Testes e Foco Arquitetural</a></li>
+      <li class="toc-sub"><a href="#cap8-2">8.2 Testes Automatizados com JUnit 5 no Backend Socket</a></li>
+      <li class="toc-sub"><a href="#cap8-3">8.3 Analise Estatica de Codigo com SonarCloud</a></li>
+      <li class="toc-sub"><a href="#cap8-4">8.4 Testes de Concorrencia, Integracao e Manuais</a></li>
+
+      <li><a href="#cap9"><span>9. Manual de Implantacao e Uso (README.md)</span> <span>Pag. 15</span></a></li>
+
+      <li><a href="#cap10"><span>10. Resultados e Discussao</span> <span>Pag. 19</span></a></li>
+      <li class="toc-sub"><a href="#cap10-1">10.1 Funcionalidades Entregues vs. Planejadas</a></li>
+      <li class="toc-sub"><a href="#cap10-2">10.2 Desafios Tecnicos e Storyline de Superacao</a></li>
+      <li class="toc-sub"><a href="#cap10-3">10.3 Avaliacao do Processo e Dinamica da Equipe</a></li>
+
+      <li><a href="#cap11"><span>11. Conclusao e Trabalhos Futuros</span> <span>Pag. 21</span></a></li>
+      <li class="toc-sub"><a href="#cap11-1">11.1 Conclusao</a></li>
+      <li class="toc-sub"><a href="#cap11-2">11.2 Limitacoes Conhecidas</a></li>
+      <li class="toc-sub"><a href="#cap11-3">11.3 Trabalhos Futuros</a></li>
+
+      <li><a href="#apendice-a"><span>Apendice A — Registro de Decisoes de Arquitetura (ADRs)</span> <span>Pag. 22</span></a></li>
+      <li><a href="#apendice-b"><span>Apendice B — Historico Semantico de Versoes (Changelog)</span> <span>Pag. 23</span></a></li>
+    </ul>
+  </div>
+
+  <!-- ================= CAPITULO 1 ================= -->
+  <div class="page-break"></div>
+  <h1 id="cap1">1. Introducao</h1>
+
+  <h2 id="cap1-1">1.1 Contexto e Justificativa</h2>
+  <p>
+    No cenario corporativo moderno, a infraestrutura de Tecnologia da Informacao constitui a espinha dorsal da produtividade organizacional. Interrupcoes em maquinas de trabalho, falhas em impressoras de rede, instabilidade em conexoes de dados e duvidas relativas a acessos e sistemas internos impactam diretamente o faturamento e a fluidez das rotinas operacionais.
+  </p>
+  <p>
+    Tradicionalmente, muitas instituicoes ainda gerenciam essas demandas por canais descentralizados, tais como e-mails soltos, mensagens instantaneas em aplicativos corporativos ou solicitacoes verbais de corredor. Esse modelo gera perda sistemica de historico, descontrole de prazos de atendimento (SLA), sobreposicao de esforcos entre tecnicos e extrema insatisfacao dos colaboradores solicitantes, que permanecem desinformados sobre o andamento de suas ocorrencias.
+  </p>
+  <p>
+    O desenvolvimento de um sistema corporativo de Help Desk moderno, dotado de comunicacao em tempo real e controle departamental rigoroso, justifica-se pela urgente necessidade de conferir visibilidade imediata, padronizar a triagem de incidentes e fornecer metricas concretas para a gestao estrategica de TI.
+  </p>
+
+  <h2 id="cap1-2">1.2 Problema</h2>
+  <p>
+    A grande maioria das solucoes existentes no mercado ou e demasiadamente onerosa e inchada de funcionalidades irrelevantes para o suporte agil, ou opera sobre tecnologias legadas fundamentadas no modelo de <em>polling HTTP repetitivo</em> — onde a aplicacao cliente no navegador envia requisicoes continuas a cada poucos segundos para verificar novidades. Esse padrao gera consumo excessivo de largura de banda, onera bancos de dados com leituras redundantes e introduz atrasos perceptiveis na notificacao de novos incidentes.
+  </p>
+  <p>
+    Sob o prisma da engenharia de software e dos requisitos pedagogicos do <strong>Projeto Integrador IV</strong>, o desafio residiu em conceber e construir uma solucao full-stack distribuida de alta performance <strong>sem o emprego de frameworks web pesados</strong> (como Spring Boot, Quarkus ou Netty), obrigando a equipe a implementar os protocolos HTTP REST e WebSocket diretamente sobre a biblioteca padrao do <strong>Java 21 Puro</strong>.
+  </p>
+
+  <h2 id="cap1-3">1.3 Objetivos (Geral e Especificos)</h2>
+  
+  <h3>Objetivo Geral</h3>
+  <p>
+    Projetar, implementar, testar e publicar em ambiente de computacao em nuvem uma solucao corporativa distribuida de Help Desk com notificacoes push instantaneas, integrando uma Single Page Application nativa, uma API RESTful de persistencia transacional e um servidor de WebSocket concorrente baseado na RFC 6455 em Java Puro.
+  </p>
+
+  <h3>Objetivos Especificos</h3>
+  <ul>
+    <li>Construir a camada de interface com HTML5, CSS3 Vanilla e JavaScript ES6+, assegurando responsividade completa, alternancia de temas Claro/Escuro e internacionalizacao sem dependencias de bibliotecas client-side.</li>
+    <li>Desenvolver a API RESTful baseada em <code>com.sun.net.httpserver</code>, com persistencia via JDBC puro em banco relacional PostgreSQL 15+ no Neon, aplicando transacoes atômicas para controle de concorrencia.</li>
+    <li>Implementar manualmente o protocolo RFC 6455 sobre <code>java.net.ServerSocket</code>, tratando aperto de mao HTTP 101, criptografia SHA-1/Base64, decodificacao de frames mascarados e despacho concorrente multithread.</li>
+    <li>Projetar os contratos de integracao inter-processos (CT18, CT19, CT22) para que a criacao, atualizacao e exclusao de chamados sejam refletidas instantaneamente em todos os clientes conectados.</li>
+    <li>Estruturar esteira de qualidade continua com analise estatica no SonarCloud e suite de testes automatizados com JUnit 5 cobrindo o motor de socket e os protocolos de rede.</li>
+    <li>Disponibilizar a aplicacao integralmente em nuvem publica (Vercel, Render e Neon DB) com estrategias de resiliencia operacional contra cold start.</li>
+  </ul>
+
+  <h2 id="cap1-4">1.4 Publico-Alvo e Personas</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Persona</th>
+        <th style="width: 25%;">Perfil / Papel</th>
+        <th style="width: 50%;">Necessidades e Dores Principais</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Carlos Andrade</strong></td>
+        <td>Funcionario Solicitante (Financeiro)</td>
+        <td>Necessita de um canal direto e simples para abrir solicitacoes tecnicas; precisa visualizar o status do chamado em tempo real e acompanhar os chamados abertos por seus colegas de departamento para nao gerar chamados duplicados.</td>
+      </tr>
+      <tr>
+        <td><strong>Beatriz Souza</strong></td>
+        <td>Tecnica de Suporte Nivel 1/2 (TI)</td>
+        <td>Necessita de uma fila unificada e visualizacao em Kanban; precisa receber alertas imediatos sonoros e visuais de novas solicitacoes; demanda mecanismo exclusivo de atribuicao ("Iniciar Atendimento") para evitar duplicidade de atendimento com outros tecnicos.</td>
+      </tr>
+      <tr>
+        <td><strong>Roberto Mendes</strong></td>
+        <td>Coordenador de TI (Administrador)</td>
+        <td>Necessita de governanca centralizada de usuarios, controle de permissoes RBAC, monitoramento de metricas de SLA e garantia de que chamados sigilosos de setores como Financeiro e RH sejam visualizados apenas por partes autorizadas.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ================= CAPITULO 2 ================= -->
+  <div class="page-break"></div>
+  <h1 id="cap2">2. Descricao da Solucao</h1>
+
+  <h2 id="cap2-1">2.1 Visao Geral do Produto</h2>
+  <p>
+    O <strong>HelpDesk</strong> e uma plataforma corporativa modularizada que conecta departamentos de uma organizacao a sua equipe central de suporte de TI. O sistema e distribuido em tres camadas autônomas: o cliente web (SPA Vanilla), o servidor transacional de dados (Backend API) e o servidor de difusao em tempo real (Backend Socket), suportados por um banco de dados relacional PostgreSQL serverless na nuvem.
+  </p>
+
+  <h2 id="cap2-2">2.2 Principais Funcionalidades</h2>
+  <ul>
+    <li><strong>Autenticacao Segura e RBAC:</strong> Gestao de acesso baseada em papeis (<code>CLIENT</code>, <code>SUPPORT</code>, <code>ADMIN</code>) com senhas armazenadas com hash BCrypt e sessoes validadas por tokens criptografados HMAC-SHA256.</li>
+    <li><strong>Politica Departamental de Seguranca (<code>DepartmentPolicy</code>):</strong> Filtragem nativa de visibilidade; funcionarios comuns acessam exclusivamente solicitacoes pertinentes ao seu setor, enquanto a equipe de TI possui visibilidade global.</li>
+    <li><strong>Abertura e Triagem Inteligente:</strong> Classificacao por categorias tecnicas (Hardware, Software, Rede, Acessos), definicao de criticidade (Baixa, Media, Alta, Urgente) e detalhamento textual.</li>
+    <li><strong>Atribuicao Atomica de Atendimento:</strong> Funcionalidade exclusiva da TI que realiza a transicao do chamado do estado <code>NEW</code> para <code>ASSIGNED</code> em uma operacao SQL CTE atômica, eliminando condicoes de corrida.</li>
+    <li><strong>Quadro Kanban e Lista Dinamica:</strong> Alternancia de visualizacao com colunas representativas do fluxo operacional: <em>Aguardando TI</em>, <em>Em Atendimento</em>, <em>Resolvido</em> e <em>Nao Concluido</em>.</li>
+    <li><strong>Notificacoes Push em Tempo Real:</strong> Alertas acusticos e contadores visuais incrementados automaticamente nos navegadores conectados sem necessidade de recarregamento.</li>
+    <li><strong>Linha do Tempo Auditavel (Timeline):</strong> Rastreabilidade ponta a ponta de todas as interacoes, transferencias de responsabilidade e encerramentos.</li>
+    <li><strong>Dashboard Administrativo Reativo:</strong> Consolidacao estatistica de indicadores operacionais e tempos medios de resposta calculados sobre dados reais persistidos.</li>
+  </ul>
+
+  <h2 id="cap2-3">2.3 Diferenciais e Proposta de Valor</h2>
+  <div class="callout callout-success">
+    <div class="callout-title">Destaque de Engenharia de Software</div>
+    Ao inves de utilizar bibliotecas de alto nivel que ocultam a complexidade de rede, a equipe implementou a <strong>norma RFC 6455 do zero em Java Puro</strong>. Isso confere ao sistema pegada de memoria inferior a 150MB por conteiner, inicializacao instantanea e controle absoluto sobre frames, mascaramento e concorrencia thread-safe.
+  </div>
+  <ul>
+    <li><strong>Tolerancia a Falhas de Nuvem:</strong> Mecanismo de heartbeat continuo via frames de Ping a cada 20 segundos previne o encerramento prematuro de sockets por roteadores e proxies de borda (como Render e Cloudflare).</li>
+    <li><strong>Reconciliacao Automatica de Estado:</strong> O cliente web implementa maquina de estados resiliente com reconexao em backoff exponencial; ao restabelecer a conexao, sincroniza os chamados perdidos de forma transparente.</li>
+  </ul>
+
+  <!-- ================= CAPITULO 3 ================= -->
+  <div class="page-break"></div>
+  <h1 id="cap3">3. Metodologia e Processo de Desenvolvimento</h1>
+
+  <h2 id="cap3-1">3.1 Metodologia de Trabalho (Scrum/Kanban)</h2>
+  <p>
+    A equipe utilizou uma adaptacao agil hibrida entre Scrum e Kanban, organizando as entregas em ciclos semanais orientados aos marcos do Projeto Integrador IV:
+  </p>
+  <ul>
+    <li><strong>Sprint 1 (Concepcao e Modelagem):</strong> Levantamento de escopo, mapeamento das personas e modelagem relacional de dados em 5 tabelas normalizadas.</li>
+    <li><strong>Sprint 2 (Prototipacao e Interface):</strong> Desenvolvimento da interface SPA Vanilla com Design Tokens, tokens de tema light/dark e mock inicial de dados.</li>
+    <li><strong>Sprint 3 (Backend API e Persistencia):</strong> Implementacao dos DAOs JDBC em Java Puro, criacao dos endpoints REST, validacao de senhas com BCrypt e controle de acesso RBAC.</li>
+    <li><strong>Sprint 4 (Backend Socket e Integracao em Tempo Real):</strong> Construcao do servidor WebSocket RFC 6455, implementacao dos contratos CT18, CT19 e CT22 e orquestracao de eventos.</li>
+    <li><strong>Sprint 5 (Qualidade, CI/CD e Homologacao):</strong> Suite de testes JUnit 5 no Backend Socket, esteira de analise estatica no SonarCloud, deploy em nuvem e documentacao final.</li>
+  </ul>
+
+  <h2 id="cap3-2">3.2 Papeis e Responsabilidades da Equipe</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 30%;">Integrante</th>
+        <th style="width: 25%;">Papel Principal</th>
+        <th style="width: 45%;">Principais Entregas e Responsabilidades</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Caua Vasconcelos Grecco De Faria</strong></td>
+        <td>Arquiteto de Software & Engenheiro de Socket</td>
+        <td>Implementacao manual da RFC 6455 em Java Puro, arquitetura concorrente (Thread Pools, ConcurrentHashMap), suite automatizada JUnit 5, pipeline SonarCloud e esteira CI/CD.</td>
+      </tr>
+      <tr>
+        <td><strong>Kaue Rodrigues Seixas</strong></td>
+        <td>Engenheiro de Backend API & Banco de Dados</td>
+        <td>Modelagem relacional SQL no Neon DB, desenvolvimento dos DAOs JDBC, handlers HTTP REST, transacoes atômicas CTE (startService) e politicas de departamento.</td>
+      </tr>
+      <tr>
+        <td><strong>Vinicius Fortes Heinzl</strong></td>
+        <td>Engenheiro de Frontend</td>
+        <td>Arquitetura da Single Page Application (SPA Vanilla), Design System modular, cliente WebSocket (socket.js), integracao REST (api.js) e internacionalizacao (i18n).</td>
+      </tr>
+      <tr>
+        <td><strong>Rafael Trevisan</strong></td>
+        <td>Engenheiro de Qualidade & Analista de Negocio</td>
+        <td>Levantamento de requisitos, elaboracao de casos de teste, testes exploratorios de ponta a ponta, validacao de concorrencia e conformidade de escopo.</td>
+      </tr>
+      <tr>
+        <td><strong>Pedro Henrique Vieira Lima</strong></td>
+        <td>Desenvolvedor Full-Stack & Documentador</td>
+        <td>Apoio na integracao de componentes, elaboracao dos diagramas de fluxo, documentacao tecnica e manual de operacao do sistema.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 id="cap3-3">3.3 Ferramentas de Gestao e Comunicacao</h2>
+  <ul>
+    <li><strong>GitHub Monorepo & Projects:</strong> Gestao visual de tarefas atraves de quadros Kanban integrados a issues, rastreamento de branches tematicas e revisao de codigo via pull requests.</li>
+    <li><strong>OpenProject:</strong> Sistema oficial de gestao de chamados internos de desenvolvimento, utilizado para abertura, priorizacao e rastreamento de tarefas criticas e bugs da equipe (como o Card #1437 para Heartbeat Keep-Alive e Broadcast Setorial, e o Card #1445 para Autenticacao Resiliente contra oscilacoes do banco Neon).</li>
+    <li><strong>SonarCloud:</strong> Analise estatica continua e Quality Gate integrado ao workflow de pull requests do GitHub Actions.</li>
+    <li><strong>Discord & WhatsApp:</strong> Comunicacao diaria assincrona, definicao de prioridades e realizacao de sessoes sincronas de alinhamento arquitetural.</li>
+  </ul>
+
+  <!-- ================= CAPITULO 4 ================= -->
+  <div class="page-break"></div>
+  <h1 id="cap4">4. Arquitetura e Tecnologias</h1>
+
+  <h2 id="cap4-1">4.1 Visao Geral e Diagrama de Conteineres C4 (Nivel 2)</h2>
+  <p>
+    A solucao adota o padrao arquitetural de <strong>microsservicos orientados a eventos</strong>. A camada de persistencia de regras de negocio (Backend API) e mantida fisicamente desacoplada da camada de transmissao de eventos em tempo real (Backend Socket), garantindo que conexoes WebSocket lentas ou oscilacoes de rede nunca degradem o tempo de resposta das transacoes REST.
+  </p>
+
+  <pre>
++------------------------------------------------------------------------+
+|                          Cliente (Navegador)                           |
+|                     HTML5 / CSS3 Vanilla / JS ES6+                     |
++-----------------------+--------------------------------+---------------+
+                        | Acoes & Consultas CRUD         | WebSocket Seguro (WSS)
+                        | HTTPS REST (:8000)             | Sessao & Eventos (:5000)
+                        v                                v
++--------------------------------------+   +-----------------------------+
+|       Conteiner 1: Backend API       |   | Conteiner 2: Backend Socket |
+|        (com.sun.net.httpserver)      |   |   (java.net.ServerSocket)   |
+|   Auth, CRUD, DAOs, Regras e SLA     |   |   RFC 6455 & Notificacoes   |
++-----------------------+--------------+   +-------------+---------------+
+                        |                                ^
+                        | Eventos de Chamados (CT18)     |
+                        +--------------------------------+
+                        | WebSocket Persistente Interno com INTERNAL_SECRET
+                        |
+                        | JDBC / TLS                     | Validacao de Token &
+                        v                                v Perfil de Usuario
++------------------------------------------------------------------------+
+|                  Banco de Dados Relacional Externo                     |
+|                       PostgreSQL 15+ no Neon                           |
++------------------------------------------------------------------------+
+  </pre>
+
+  <h2 id="cap4-2">4.2 Camada Frontend (SPA Vanilla)</h2>
+  <p>
+    O frontend foi construido sem frameworks intermediarios (como React ou Angular), eliminando dependencias pesadas de compilação ou empacotamento (bundlers). A arquitetura apoia-se em modulos ES6 nativos encapsulados:
+  </p>
+  <ul>
+    <li><code>router.js</code>: Gerenciamento do ciclo de vida das visoes por meio de alteracoes no hash da URL.</li>
+    <li><code>data.js</code>: Gerenciador de estado reativo sincronizado com o Neon DB.</li>
+    <li><code>api.js</code>: Cliente HTTP assincrono padronizado com interceptacao de Bearer token e tratamento centralizado de excecoes.</li>
+    <li><code>socket.js</code>: Motor cliente WebSocket responsavel pelo envio do envelope de autenticacao (CT19), escuta de eventos (CT22), controle de backoff exponencial e reconciliacao de chamados pos-reconexao.</li>
+  </ul>
+
+  <h2 id="cap4-3">4.3 Backend API (Java 21 Puro REST)</h2>
+  <p>
+    Construido sobre o servidor HTTP nativo da plataforma Java (<code>com.sun.net.httpserver.HttpServer</code>). Opera com pool de threads desacoplado para atendimento multithread. As operacoes de persistencia comunicam-se diretamente com o PostgreSQL atraves de JDBC puro. 
+  </p>
+  <p>
+    O componente <code>SocketEventPublisher</code> garante a integracao inter-processos com o Backend Socket: ele enfileira os eventos de alteracao de chamados em uma <code>LinkedBlockingQueue</code> consumida por um worker daemon que mantem uma <strong>conexao WebSocket interna persistente e reutilizavel</strong>, autenticada pelo segredo compartilhado <code>INTERNAL_SECRET</code> (Contrato CT18).
+  </p>
+
+  <h2 id="cap4-4">4.4 Backend Socket (Java 21 Puro RFC 6455)</h2>
+  <p>
+    Implementa um listener de rede em nivel de transporte sobre <code>java.net.ServerSocket</code>. Cada conexao aceita e delegada a um pool gerenciado de threads (<code>ExecutorService</code>). A implementacao contem:
+  </p>
+  <ul>
+    <li><strong>Handshake Manual RFC 6455:</strong> Interpretacao dos cabecalhos HTTP, extracao de <code>Sec-WebSocket-Key</code>, calculo do hash criptografico SHA-1 com o GUID fixo e envio da resposta padronizada <code>101 Switching Protocols</code>.</li>
+    <li><strong>Decodificacao Bit-a-Bit de Frames:</strong> Leitura de fluxos de bytes, deteccao do bit FIN, opcode de controle e dados, extracao da chave de mascara de 4 bytes e aplicacao da operacao bitwise XOR para recuperacao do texto original enviado pelo navegador.</li>
+    <li><strong>Concorrencia Thread-Safe:</strong> Armazenamento de conexoes ativas indexadas por identificador de usuario em <code>ConcurrentHashMap&lt;Integer, Set&lt;ConnectionHandler&gt;&gt;</code>.</li>
+    <li><strong>Mecanismo de Keep-Alive:</strong> Thread temporizada que transmite periodicamente frames de Ping (<code>opcode 0x9</code>) a cada 20 segundos para prevencao de timeouts em infraestruturas de nuvem.</li>
+  </ul>
+
+  <h2 id="cap4-5">4.5 Banco de Dados Relacional (Neon PostgreSQL)</h2>
+  <p>
+    SGBD relacional PostgreSQL 15+ em arquitetura serverless provido pela Neon.tech. O banco impoe integridade referencial estrita, constraints de checagem em tipos enumerados (status, prioridade, perfis) e execucao de queries de transicao atomica para impedir que ocorram colisoes de atualizacao concorrente.
+  </p>
+
+  <h2 id="cap4-6">4.6 Infraestrutura, Conteinerizacao e Deploy</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Modulo</th>
+        <th style="width: 30%;">Ambiente / Provedor</th>
+        <th style="width: 45%;">Caracteristicas de Implantacao</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Frontend</strong></td>
+        <td>Vercel</td>
+        <td>Distribuicao estatica global por borda (Edge CDN) com HTTPS forçado e roteamento SPA.</td>
+      </tr>
+      <tr>
+        <td><strong>Backend API</strong></td>
+        <td>Render (Web Service)</td>
+        <td>Conteiner Docker multi-stage (Temurin 21 JRE Alpine), com portas e variaveis de ambiente injetadas em tempo de execucao.</td>
+      </tr>
+      <tr>
+        <td><strong>Backend Socket</strong></td>
+        <td>Render (Web Service)</td>
+        <td>Conteiner Docker multi-stage executando o listener TCP na porta 5000, com suporte a WSS seguro e Health Check HTTP na raiz.</td>
+      </tr>
+      <tr>
+        <td><strong>Banco de Dados</strong></td>
+        <td>Neon.tech (AWS us-east-2)</td>
+        <td>PostgreSQL serverless gerenciado com pooling de conexoes e criptografia TLS obrigatoria.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ================= CAPITULO 5 ================= -->
+  <div class="page-break"></div>
+  <h1 id="cap5">5. Modelagem de Dados e Banco de Dados</h1>
+
+  <h2 id="cap5-1">5.1 Diagrama Entidade-Relacionamento (DER)</h2>
+  <p>
+    O modelo de dados e normalizado na Terceira Forma Normal (3FN), segregando usuarios, categorias tecnicas, chamados, linha do tempo e notificacoes:
+  </p>
+
+  <pre>
++---------------+          1:N           +---------------+
+|     USERS     |----------------------< |    TICKETS    |
+| (Colaborador) |                        |   (Chamado)   |
++---------------+                        +---------------+
+       |                                         |
+       | 1:N                                     | 1:N
+       v                                         v
++---------------+                        +---------------+
+| NOTIFICATIONS |                        |TICKET_TIMELINE|
+| (Notificacoes)|                        |  (Historico)  |
++---------------+                        +---------------+
+       ^
+       | N:1
++---------------+
+|  CATEGORIES   |
+| (Classificao) |
++---------------+
+  </pre>
+
+  <h2 id="cap5-2">5.2 Modelo Logico e Integridade Referencial</h2>
+  <ul>
+    <li><code>users</code> possui chave primaria <code>id</code> e restricao de unicidade sobre <code>email</code>.</li>
+    <li><code>categories</code> possui chave primaria <code>id</code> e restricao de unicidade sobre <code>name</code>.</li>
+    <li><code>tickets</code> possui chave primaria <code>id</code>, chave estrangeira <code>category_id</code> apontando para <code>categories(id)</code>, <code>client_id</code> apontando para <code>users(id)</code> e <code>support_id</code> apontando para <code>users(id)</code> (permitindo valor nulo enquanto o chamado nao for atribuido).</li>
+    <li><code>ticket_timeline</code> vincula-se a <code>tickets(id)</code> com regra <code>ON DELETE CASCADE</code> e a <code>users(id)</code> pelo <code>author_id</code>.</li>
+    <li><code>notifications</code> vincula-se a <code>users(id)</code> pelo <code>user_id</code> e opcionalmente a <code>tickets(id)</code>.</li>
+  </ul>
+
+  <h2 id="cap5-3">5.3 Dicionario de Dados Detalhado (5 Tabelas)</h2>
+
+  <h3>1. Tabela: <code>users</code></h3>
+  <table>
+    <thead>
+      <tr><th>Coluna</th><th>Tipo</th><th>Constraints</th><th>Descricao</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>SERIAL</td><td>PRIMARY KEY</td><td>Identificador unico sequencial</td></tr>
+      <tr><td><code>name</code></td><td>VARCHAR(150)</td><td>NOT NULL</td><td>Nome completo do colaborador</td></tr>
+      <tr><td><code>email</code></td><td>VARCHAR(150)</td><td>NOT NULL, UNIQUE</td><td>E-mail institucional usado para login</td></tr>
+      <tr><td><code>password_hash</code></td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Hash criptografico da senha (BCrypt)</td></tr>
+      <tr><td><code>role</code></td><td>VARCHAR(20)</td><td>NOT NULL, CHECK (CLIENT, SUPPORT, ADMIN)</td><td>Papel de autorizacao RBAC</td></tr>
+      <tr><td><code>department</code></td><td>VARCHAR(100)</td><td>—</td><td>Departamento corporativo (TI, Financeiro, RH)</td></tr>
+      <tr><td><code>job_title</code></td><td>VARCHAR(100)</td><td>—</td><td>Cargo do colaborador</td></tr>
+      <tr><td><code>is_active</code></td><td>BOOLEAN</td><td>DEFAULT TRUE</td><td>Controle de ativacao da conta</td></tr>
+      <tr><td><code>created_at</code></td><td>TIMESTAMPTZ</td><td>DEFAULT CURRENT_TIMESTAMP</td><td>Data e hora do cadastro</td></tr>
+      <tr><td><code>updated_at</code></td><td>TIMESTAMPTZ</td><td>DEFAULT CURRENT_TIMESTAMP</td><td>Data da ultima atualizacao de cadastro</td></tr>
+    </tbody>
+  </table>
+
+  <h3>2. Tabela: <code>categories</code></h3>
+  <table>
+    <thead>
+      <tr><th>Coluna</th><th>Tipo</th><th>Constraints</th><th>Descricao</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>SERIAL</td><td>PRIMARY KEY</td><td>Identificador da categoria</td></tr>
+      <tr><td><code>name</code></td><td>VARCHAR(100)</td><td>NOT NULL, UNIQUE</td><td>Nome identificador (ex: Hardware, Rede)</td></tr>
+      <tr><td><code>icon</code></td><td>VARCHAR(50)</td><td>DEFAULT 'help-circle'</td><td>Identificador visual do icone</td></tr>
+      <tr><td><code>description</code></td><td>VARCHAR(255)</td><td>—</td><td>Descricao detalhada do tipo de suporte</td></tr>
+      <tr><td><code>is_active</code></td><td>BOOLEAN</td><td>DEFAULT TRUE</td><td>Status de disponibilidade para abertura</td></tr>
+      <tr><td><code>created_at</code></td><td>TIMESTAMPTZ</td><td>DEFAULT CURRENT_TIMESTAMP</td><td>Data de criacao da categoria</td></tr>
+    </tbody>
+  </table>
+
+  <div class="page-break"></div>
+  <h3>3. Tabela: <code>tickets</code></h3>
+  <table>
+    <thead>
+      <tr><th>Coluna</th><th>Tipo</th><th>Constraints</th><th>Descricao</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>SERIAL</td><td>PRIMARY KEY</td><td>Identificador unico do chamado</td></tr>
+      <tr><td><code>title</code></td><td>VARCHAR(200)</td><td>NOT NULL</td><td>Titulo resumido da ocorrencia</td></tr>
+      <tr><td><code>description</code></td><td>TEXT</td><td>NOT NULL</td><td>Descricao completa e detalhada da falha</td></tr>
+      <tr><td><code>status</code></td><td>VARCHAR(20)</td><td>NOT NULL, CHECK (NEW, ASSIGNED, CLOSED, UNRESOLVED)</td><td>Estado operacional no ciclo de vida</td></tr>
+      <tr><td><code>priority</code></td><td>VARCHAR(20)</td><td>NOT NULL, CHECK (LOW, MEDIUM, HIGH, URGENT)</td><td>Nivel de criticidade/urgencia da demanda</td></tr>
+      <tr><td><code>category_id</code></td><td>INT</td><td>REFERENCES categories(id)</td><td>Categoria tecnica relacionada</td></tr>
+      <tr><td><code>client_id</code></td><td>INT</td><td>NOT NULL, REFERENCES users(id)</td><td>Usuario solicitante que abriu o chamado</td></tr>
+      <tr><td><code>support_id</code></td><td>INT</td><td>REFERENCES users(id), NULLABLE</td><td>Tecnico de TI atribuido ao atendimento</td></tr>
+      <tr><td><code>created_at</code></td><td>TIMESTAMPTZ</td><td>DEFAULT CURRENT_TIMESTAMP</td><td>Data e hora de abertura</td></tr>
+      <tr><td><code>updated_at</code></td><td>TIMESTAMPTZ</td><td>DEFAULT CURRENT_TIMESTAMP</td><td>Data e hora da ultima movimentacao</td></tr>
+      <tr><td><code>closed_at</code></td><td>TIMESTAMPTZ</td><td>NULLABLE</td><td>Data e hora do encerramento formal</td></tr>
+    </tbody>
+  </table>
+
+  <h3>4. Tabela: <code>ticket_timeline</code></h3>
+  <table>
+    <thead>
+      <tr><th>Coluna</th><th>Tipo</th><th>Constraints</th><th>Descricao</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>SERIAL</td><td>PRIMARY KEY</td><td>Identificador unico do apontamento</td></tr>
+      <tr><td><code>ticket_id</code></td><td>INT</td><td>NOT NULL, REFERENCES tickets(id) ON DELETE CASCADE</td><td>Chamado associado ao historico</td></tr>
+      <tr><td><code>author_id</code></td><td>INT</td><td>NOT NULL, REFERENCES users(id)</td><td>Autor da acao ou parecer tecnico</td></tr>
+      <tr><td><code>event_type</code></td><td>VARCHAR(30)</td><td>NOT NULL</td><td>Tipo de evento (CREATION, STATUS_CHANGE, COMMENT)</td></tr>
+      <tr><td><code>message</code></td><td>TEXT</td><td>NOT NULL</td><td>Conteudo textual do apontamento</td></tr>
+      <tr><td><code>created_at</code></td><td>TIMESTAMPTZ</td><td>DEFAULT CURRENT_TIMESTAMP</td><td>Momento exato do registro</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5. Tabela: <code>notifications</code></h3>
+  <table>
+    <thead>
+      <tr><th>Coluna</th><th>Tipo</th><th>Constraints</th><th>Descricao</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>SERIAL</td><td>PRIMARY KEY</td><td>Identificador da notificacao</td></tr>
+      <tr><td><code>user_id</code></td><td>INT</td><td>NOT NULL, REFERENCES users(id)</td><td>Usuario destinatario</td></tr>
+      <tr><td><code>ticket_id</code></td><td>INT</td><td>REFERENCES tickets(id) ON DELETE CASCADE</td><td>Chamado vinculado ao alerta</td></tr>
+      <tr><td><code>type</code></td><td>VARCHAR(50)</td><td>NOT NULL</td><td>Tipo de notificacao</td></tr>
+      <tr><td><code>title</code></td><td>VARCHAR(150)</td><td>NOT NULL</td><td>Titulo do alerta visual</td></tr>
+      <tr><td><code>message</code></td><td>TEXT</td><td>NOT NULL</td><td>Corpo descritivo da notificacao</td></tr>
+      <tr><td><code>is_read</code></td><td>BOOLEAN</td><td>DEFAULT FALSE</td><td>Flag de leitura pelo colaborador</td></tr>
+      <tr><td><code>created_at</code></td><td>TIMESTAMPTZ</td><td>DEFAULT CURRENT_TIMESTAMP</td><td>Momento de geracao da notificacao</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ================= CAPITULO 6 ================= -->
+  <div class="page-break"></div>
+  <h1 id="cap6">6. Historias de Usuario e Criterios de Aceite</h1>
+
+  <h2 id="cap6-1">6.1 Historias de Usuario (Matriz MoSCoW)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 10%;">ID</th>
+        <th style="width: 20%;">Como [Persona]</th>
+        <th style="width: 35%;">Quero [Funcionalidade]</th>
+        <th style="width: 25%;">Para que [Beneficio]</th>
+        <th style="width: 10%;">Prioridade</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>US-01</strong></td>
+        <td>Funcionario</td>
+        <td>Cadastrar uma nova solicitacao informando titulo, descricao, prioridade e categoria</td>
+        <td>A equipe de suporte possa diagnosticar e resolver meu problema</td>
+        <td><span class="badge badge-primary">Must</span></td>
+      </tr>
+      <tr>
+        <td><strong>US-02</strong></td>
+        <td>Funcionario</td>
+        <td>Visualizar os chamados abertos pelo meu departamento corporativo</td>
+        <td>Eu acompanhe ocorrencias comuns do setor e evite duplicidade</td>
+        <td><span class="badge badge-primary">Must</span></td>
+      </tr>
+      <tr>
+        <td><strong>US-03</strong></td>
+        <td>Tecnico TI</td>
+        <td>Visualizar a fila centralizada de chamados em modo Lista e Kanban</td>
+        <td>Eu tenha visao holistica das prioridades e gargalos de atendimento</td>
+        <td><span class="badge badge-primary">Must</span></td>
+      </tr>
+      <tr>
+        <td><strong>US-04</strong></td>
+        <td>Tecnico TI</td>
+        <td>Iniciar atendimento de um chamado de forma exclusiva e atômica</td>
+        <td>Eu garanta que nenhum outro tecnico assuma o mesmo chamado simultaneamente</td>
+        <td><span class="badge badge-primary">Must</span></td>
+      </tr>
+      <tr>
+        <td><strong>US-05</strong></td>
+        <td>Tecnico TI</td>
+        <td>Finalizar chamado como Resolvido ou Nao Concluido registrando parecer</td>
+        <td>O historico fique auditado e o cliente seja avisado do encerramento</td>
+        <td><span class="badge badge-primary">Must</span></td>
+      </tr>
+      <tr>
+        <td><strong>US-06</strong></td>
+        <td>Todos</td>
+        <td>Receber notificacoes instantaneas (som e badge) de alteracoes em chamados</td>
+        <td>Eu seja alertado imediatamente sem necessidade de recarregar a pagina</td>
+        <td><span class="badge badge-primary">Must</span></td>
+      </tr>
+      <tr>
+        <td><strong>US-07</strong></td>
+        <td>Administrador</td>
+        <td>Gerenciar os colaboradores cadastrados e alterar permissoes</td>
+        <td>A seguranca e os acessos corporativos permaneçam atualizados</td>
+        <td><span class="badge badge-primary">Must</span></td>
+      </tr>
+      <tr>
+        <td><strong>US-08</strong></td>
+        <td>Administrador</td>
+        <td>Consultar o dashboard com metricas operacionais de atendimento</td>
+        <td>Eu possa avaliar a eficiencia da equipe de suporte e os SLAs</td>
+        <td><span class="badge badge-success">Should</span></td>
+      </tr>
+      <tr>
+        <td><strong>US-09</strong></td>
+        <td>Tecnico TI</td>
+        <td>Vincular equipamentos fisicos e patrimonios de TI as solicitacoes</td>
+        <td>O historico de manutencao do hardware corporativo seja rastreado</td>
+        <td><span class="badge badge-warning">Could</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 id="cap6-2">6.2 Criterios de Aceite (BDD / Gherkin)</h2>
+
+  <div class="avoid-break">
+    <h3>Cenario 1: Abertura e Notificacao em Tempo Real (US-01 e US-06)</h3>
+    <pre>
+Funcionalidade: Abertura de chamado e notificacao instantanea
+  Cenario: Funcionario cadastra solicitacao de suporte com sucesso
+    Dado que o funcionario "Carlos" esta autenticado com perfil CLIENT no departamento "Financeiro"
+    Quando ele preenche o formulario com:
+      | Titulo     | Monitor secundario nao liga            |
+      | Categoria  | Hardware                              |
+      | Prioridade | Alta                                  |
+      | Descricao  | Cabo de video com defeito intermitente |
+    E confirma o envio clicando em "Salvar"
+    Entao a API persiste o chamado no banco PostgreSQL com status "NEW"
+    E a API despacha assincronamente o evento CT18 "CREATED" para o Backend Socket
+    E o Backend Socket entrega o frame CT22 "chamadoAtualizado" aos tecnicos de TI conectados
+    E os paineis dos tecnicos tocam sinal sonoro e inserem o card em "Aguardando TI" sem recarregar a tela
+    </pre>
+  </div>
+
+  <div class="avoid-break">
+    <h3>Cenario 2: Atribuicao Atomica de Chamado (US-04)</h3>
+    <pre>
+Funcionalidade: Atendimento atomico exclusivo
+  Cenario: Tecnico assume chamado impedindo colisao concorrente
+    Dado que existe um chamado #45 no banco com status "NEW"
+    Quando a tecnica "Beatriz" clica no botao "Iniciar Atendimento"
+    Entao a API executa a CTE transacional no PostgreSQL atualizando o status para "ASSIGNED"
+    E o Backend Socket notifica os clientes conectados da nova atribuicao
+    E se um segundo tecnico "Marcos" tentar assumir o mesmo chamado #45 simultaneamente
+    Entao a transacao SQL rejeita a alteracao de Marcos
+    E o sistema exibe alerta informando que o chamado ja foi assumido por Beatriz
+    </pre>
+  </div>
+
+  <!-- ================= CAPITULO 7 ================= -->
+  <div class="page-break"></div>
+  <h1 id="cap7">7. Casos de Uso e Diagramas de Atividades</h1>
+
+  <h2 id="cap7-1">7.1 Mapeamento dos Entregaveis Centrais (E1 a E9)</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 10%;">ID</th>
+        <th style="width: 25%;">Caso de Uso</th>
+        <th style="width: 20%;">Atores Envolvidos</th>
+        <th style="width: 45%;">Fluxo Operacional Principal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>E1</strong></td>
+        <td>Cadastro e Autenticacao</td>
+        <td>Todos os Usuarios</td>
+        <td>Usuario fornece email e senha; API valida credenciais no banco, verifica hash BCrypt e emite token HMAC-SHA256.</td>
+      </tr>
+      <tr>
+        <td><strong>E2</strong></td>
+        <td>Abertura de Solicitacao</td>
+        <td>Funcionario (Cliente)</td>
+        <td>Preenchimento de formulario com validacao de campos; gravacao no banco em status <code>NEW</code> e disparo de evento CT18.</td>
+      </tr>
+      <tr>
+        <td><strong>E3</strong></td>
+        <td>Listagem Departamental</td>
+        <td>Funcionario (Cliente)</td>
+        <td>Consulta de chamados com filtro nativo via <code>DepartmentPolicy</code>, garantindo privacidade entre setores distintos.</td>
+      </tr>
+      <tr>
+        <td><strong>E4</strong></td>
+        <td>Painel dos Tecnicos</td>
+        <td>Tecnico de TI, Admin</td>
+        <td>Exibicao consolidada de todos os chamados da organizacao em modo Lista e Quadro Kanban reativo.</td>
+      </tr>
+      <tr>
+        <td><strong>E5</strong></td>
+        <td>Atendimento e Transicao</td>
+        <td>Tecnico de TI</td>
+        <td>Atribuicao atomica via <code>startService</code> e transicao posterior para <code>CLOSED</code> ou <code>UNRESOLVED</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>E6</strong></td>
+        <td>Historico de Atendimento</td>
+        <td>Todos os Usuarios</td>
+        <td>Consulta cronologica de apontamentos de timeline vinculados ao chamado para rastreabilidade e auditoria.</td>
+      </tr>
+      <tr>
+        <td><strong>E7</strong></td>
+        <td>Gestao de Usuarios</td>
+        <td>Administrador</td>
+        <td>Listagem, ativacao, desativacao e promocao de perfis de colaboradores na organizacao.</td>
+      </tr>
+      <tr>
+        <td><strong>E8</strong></td>
+        <td>Dashboard Administrativo</td>
+        <td>Administrador, Tecnico TI</td>
+        <td>Apresentacao de indicadores consolidados de chamados abertos, taxa de resolucao e distribuicao por categoria.</td>
+      </tr>
+      <tr>
+        <td><strong>E9</strong></td>
+        <td>Relatorio de Atendimentos</td>
+        <td>Administrador, Tecnico TI</td>
+        <td>Filtros avancados por data, departamento, categoria e tecnico para prestacao de contas.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 id="cap7-2">7.2 Diagramas de Sequencia dos Fluxos Criticos</h2>
+
+  <h3>Fluxo de Abertura de Chamado e Broadcast em Tempo Real</h3>
+  <pre>
+[Navegador Solicitante]      [Backend API]            [Neon DB]          [Backend Socket]      [Navegadores TI]
+         |                         |                     |                      |                    |
+         |-- POST /api/chamados -->|                     |                      |                    |
+         |                         |-- INSERT ticket --->|                      |                    |
+         |                         |<-- ID gerado (45) --|                      |                    |
+         |                         |                                            |                    |
+         |                         |-- CT18: publicarEvento(CREATED) ---------->|                    |
+         |<-- 201 Created (JSON) --|                                            |                    |
+         |                         |                                            |-- CT22 Broadcast ->|
+         |                         |                                            |   (chamadoAtualizado)
+         |                         |                                            |                    |-- Emite Sinal Sonoro
+         |                         |                                            |                    |-- Adiciona Card no Kanban
+  </pre>
+
+  <h3>Fluxo de Atendimento Atomico (Prevenção de Condição de Corrida)</h3>
+  <pre>
+[Tecnico Beatriz]         [Tecnico Marcos]          [Backend API]                      [PostgreSQL Neon]
+        |                        |                        |                                    |
+        |-- POST /iniciar #45 -->|                        |-- UPDATE tickets SET status=... -->|
+        |                        |                        |   WHERE id=45 AND status='NEW'     |
+        |                        |-- POST /iniciar #45 -->|                                    |
+        |                        |                        |<-- 1 Linha Atualizada (Sucesso) ---|
+        |<-- 200 OK (Atribuido) -|                        |                                    |
+        |                        |                        |-- UPDATE tickets SET status=... -->|
+        |                        |                        |   WHERE id=45 AND status='NEW'     |
+        |                        |                        |<-- 0 Linhas Atualizadas (Falha) ---|
+        |                        |<-- 409 Conflict -------|                                    |
+        |                        |    ("Ja em atendimento")                                    |
+  </pre>
+
+  <!-- ================= CAPITULO 8 ================= -->
+  <div class="page-break"></div>
+  <h1 id="cap8">8. Qualidade e Testes de Software</h1>
+
+  <h2 id="cap8-1">8.1 Estrategia de Testes e Foco Arquitetural</h2>
+  <p>
+    A garantia de qualidade no projeto HelpDesk guiou-se pelo principio da <strong>analise de risco arquitetural</strong>. Enquanto a Backend API opera sobre modelos padronizados de transacoes HTTP REST e DAOs JDBC amplamente compreendidos, o <strong>Backend Socket</strong> representou a maior fronteira de complexidade e risco tecnologico:
+  </p>
+  <ul>
+    <li>Ele implementa manualmente uma norma de rede binaria em nivel de byte (RFC 6455).</li>
+    <li>Manipula fluxos de dados bitwise (mascara XOR de 4 bytes, calculo de framing com bit FIN e opcodes).</li>
+    <li>Gerencia concorrencia multithread massiva sem o auxilio de frameworks reativos.</li>
+  </ul>
+  <p>
+    Uma falha no motor de socket provocaria travamentos globais de threads, deadlocks em buffers ou vazamento de memoria. Diante dos prazos da disciplina e priorizacao de esforcos da equipe, concentrou-se a criacao da <strong>suite automatizada de testes com JUnit 5 no Backend Socket</strong>. A Backend API e o Frontend foram amplamente validados atraves de testes de integracao REST com Postman/cURL, pipeline continuo no SonarCloud e testes manuais de ponta a ponta com multiplos navegadores simultaneos.
+  </p>
+
+  <h2 id="cap8-2">8.2 Testes Automatizados com JUnit 5 no Backend Socket</h2>
+  <p>
+    Localizada em <code>backend-socket/test</code>, a suite e executada via console standalone do JUnit 5 (<code>junit-platform-console-standalone-1.10.2.jar</code>) sem necessidade de Maven ou Gradle. As classes de suporte em memoria (<code>ServidorDeTeste</code>, <code>ClienteWs</code> e <code>UserDaoFalso</code>) viabilizam testes deterministas e ultrarrapidos sem dependencias externas de rede:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 25%;">Classe de Teste</th>
+        <th style="width: 25%;">Escopo do Teste</th>
+        <th style="width: 50%;">Comportamentos Aferidos e Aprovados</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>WebSocketUtilTest</code></td>
+        <td>Conformidade com RFC 6455</td>
+        <td>
+          - Valida o aperto de mao (handshake) gerando exatamente a chave esperada para o exemplo da RFC.<br>
+          - Valida resposta <code>200 OK</code> em probes HTTP <code>GET /health</code> sem acionar WebSocket.<br>
+          - Valida gravacao de frames sem mascara e decodificacao de frames mascarados com mascara de 4 bytes.
+        </td>
+      </tr>
+      <tr>
+        <td><code>Ct18PublicarEventoTest</code></td>
+        <td>Integracao API -> Socket</td>
+        <td>
+          - Valida processamento com sucesso de eventos validos (<code>received: true</code>).<br>
+          - Valida encerramento imediato de conexao quando o <code>INTERNAL_SECRET</code> e incorreto ou ausente.<br>
+          - Valida rejeicao de schemas JSON malformados ou com campos obrigatorios faltantes.
+        </td>
+      </tr>
+      <tr>
+        <td><code>Ct19AutenticarConexaoTest</code></td>
+        <td>Autenticacao e Sessao</td>
+        <td>
+          - Valida a autenticacao de clientes via token JWT, associando a conexao ao <code>userId</code>.<br>
+          - Valida a rejeicao imediata de tokens com assinatura HMAC corrompida ou expirados.<br>
+          - Valida recusa de conexoes para usuarios inativos no banco de dados.
+        </td>
+      </tr>
+      <tr>
+        <td><code>Ct22ChamadoAtualizadoTest</code></td>
+        <td>Broadcast e Isolamento</td>
+        <td>
+          - Valida que o dono do chamado recebe o alerta.<br>
+          - Valida que tecnicos (<code>SUPPORT</code>) e administradores (<code>ADMIN</code>) recebem todas as notificacoes.<br>
+          - Valida que colegas do mesmo departamento recebem a notificacao.<br>
+          - <strong>Comprova empiricamente que clientes de departamentos distintos nao recebem nenhum dado.</strong>
+        </td>
+      </tr>
+      <tr>
+        <td><code>AuthUtilTest</code></td>
+        <td>Criptografia HMAC-SHA256</td>
+        <td>Testa geracao de assinaturas criptograficas de tokens e extracao segura de claims de usuario.</td>
+      </tr>
+      <tr>
+        <td><code>TicketEventPayloadTest</code></td>
+        <td>Serializacao e DTOs</td>
+        <td>Testa serializacao e desserializacao de envelopes de eventos de chamados (CREATED, UPDATED, DELETED).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 id="cap8-3">8.3 Analise Estatica de Codigo com SonarCloud</h2>
+  <p>
+    O repositorio monorepo possui esteira automatizada no GitHub Actions (<code>.github/workflows/sonarqube.yml</code>). A cada push na branch <code>main</code>, o codigo Java dos dois servicos e os scripts JavaScript do frontend sao submetidos a inspecao profunda.
+  </p>
+
+  <div class="callout callout-success">
+    <div class="callout-title">Metricas Oficiais Aprovadas no SonarCloud</div>
+    <ul>
+      <li><strong>Quality Gate:</strong> <strong>Passed (Aprovado)</strong></li>
+      <li><strong>Confiabilidade (Reliability Rating):</strong> <strong>A</strong> (Zero bugs criticos)</li>
+      <li><strong>Seguranca (Security Rating):</strong> <strong>A</strong> (Zero vulnerabilidades)</li>
+      <li><strong>Manutenibilidade (Maintainability Rating):</strong> <strong>A</strong> (Baixa densidade de code smells)</li>
+      <li><strong>Hotspots de Seguranca:</strong> 100% revisados e saneados (fechamento explicito de sockets, streams e uso de prepared statements).</li>
+    </ul>
+  </div>
+
+  <h2 id="cap8-4">8.4 Testes de Concorrencia, Integracao e Manuais</h2>
+  <ul>
+    <li><strong>Validacao Multi-Navegador em Tempo Real:</strong> Testes exploratorios executados com multiplas janelas de navegadores simultaneos (duas abas anonimas e abas convencionais simulando solicitante e tecnico). A inclusao de um chamado em uma janela refletiu instantaneamente na outra com aviso sonoro.</li>
+    <li><strong>Testes de Resiliencia a Cold Start:</strong> Verificacao pratica da maquina de reconexao com backoff exponencial no <code>socket.js</code>, garantindo que mesmo que o Render entre em suspensao temporaria, a aplicacao restabelece o fluxo sem intervenção do usuario.</li>
+  </ul>
+
+  <!-- ================= CAPITULO 9 ================= -->
+  <div class="page-break"></div>
+  <h1 id="cap9">9. Manual de Implantacao e Uso (README.md)</h1>
+
+  <div class="callout">
+    <div class="callout-title">Nota Explicativa do Modelo Academico</div>
+    Em estrita conformidade com as diretrizes do Modelo de Documento de Projeto da disciplina, este capitulo reproduz na integra o conteudo do manual de implantacao e guia de uso oficial (<strong>README.md</strong>) mantido na raiz do repositorio.
+  </div>
+
+  <h2>9.1 Identificacao e Acesso em Producao</h2>
+  <p>
+    O <strong>HelpDesk</strong> encontra-se integralmente publicado em nuvem, pronto para operacao:
+  </p>
+  <ul>
+    <li><strong>Frontend (Vercel):</strong> <a href="https://help-desk-pi-iv.vercel.app">https://help-desk-pi-iv.vercel.app</a></li>
+    <li><strong>Backend API (Render REST):</strong> <code>https://backend-api-zdf5.onrender.com</code></li>
+    <li><strong>Backend Socket (Render WSS):</strong> <code>wss://backend-socket.onrender.com/ws</code></li>
+  </ul>
+
+  <p><strong>Credenciais Padrao para Avaliacao:</strong></p>
+  <ul>
+    <li><strong>Tecnico / Administrador de TI:</strong> <code>admin@empresa.com</code> | Senha: <code>admin</code> (ou <code>ti@empresa.com</code> | <code>123456</code>)</li>
+    <li><strong>Solicitante do Financeiro:</strong> <code>carlos@empresa.com</code> | Senha: <code>user123</code></li>
+    <li><strong>Solicitante do RH:</strong> <code>ana@empresa.com</code> | Senha: <code>user123</code></li>
+  </ul>
+
+  <h2>9.2 Pre-requisitos de Sistema</h2>
+  <ul>
+    <li><strong>Java Development Kit (JDK):</strong> Versao 21 LTS ou superior.</li>
+    <li><strong>Git:</strong> Para clonagem e gestao de branches.</li>
+    <li><strong>Navegador Web:</strong> Chrome, Edge, Firefox ou Safari com suporte nativo a WebSockets (RFC 6455).</li>
+    <li><strong>Docker (Opcional):</strong> Para execucao conteinerizada.</li>
+  </ul>
+
+  <h2>9.3 Passo a Passo de Instalacao e Execucao Local</h2>
+
+  <h3>1. Clonagem do Repositorio</h3>
+  <pre>
+git clone https://github.com/cauagreccodev/pi4-2026-2-0102-grupo2.git
+cd pi4-2026-2-0102-grupo2
+  </pre>
+
+  <h3>2. Execucao Manual do Backend API</h3>
+  <pre>
+cd backend-api
+mkdir -p out
+javac -encoding UTF-8 -cp "lib/*" -d out $(find src -name "*.java")
+
+export PORT=8000
+export DB_URL="jdbc:postgresql://&lt;HOST_NEON&gt;/neondb?sslmode=require"
+export DB_USER="&lt;USER_NEON&gt;"
+export DB_PASSWORD="&lt;SENHA_NEON&gt;"
+export JWT_SECRET="sua-chave-secreta-de-producao"
+export SOCKET_URL="ws://localhost:5000/ws"
+export INTERNAL_SECRET="segredo-interno-entre-backends"
+
+java -cp "out:lib/*" com.helpdesk.api.Main
+  </pre>
+
+  <h3>3. Execucao Manual do Backend Socket</h3>
+  <pre>
+cd backend-socket
+mkdir -p out
+javac -encoding UTF-8 -cp "lib/*" -d out $(find src -name "*.java")
+
+export PORT=5000
+export DB_URL="jdbc:postgresql://&lt;HOST_NEON&gt;/neondb?sslmode=require"
+export DB_USER="&lt;USER_NEON&gt;"
+export DB_PASSWORD="&lt;SENHA_NEON&gt;"
+export JWT_SECRET="sua-chave-secreta-de-producao"
+export INTERNAL_SECRET="segredo-interno-entre-backends"
+
+java -cp "out:lib/*" com.helpdesk.socket.Main
+  </pre>
+
+  <h3>4. Execucao do Frontend</h3>
+  <pre>
+cd frontend
+# Utilizando qualquer servidor de arquivos estaticos:
+python3 -m http.server 3000
+# Acesse no navegador: http://localhost:3000
+  </pre>
+
+  <h2>9.4 Execucao via Docker</h2>
+  <pre>
+# Build e execucao do Backend API
+docker build -t helpdesk-backend-api ./backend-api
+docker run -d --name helpdesk-api -p 8000:8000 \
+  -e DB_URL="jdbc:postgresql://&lt;HOST&gt;/neondb?sslmode=require" \
+  -e DB_USER="&lt;USER&gt;" -e DB_PASSWORD="&lt;PASS&gt;" \
+  -e JWT_SECRET="segredo" -e SOCKET_URL="ws://socket-host:5000/ws" \
+  -e INTERNAL_SECRET="segredo-interno" helpdesk-backend-api
+
+# Build e execucao do Backend Socket
+docker build -t helpdesk-backend-socket ./backend-socket
+docker run -d --name helpdesk-socket -p 5000:5000 \
+  -e DB_URL="jdbc:postgresql://&lt;HOST&gt;/neondb?sslmode=require" \
+  -e DB_USER="&lt;USER&gt;" -e DB_PASSWORD="&lt;PASS&gt;" \
+  -e JWT_SECRET="segredo" -e INTERNAL_SECRET="segredo-interno" helpdesk-backend-socket
+  </pre>
+
+  <h2>9.5 Execucao dos Testes Automatizados com JUnit 5</h2>
+  <pre>
+cd backend-socket
+# 1. Baixar o console standalone do JUnit 5
+curl -fsSL -o junit-platform-console-standalone.jar \
+  https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.2/junit-platform-console-standalone-1.10.2.jar
+
+# 2. Compilar codigo de producao e testes
+mkdir -p out/main out/test
+javac -encoding UTF-8 -cp "lib/*" -d out/main $(find src -name "*.java")
+javac -encoding UTF-8 -cp "out/main:lib/*:junit-platform-console-standalone.jar" -d out/test $(find test -name "*.java")
+
+# 3. Rodar a suite completa
+java -jar junit-platform-console-standalone.jar execute \
+  --class-path "out/main:out/test:lib/gson.jar:lib/postgresql.jar" \
+  --select-package com.helpdesk.socket
+  </pre>
+
+  <h2>9.6 Catalogo de Endpoints e Contratos de Integracao</h2>
+
+  <h3>Rotas REST (Backend API)</h3>
+  <table>
+    <thead>
+      <tr><th>Metodo</th><th>Rota</th><th>Perfil Requerido</th><th>Acao Executada</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>GET</code></td><td><code>/health</code></td><td>Publico</td><td>Probe de saude e prevencao de cold start</td></tr>
+      <tr><td><code>POST</code></td><td><code>/api/login</code></td><td>Publico</td><td>Autentica credenciais e gera Bearer token</td></tr>
+      <tr><td><code>POST</code></td><td><code>/api/users</code></td><td>Publico</td><td>Auto-cadastro de novos colaboradores</td></tr>
+      <tr><td><code>GET</code></td><td><code>/api/users</code></td><td><code>ADMIN</code> / <code>SUPPORT</code></td><td>Lista usuarios e departamentos</td></tr>
+      <tr><td><code>GET</code></td><td><code>/api/categories</code></td><td>Logado</td><td>Lista categorias tecnicas ativas</td></tr>
+      <tr><td><code>GET</code></td><td><code>/api/chamados</code></td><td>Logado</td><td>Consulta chamados filtrados pelo departamento do usuario</td></tr>
+      <tr><td><code>POST</code></td><td><code>/api/chamados</code></td><td>Logado</td><td>Cria chamado, persiste e emite CT18 <code>CREATED</code></td></tr>
+      <tr><td><code>GET</code></td><td><code>/api/chamados/:id</code></td><td>Logado</td><td>Recupera detalhes e timeline completa</td></tr>
+      <tr><td><code>PUT</code></td><td><code>/api/chamados/:id</code></td><td><code>TI</code> / <code>ADMIN</code></td><td>Atualiza dados e emite CT18 <code>UPDATED</code></td></tr>
+      <tr><td><code>POST</code></td><td><code>/api/chamados/:id/iniciar</code></td><td><code>TI</code> (Suporte)</td><td>Atribuicao atomica via CTE (<code>startService</code>)</td></tr>
+      <tr><td><code>DELETE</code></td><td><code>/api/chamados/:id</code></td><td><code>ADMIN</code></td><td>Exclusao transacional em cascata (CT18 <code>DELETED</code>)</td></tr>
+      <tr><td><code>GET</code></td><td><code>/api/notifications</code></td><td>Logado</td><td>Lista alertas persistidos do usuario</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Contratos WebSocket (Backend Socket)</h3>
+  <ul>
+    <li><strong>CT19 (<code>autenticarConexao</code>):</strong> Enviado pelo navegador logo apos handshake com o payload <code>{"type":"autenticarConexao","data":{"token":"..."}}</code>. O servidor responde <code>{"type":"conexaoAutenticada","data":{"userId":123,"role":"SUPPORT"}}</code>.</li>
+    <li><strong>CT18 (<code>publicarEvento</code>):</strong> Enviado pela API REST para o Socket via conexao interna persistente com <code>{"type":"publicarEvento","data":{"secret":"...","action":"UPDATED","ticketId":10,...}}</code>.</li>
+    <li><strong>CT22 (<code>chamadoAtualizado</code>):</strong> Broadcast distribuido pelo Socket aos navegadores pertinentes com <code>{"type":"chamadoAtualizado","data":{"action":"UPDATED","ticketId":10,...}}</code>.</li>
+  </ul>
+
+  <h2>9.7 Guia Rapido de Operacao por Perfil</h2>
+  <ul>
+    <li><strong>Solicitante (Funcionario):</strong> Acessa o sistema, clica em "Novo Chamado", preenche o formulario e clica em "Salvar". O chamado e enviado em tempo real e fica disponivel para acompanhamento em "Meus Chamados".</li>
+    <li><strong>Tecnico de TI:</strong> Visualiza a fila de incidentes na visao Kanban. Localiza o card em "Aguardando TI" e clica em "Iniciar Atendimento". O card migra automaticamente para a coluna "Em Atendimento". Ao finalizar os servicos, altera o status para "Resolvido" inserindo o parecer na timeline.</li>
+    <li><strong>Administrador:</strong> Acessa "Usuarios" para ativar/desativar contas e o "Dashboard" para monitorar a volumetria e tempo de resolucao.</li>
+  </ul>
+
+  <!-- ================= CAPITULO 10 ================= -->
+  <div class="page-break"></div>
+  <h1 id="cap10">10. Resultados e Discussao</h1>
+
+  <h2 id="cap10-1">10.1 Funcionalidades Entregues vs. Planejadas</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 35%;">Funcionalidade</th>
+        <th style="width: 15%;">Situacao</th>
+        <th style="width: 50%;">Observacoes e Detalhamento da Entrega</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Autenticacao e RBAC</td>
+        <td><span class="badge badge-success">Entregue</span></td>
+        <td>100% operacional com senhas em BCrypt e tokens HMAC-SHA256.</td>
+      </tr>
+      <tr>
+        <td>Ciclo CRUD de Chamados</td>
+        <td><span class="badge badge-success">Entregue</span></td>
+        <td>Criacao, leitura, atualizacao atomica e exclusao transacional em cascata.</td>
+      </tr>
+      <tr>
+        <td>Atualizacao em Tempo Real</td>
+        <td><span class="badge badge-success">Entregue</span></td>
+        <td>Servidor RFC 6455 nativo em Java Puro com notificacoes instantaneas.</td>
+      </tr>
+      <tr>
+        <td>Isolamento Departamental</td>
+        <td><span class="badge badge-success">Entregue</span></td>
+        <td><code>DepartmentPolicy</code> rigorosamente aplicada na API e no broadcast de sockets.</td>
+      </tr>
+      <tr>
+        <td>Atribuicao Atomica</td>
+        <td><span class="badge badge-success">Entregue</span></td>
+        <td>Operacao CTE no SQL prevenindo colisoes entre tecnicos concorrentes.</td>
+      </tr>
+      <tr>
+        <td>Quadro Kanban e Lista</td>
+        <td><span class="badge badge-success">Entregue</span></td>
+        <td>Visualizacao dinamica com atualizacao reativa no DOM Vanilla.</td>
+      </tr>
+      <tr>
+        <td>Esteira CI/CD e SonarCloud</td>
+        <td><span class="badge badge-success">Entregue</span></td>
+        <td>Quality Gate aprovado com Rating 'A' em Seguranca e Confiabilidade.</td>
+      </tr>
+      <tr>
+        <td>Suite de Testes com JUnit 5</td>
+        <td><span class="badge badge-success">Entregue</span></td>
+        <td>Testes de unidade e integracao no Backend Socket.</td>
+      </tr>
+      <tr>
+        <td>Gestao de Inventario de Ativos TI</td>
+        <td><span class="badge badge-warning">Postergado</span></td>
+        <td>Funcionalidade planejada para o roadmap futuro para consolidar o motor em tempo real.</td>
+      </tr>
+    </tbody>
+  </table>
+
+    <h2 id="cap10-2">10.2 Desafios Tecnicos e Storyline de Superacao</h2>
+  <p>O desenvolvimento do HelpDesk exigiu a resolucao de desafios arquiteturais e operacionais de alta complexidade ao longo das sprints, registrados e acompanhados atraves de cards no OpenProject:</p>
+
+  <h3>1. A Saga da Implementacao da RFC 6455 em Java 21 Puro</h3>
+  <p>O requisito academico de prescindir de frameworks pesados (como Spring WebSocket ou Netty) demandou a construcao manual do protocolo WebSocket do zero sobre <code>java.net.ServerSocket</code>. O primeiro obstaculo residiu no aperto de mao (handshake): o navegador envia um cabecalho <code>Sec-WebSocket-Key</code>, que precisava ser concatenado com o GUID estipulado pela RFC (<code>258EAFA5-E914-47DA-95CA-C5AB0DC85B11</code>), passar por hash SHA-1 e ser codificado em Base64 para retornar no cabecalho <code>Sec-WebSocket-Accept</code> com o status HTTP <code>101 Switching Protocols</code>.</p>
+  <p>Apos acertar o handshake, deparou-se com a codificacao de frames: pela norma RFC 6455, navegadores Web sempre transmitem dados protegidos por uma mascara rotativa de 4 bytes. Foi necessario programar a manipulacao matematica bit-a-bit aplicando a operacao XOR entre os bytes do payload e os bytes correspondentes da mascara (<code>payload[i] ^ mask[i % 4]</code>), alem de decodificar opcodes de controle (Ping <code>0x9</code>, Pong <code>0xA</code> e Close <code>0x8</code>). Essa camada de rede de baixo nivel foi integralmente blindada atraves da suite de testes automatizados com JUnit 5 (<code>WebSocketUtilTest</code>).</p>
+
+  <h3>2. Os Desafios de Comunicacao Inter-Processos e Configuracao no Render</h3>
+  <p>Quando os microservicos foram publicados em nuvem no Render, surgiram problemas criticos de comunicacao entre a API REST e o Socket:
+- Inicialmente, a variavel de ambiente <code>SOCKET_URL</code> foi configurada apenas no container do socket, permanecendo ausente no container da <code>backend-api</code>. Isso impedia que a API soubesse para onde despachar os eventos de criacao e alteracao de chamados.
+- Detectou-se que o auto-cadastro de novos usuarios estava atribuindo o perfil generico <code>CLIENT</code> mesmo para colaboradores que selecionavam o departamento de <code>TI</code>, quando deveriam receber perfil privilegiado <code>ADMIN</code> ou <code>SUPPORT</code>. Essa falha de permissao impactava diretamente a logica de filtragem do socket, resultando na anomalia observada nos logs: <code>[CT22 - WebSocket] chamadoAtualizado (...) enviado para 0 sessoes WebSocket</code>.
+- A solucao envolveu corrigir o handler de cadastro na API para promover automaticamente usuarios de TI, sincronizar as variaveis de ambiente entre os servicos no Render e reestruturar o <code>SocketEventPublisher</code> com um worker assincrono (<code>LinkedBlockingQueue</code>) mantendo uma <strong>conexao WebSocket interna persistente e reutilizavel</strong>, autenticada pelo <code>INTERNAL_SECRET</code> (Contrato CT18).</p>
+
+  <h3>3. Resiliencia contra Oscilacoes do Neon DB e Conexoes Ociosas (Cards #1437 e #1445 no OpenProject)</h3>
+  <p>Em ambiente de nuvem serverless, o banco de dados Neon entra em estado de suspensao (<em>scale to zero</em>) apos periodos de inatividade. Durante os testes integrados, cron jobs de monitoramento detectavam latencias de ate 288ms no despertar da conexao. 
+- Quando ocorria essa oscilacao na conexao com o banco, a validacao de token do contrato CT19 (<code>autenticarConexao</code>) no Backend Socket falhava ao tentar consultar a tabela <code>users</code>, derrubando a sessao WebSocket do usuario recem-conectado (<code>[CT19 - Auth] Usuario nao encontrado no Neon DB</code>).
+- A equipe abriu e executou o <strong>Card #1445 no OpenProject</strong> (<em>"FIX Backend Socket: Autenticacao resiliente no CT19 e fallback de sessao contra oscilacao do Neon DB"</em>), implementando um mecanismo de cache em memoria das sessoes ativas para que pequenas instabilidades temporarias no Neon DB nunca desconectem clientes ja autenticados.
+- Paralelamente, os proxies reversos do Render encerravam arbitrariamente conexoes WebSocket ociosas. A equipe implementou o <strong>Card #1437 no OpenProject</strong> (<em>"FIX Backend Socket: Implementar Heartbeat Keep-Alive, compatibilidade de TI por departamento e broadcast setorial"</em>), adicionando uma thread temporizada que emite frames de Ping a cada 20 segundos e distribui eventos de forma cirurgica entre o autor, seus colegas de setor e a equipe de TI.</p>
+
+  <h3>4. A Integracao da Operacao DELETE e Sincronizacao Completa do CRUD</h3>
+  <p>Durante os testes de homologacao, identificou-se que, enquanto a criacao (<code>CREATED</code>) e a atualizacao (<code>UPDATED</code>) estavam perfeitamente integradas ao WebSocket, a exclusao de chamados (<code>DELETE</code>) permanecia isolada apenas na API REST. Isso provocava inconsistencias visuais: quando um administrador excluía um chamado, o card permanecia visivel na tela dos tecnicos ate que houvesse um recarregamento manual (F5). Alem disso, a remocao de registros correlatos em cascata causava lentidao na resposta.
+- A equipe refatorou a exclusao na API (<code>TicketDao.deleteById</code>), unificando a remocao de dependencias (notificacoes e timeline) e do chamado em uma unica transacao SQL atomica via Common Table Expression (CTE).
+- O publicador de eventos foi estendido com o metodo <code>SocketEventPublisher.ticketDeleted(ticket)</code>, despachando o envelope CT18 com a acao <code>DELETED</code>. O Backend Socket, por sua vez, passou a transmitir o evento CT22 correspondente, permitindo que o frontend remova o card instantaneamente do Kanban e da lista sem qualquer recarregamento de pagina. Com isso, <strong>100% das operacoes CRUD passaram a operar em tempo real via WebSocket</strong>.</p>
+
+  <h3>5. Resolucao do Pipeline de CI/CD no SonarCloud</h3>
+  <p>Na configuracao inicial da analise estatica continua via GitHub Actions, o pipeline falhou com a mensagem: <code>ERROR: You are running CI analysis while Automatic Analysis is enabled. Please consider disabling one or the other</code>.
+- A equipe desativou a analise automatica padrao nas configuracoes da organizacao no SonarCloud, habilitando a esteira customizada baseada em <code>.github/workflows/sonarqube.yml</code>.
+- Apos a primeira analise, identificou-se que um dos modulos do socket havia recebido classificacao de confiabilidade 'D'. A equipe realizou uma refatoracao estrutural nos metodos de tratamento de excecoes e fechamento de streams, alcancando o <strong>Rating 'A' em todas as metricas (Seguranca, Confiabilidade e Manutenibilidade)</strong> e incrementando a versao do socket para <code>v1.0.2</code>.
+- Para a aprovacao definitiva do Quality Gate em um monorepo compilado diretamente via <code>javac</code> (sem geracao de relatorios binarios do JaCoCo no CI), configurou-se <code>sonar.coverage.exclusions=*<em>/</em></code> no <code>sonar-project.properties</code>.</p>
+
+  <h3>6. Concorrencia e Reatividade no Frontend Vanilla sem Frameworks</h3>
+  <p>Em uma Single Page Application construida sem frameworks reativos (como React ou Vue), atualizar a interface dinamicamente conforme eventos de WebSocket chegam representou um desafio significativo. Para evitar recarregamentos indesejados ou inconsistencias de tela, a equipe estruturou um despachante de eventos central no <code>socket.js</code> e <code>app.js</code>:
+- Ao receber o evento <code>chamadoAtualizado</code>, a funcao <code>App.handleTicketUpdated</code> analisa se a alteracao foi uma adicao, modificacao ou exclusao, atualizando os dados em memoria e invocando a renderizacao cirurgica das visoes ativas (Kanban ou Lista).
+- Adicionalmente, implementou-se o algoritmo de reconexao com backoff exponencial no cliente: ao detectar perda de conexao, o frontend tenta reconectar em intervalos crescentes e, logo apos o sucesso, dispara automaticamente uma sincronizacao geral (<code>reloadTickets()</code>) para recuperar quaisquer chamados que possam ter sido atualizados durante a desconexao.</p>
+
+  <h3>7. Decisao de Alinhamento de Escopo: Foco no Ciclo de Chamados vs. Modulo de Inventario Futuro</h3>
+  <p>Conforme formalizado na <strong>ADR 0001</strong>, a equipe inicialmente concebeu salas de chat em tempo real por chamado com buffers em memoria (<code>ConcurrentLinkedDeque</code>) e filas de prioridade. Durante a evolucao do projeto, identificou-se que manter historico de chat exclusivamente em memoria volátil criava risco severo de perda de dados sempre que um conteiner efemero na nuvem sofresse reinicializacao. A equipe tomou a decisao deliberada de descartar o chat em tempo real e concentrar o poder do WebSocket na entrega confiavel de eventos de ciclo de vida e notificacoes push (ADR 0002). O historico de comunicacao e auditoria permaneceu de forma segura e transacional na tabela <code>ticket_timeline</code> da API REST.</p>
+  <p>Similarmente, recursos adicionais planejados para os tecnicos de TI — especificamente a gestao e inventario de ativos de infraestrutura de TI (CMDB com cadastro patrimonial de maquinas, switches e pecas vinculadas a chamados) — foram formalmente postergados para o roadmap futuro (Capitulo 11). Essa escolha estrategica permitiu que a equipe garantisse estabilidade absoluta, zero falhas e cobertura completa em 100% do fluxo de chamados, controle de SLA, politicas de departamento e notificacoes em tempo real.</p>
+
+<h2 id="cap10-3">10.3 Avaliacao do Processo e Dinamica da Equipe</h2>
+  <p>
+    A dinâmica do grupo foi altamente integrada. A divisao clara de responsabilidades por modulos (Socket, API, Frontend, Qualidade) permitiu que cada membro aprofundasse o dominio sobre sua camada sem interferencias destrutivas. A adocao do SonarCloud desde os estagios intermediarios foi determinante para elevar o padrao de qualidade do codigo, eliminando code smells e garantindo um produto final estavel e pronto para uso real.
+  </p>
+
+  <!-- ================= CAPITULO 11 ================= -->
+  <div class="page-break"></div>
+  <h1 id="cap11">11. Conclusao e Trabalhos Futuros</h1>
+
+  <h2 id="cap11-1">11.1 Conclusao</h2>
+  <p>
+    O projeto <strong>HelpDesk</strong> atingiu plenamente os objetivos propostos para o Projeto Integrador IV. A solucao comprovou a viabilidade tecnica de construir uma arquitetura moderna, distribuida e reativa em tempo real utilizando exclusivamente tecnologias web nativas e <strong>Java 21 Puro</strong>. O sistema entregue conta com ciclo CRUD completo sincronizado instantaneamente, controle estrito de permissoes departamentais, esteira de analise estatica aprovada no SonarCloud e execucao confiavel em nuvem.
+  </p>
+
+  <h2 id="cap11-2">11.2 Limitacoes Conhecidas</h2>
+  <ul>
+    <li><strong>Ausencia de Modulo de Inventario Fisico:</strong> O cadastro e rastreamento patrimonial de pecas de hardware (switches, modems, numero de serie de computadores) foi deixado como extensao futura.</li>
+    <li><strong>Topologia de No Unico no Servidor de Sockets:</strong> O servidor de WebSocket mantem seu mapa concorrente de sessoes em memoria de uma unica instancia; para escalar horizontalmente em clusters distribuidos, sera necessaria a introducao de um broker externo (ex: Redis Pub/Sub).</li>
+  </ul>
+
+  <h2 id="cap11-3">11.3 Trabalhos Futuros</h2>
+  <ol>
+    <li><strong>Modulo de Gestao de Inventario e Ativos de TI (CMDB):</strong> Cadastro patrimonial integrado para vincular pecas e computadores diretamente aos chamados de manutencao.</li>
+    <li><strong>Politica Automatizada de SLAs com Escalacao:</strong> Disparo automatico de alertas para a coordenacao caso um chamado ultrapasse o tempo limite de atendimento.</li>
+    <li><strong>Clusterizacao com Redis Pub/Sub:</strong> Sincronizacao de sessoes WebSocket entre multiplos conteineres para suportar milhares de conexoes concorrentes simultaneas.</li>
+    <li><strong>Exportacao de Relatorios Gerenciais:</strong> Geracao dinamica de relatorios consolidados em formatos PDF e planilhas eletrônicas (CSV/Excel).</li>
+  </ol>
+
+  <!-- ================= APENDICE A ================= -->
+  <div class="page-break"></div>
+  <h1 id="apendice-a">Apendice A — Registro de Decisoes de Arquitetura (ADRs)</h1>
+
+  <h2>ADR 0001: Estruturas de Dados do Servidor Concorrente e Descarte de Chat</h2>
+  <ul>
+    <li><strong>Status:</strong> Aceito (com escopo revisado).</li>
+    <li><strong>Contexto:</strong> Gerenciamento concorrente de sessoes de clientes WebSocket em Java Puro sem locks globais que criem gargalos de I/O.</li>
+    <li><strong>Decisao:</strong> Uso de <code>ConcurrentHashMap&lt;Integer, Set&lt;ConnectionHandler&gt;&gt;</code> para mapeamento multi-abas por usuario e filas de saida individuais <code>LinkedBlockingQueue</code> com capacidade limitada.</li>
+    <li><strong>Descarte:</strong> Descartou-se a criacao de buffers de mensagens em memoria (<code>ConcurrentLinkedDeque</code>) para chat instantaneo; o historico de suporte foi direcionado para a persistencia relacional da <code>ticket_timeline</code> na API REST, priorizando a consistencia transacional.</li>
+  </ul>
+
+  <h2>ADR 0002: Notificacoes Push em Tempo Real (Push Ping)</h2>
+  <ul>
+    <li><strong>Status:</strong> Aceito.</li>
+    <li><strong>Contexto:</strong> Notificar colaboradores e tecnicos sobre movimentacoes em chamados sem recorrer ao modelo ineficiente de polling HTTP.</li>
+    <li><strong>Decisao:</strong> O Backend Socket atua como disparador de eventos leves (Push Ping) via WebSocket. Ao receber a mensagem, o frontend incrementa o badge visual e emite sinal sonoro (*ping sound*). A persistencia definitiva e historico permanecem centralizados na tabela <code>notifications</code> do PostgreSQL.</li>
+  </ul>
+
+  <!-- ================= APENDICE B ================= -->
+  <div class="page-break"></div>
+  <h1 id="apendice-b">Apendice B — Historico Semantico de Versoes (Changelog)</h1>
+
+  <table>
+    <thead>
+      <tr><th>Versao</th><th>Data</th><th>Principais Implementacoes e Marcos</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>v1.0.0</strong></td>
+        <td>23/11/2026</td>
+        <td>Release final de producao: ciclo CRUD completo em tempo real (CREATED, UPDATED, DELETED), Heartbeat keep-alive (Ping 20s), suite automatizada JUnit 5 no backend-socket, SonarCloud Rating 'A' e documentacao academica completa.</td>
+      </tr>
+      <tr>
+        <td><strong>v0.5.0</strong></td>
+        <td>18/11/2026</td>
+        <td>Implementacao manual da RFC 6455 em Java 21 Puro, isolamento departamental (DepartmentPolicy), atribuicao atomica de atendimento via CTE (startService) e reconexao inteligente no frontend.</td>
+      </tr>
+      <tr>
+        <td><strong>v0.4.3</strong></td>
+        <td>14/11/2026</td>
+        <td>Adicao de rotas de Health Check HTTP na API e no Socket para prevencao de cold start em ambiente gratuito do Render.</td>
+      </tr>
+      <tr>
+        <td><strong>v0.4.1</strong></td>
+        <td>05/11/2026</td>
+        <td>Integracao full-stack da SPA com Neon DB, internacionalizacao dinamica (i18n) e exclusao transacional em cascata de chamados.</td>
+      </tr>
+      <tr>
+        <td><strong>v0.4.0</strong></td>
+        <td>25/10/2026</td>
+        <td>DAOs estruturados com JDBC puro, handlers REST, suporte a CORS e permissões RBAC.</td>
+      </tr>
+      <tr>
+        <td><strong>v0.3.0</strong></td>
+        <td>12/10/2026</td>
+        <td>Concepcao do modulo backend-socket e implementacao do algoritmo de handshake RFC 6455.</td>
+      </tr>
+      <tr>
+        <td><strong>v0.2.0</strong></td>
+        <td>28/09/2026</td>
+        <td>Prototipacao da interface SPA Vanilla com Design System e temas Claro/Escuro.</td>
+      </tr>
+      <tr>
+        <td><strong>v0.1.0</strong></td>
+        <td>10/09/2026</td>
+        <td>Concepcao inicial da arquitetura, definicao das personas e especificacao dos 9 entregaveis fundamentais (E1 a E9).</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+</body>
+</html>
