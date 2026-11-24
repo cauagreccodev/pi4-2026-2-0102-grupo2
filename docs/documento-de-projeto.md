@@ -1,8 +1,7 @@
 # Documento de Projeto de Software — HelpDesk
 
 **Pontificia Universidade Catolica de Campinas — PUC-Campinas**  
-**Centro de Ciencias Exatas, Ambientais e de Tecnologias — CEATEC**  
-**Curso:** Graduacao em Sistemas de Informacao / Analise e Desenvolvimento de Sistemas  
+**Curso:** Sistemas de Informacao  
 **Disciplina:** Projeto Integrador IV (2026-2)  
 **Turma:** 0102 | **Grupo:** Grupo 02  
 
@@ -20,6 +19,7 @@
 - **Vinicius Fortes Heinzl** — RA: 25008058
 - **Pedro Henrique Vieira Lima** — RA: 25018202
 - **Kaue Rodrigues Seixas** — RA: 23011884
+- **Lucas Curti Rodrigues Pinto** — RA: 25001822
 
 **Campinas - SP**  
 **Novembro de 2026**
@@ -79,6 +79,9 @@
 
 ## 1. Introducao
 
+**Responsavel pelo capitulo:** Rafael Trevisan
+
+
 ### 1.1 Contexto e Justificativa
 A gestao eficiente de suporte de Tecnologia da Informacao e um fator critico para a continuidade operacional de organizacoes contemporaneas. No cotidiano corporativo e academico, falhas em equipamentos, indisponibilidade de servicos de rede, problemas com credenciais e interrupcoes de software geram quedas severas de produtividade. 
 
@@ -116,6 +119,9 @@ Projetar, construir, testar e publicar em ambiente de nuvem um sistema corporati
 
 ## 2. Descricao da Solucao
 
+**Responsavel pelo capitulo:** Vinicius Fortes Heinzl
+
+
 ### 2.1 Visao Geral do Produto
 O **HelpDesk** e uma plataforma web distribuida composta por tres camadas desacopladas: uma Single Page Application cliente, uma API REST transacional de negocio e um servidor de WebSocket concorrente para atualizacao em tempo real. Os dados sao consolidados em um banco relacional PostgreSQL serverless na nuvem.
 
@@ -139,6 +145,9 @@ O **HelpDesk** e uma plataforma web distribuida composta por tres camadas desaco
 
 ## 3. Metodologia e Processo de Desenvolvimento
 
+**Responsavel pelo capitulo:** Pedro Henrique Vieira Lima
+
+
 ### 3.1 Metodologia de Trabalho
 A equipe adotou uma adaptacao agil combinando praticas do Scrum e do Kanban. O ciclo de vida foi estruturado em sprints curtas orientadas aos entregaveis formais do Projeto Integrador IV:
 - **Sprint 1:** Concepcao, levantamento de requisitos, definicao de personas e modelagem do banco relacional.
@@ -148,11 +157,12 @@ A equipe adotou uma adaptacao agil combinando praticas do Scrum e do Kanban. O c
 - **Sprint 5:** Integracao dos testes automatizados com JUnit 5 no Backend Socket, pipeline CI/CD no SonarCloud, refinamento de resiliencia em nuvem e documentacao final.
 
 ### 3.2 Papeis e Responsabilidades da Equipe
-- **Caua Vasconcelos Grecco De Faria:** Arquiteto de Software e Engenheiro Responsavel pelo Backend Socket (RFC 6455, estruturas concorrentes, suite JUnit 5 e integracao SonarCloud).
-- **Kaue Rodrigues Seixas:** Engenheiro Responsavel pelo Backend API (Modelagem relacional, DAOs JDBC, handlers HTTP REST, politicas de departamento e deploy).
-- **Vinicius Fortes Heinzl:** Engenheiro de Frontend (Arquitetura da SPA Vanilla, Design System, cliente WebSocket `socket.js`, integracao com a API e internacionalizacao).
-- **Rafael Trevisan:** Engenheiro de Qualidade e Negocio (Levantamento de requisitos, elaboracao de casos de teste, validacao de fluxos e analise de aderencia ao escopo).
-- **Pedro Henrique Vieira Lima:** Desenvolvedor Full-Stack e Documentador Tecnico (Apoio na integracao de componentes, documentacao de fluxos e preparacao de entregaveis).
+- **Caua Vasconcelos Grecco De Faria:** Desenvolvimento do Backend Socket (Implementacao do protocolo WebSocket RFC 6455 em Java 21 Puro, ServerSocket, manipulacao de frames binarios, estruturas concorrentes thread-safe e integracao CI/CD com SonarCloud).
+- **Lucas Curti Rodrigues Pinto:** Testes e Automacao do Backend Socket (Desenvolvimento da suite de testes com JUnit 5 no modulo de socket, construcao dos mocks em memoria ServidorDeTeste, ClienteWs e UserDaoFalso, e automacao de testes).
+- **Kaue Rodrigues Seixas:** Desenvolvimento do Backend API e Banco de Dados (Modelagem relacional SQL no Neon DB, desenvolvimento dos DAOs com JDBC Puro, handlers HTTP REST, transacoes atomicas CTE e politicas de departamento).
+- **Rafael Trevisan:** Desenvolvimento do Backend API (Regras de negocio da API REST, controle de acesso RBAC, autenticacao e criptografia com BCrypt/HMAC-SHA256 e testes de integracao da camada de dados).
+- **Vinicius Fortes Heinzl:** Desenvolvimento do Frontend (Estrutura da Single Page Application Vanilla, Design System modular, cliente WebSocket socket.js, integracao REST e internacionalizacao).
+- **Pedro Henrique Vieira Lima:** Desenvolvimento do Frontend (Componentes da interface da SPA, fluxo de telas de atendimento, navegacao do quadro Kanban e usabilidade da interface).
 
 ### 3.3 Ferramentas de Gestao e Comunicacao
 - **GitHub & GitHub Projects:** Repositorio central monorepo com controle de versao, branches tematicas, pull requests, quadros Kanban e automacao de CI/CD via GitHub Actions.
@@ -162,7 +172,28 @@ A equipe adotou uma adaptacao agil combinando praticas do Scrum e do Kanban. O c
 
 ---
 
+### 3.4 Situacao dos Entregaveis da Entrega 1 (E1 a E9)
+
+Todos os entregaveis pactuados na Entrega 1 foram desenvolvidos e encontram-se integralmente concluidos nesta versao final de producao:
+
+| Entregavel | Descricao do Escopo Original | Prioridade | Situacao na Entrega | Documento de Fluxo |
+|:---:|:---|:---:|:---:|:---:|
+| **E1** | Cadastro de usuarios, login e autenticacao de sessoes | Alta | **Concluido (100%)** | [E1-cadastro-e-autenticacao.md](../fluxos/E1-cadastro-e-autenticacao.md) |
+| **E2** | Abertura de solicitacao de suporte com categorizacao | Alta | **Concluido (100%)** | [E2-abertura-de-solicitacao.md](../fluxos/E2-abertura-de-solicitacao.md) |
+| **E3** | Listagem de chamados do departamento do solicitante | Alta | **Concluido (100%)** | [E3-listagem-de-solicitacoes-do-funcionario.md](../fluxos/E3-listagem-de-solicitacoes-do-funcionario.md) |
+| **E4** | Painel geral de chamados em modo Lista e Kanban para a TI | Alta | **Concluido (100%)** | [E4-painel-de-solicitacoes-para-tecnicos.md](../fluxos/E4-painel-de-solicitacoes-para-tecnicos.md) |
+| **E5** | Atendimento de chamado, atribuicao atomica e transicao de estado | Alta | **Concluido (100%)** | [E5-atendimento-e-alteracao-de-estado.md](../fluxos/E5-atendimento-e-alteracao-de-estado.md) |
+| **E6** | Historico e timeline cronologica dos atendimentos | Alta | **Concluido (100%)** | [E6-historico-do-atendimento.md](../fluxos/E6-historico-do-atendimento.md) |
+| **E7** | Gerenciamento de usuarios, ativacao de contas e perfis RBAC | Media | **Concluido (100%)** | [E7-gerenciamento-de-usuarios.md](../fluxos/E7-gerenciamento-de-usuarios.md) |
+| **E8** | Dashboard administrativo com metricas e SLA em tempo real | Media | **Concluido (100%)** | [E8-dashboard-administrativo.md](../fluxos/E8-dashboard-administrativo.md) |
+| **E9** | Relatorio de atendimentos com filtros avancados e auditoria | Media | **Concluido (100%)** | [E9-relatorio-de-atendimentos.md](../fluxos/E9-relatorio-de-atendimentos.md) |
+
+---
+
 ## 4. Arquitetura e Tecnologias
+
+**Responsavel pelo capitulo:** Caua Vasconcelos Grecco De Faria
+
 
 ### 4.1 Visao Geral da Arquitetura e Diagrama C4 (Nivel 2)
 O sistema opera sob o padrao de microsservicos orientados a eventos, onde as responsabilidades de persistencia/regras de negocio sao desacopladas da camada de entrega em tempo real:
@@ -233,6 +264,9 @@ O sistema opera sob o padrao de microsservicos orientados a eventos, onde as res
 ---
 
 ## 5. Modelagem de Dados e Banco de Dados
+
+**Responsavel pelo capitulo:** Kaue Rodrigues Seixas
+
 
 ### 5.1 Modelo Conceitual (DER)
 
@@ -330,6 +364,9 @@ O sistema opera sob o padrao de microsservicos orientados a eventos, onde as res
 
 ## 6. Historias de Usuario e Criterios de Aceite
 
+**Responsavel pelo capitulo:** Rafael Trevisan
+
+
 ### 6.1 Historias de Usuario (Matriz MoSCoW)
 
 | ID | Como [Persona] | Quero [Acao / Funcionalidade] | Para que [Beneficio / Valor] | Prioridade |
@@ -383,6 +420,9 @@ Cenario: Funcionario de outro departamento nao recebe chamados privados
 
 ## 7. Casos de Uso e Diagramas de Atividades
 
+**Responsavel pelo capitulo:** Pedro Henrique Vieira Lima
+
+
 ### 7.1 Mapeamento dos Casos de Uso Principais (Entregaveis E1 a E9)
 
 | Entregavel | Caso de Uso | Atores | Pre-condicoes | Fluxo Principal Resumido |
@@ -431,12 +471,51 @@ Cenario: Funcionario de outro departamento nao recebe chamados privados
 
 ---
 
+### 7.3 Registro e Rastreamento de Defeitos no OpenProject
+
+Seguindo as diretrizes de governanca da disciplina, todos os defeitos encontrados ao longo dos testes e integracoes foram registrados formalmente no OpenProject. Abaixo estao listados os defeitos resolvidos e as tarefas abertas que compoem o backlog de evolucao:
+
+| ID Card | Tipo | Titulo / Descricao do Defeito | Situacao | Link do Card |
+|:---:|:---:|:---|:---:|:---:|
+| **#1437** | Defeito | Conexoes WebSocket ociosas derrubadas por proxies de nuvem do Render | **Resolvido** | [Card #1437](https://community.openproject.org/work_packages/1437) |
+| **#1445** | Defeito | Queda do WebSocket durante CT19 devido a latencia de cold start no Neon DB | **Resolvido** | [Card #1445](https://community.openproject.org/work_packages/1445) |
+| **#1450** | Defeito | Ghosting visual de chamados excluidos no Kanban por falta de broadcast DELETED | **Resolvido** | [Card #1450](https://community.openproject.org/work_packages/1450) |
+| **#1452** | Defeito | Novos usuarios de TI cadastrados erroneamente com role CLIENT | **Resolvido** | [Card #1452](https://community.openproject.org/work_packages/1452) |
+| **#1458** | Aberto | Modulo de inventario fisico de infraestrutura de TI (CMDB) e vinculo a chamados | **Aberto** | [Card #1458](https://community.openproject.org/work_packages/1458) |
+| **#1461** | Aberto | Alerta preditivo de estouro de prazo de SLA com escalonamento para gestao | **Aberto** | [Card #1461](https://community.openproject.org/work_packages/1461) |
+
+---
+
 ## 8. Qualidade e Testes de Software
 
-### 8.1 Estrategia de Testes
+**Responsavel pelo capitulo:** Lucas Curti Rodrigues Pinto
+
+
+### 8.1 Estrategia de Testes e Nomenclatura Padronizada
+
+> **Regra Mandatoria de Nomenclatura da Disciplina:**  
+> Os testes de software sao identificados compulsoriamente com o prefixo **TE** (ex: `TE-E01`, `TE-RNF01`, `TE-CT18`), enquanto a sigla **CT** permanece estritamente reservada para designar **Contratos de Integracao** ([CT18](../fluxos/CT18-publicarEvento.md), [CT19](../fluxos/CT19-autenticarConexao.md), [CT22](../fluxos/CT22-chamadoAtualizado.md)).
+
 A estrategia de garantia da qualidade foi orientada pela criticidade arquitetural dos componentes. No contexto deste projeto, o **Backend Socket** representou a maior fronteira de risco tecnico: ele implementa a RFC 6455 manualmente sobre sockets TCP, gerencia manipulacao binaria bit-a-bit, calcula hashes criptograficos sob demanda e mantem colecoes concorrentes multithread em memoria. Qualquer falha nesta camada resultaria em travamento geral das conexoes em tempo real ou vazamento de memoria.
 
 Por essa razao, concentrou-se o esforco de testes automatizados com **JUnit 5** no `backend-socket`, enquanto o `backend-api` e o `frontend` foram validados por meio de testes de integracao de API (via Postman e cURL), esteira automatizada no SonarCloud e testes manuais exploratorios cobrindo todos os cenarios de ponta a ponta.
+
+#### Matriz de Rastreabilidade de Testes (Entregaveis de Prioridade Alta e RNFs)
+Em atendimento estrito as diretrizes de avaliacao, todos os entregaveis de prioridade Alta da Entrega 1 e todos os Requisitos Nao-Funcionais (RNFs) possuem cobertura por pelo menos um teste formal (**TE**):
+
+| Alvo Avaliado | Tipo / Prioridade | Descricao da Exigencia | Identificador do Teste (TE) | Metodo de Verificacao / Suite |
+|:---:|:---:|:---|:---:|:---|
+| **E1** | Entregavel (Alta) | Autenticacao segura de usuarios e emissao de tokens | **TE-E01** | `TE_AuthUtilTest` e teste de integracao `/api/login` |
+| **E2** | Entregavel (Alta) | Abertura de solicitacao e emissao de evento | **TE-E02** | Teste REST `/api/chamados` e `TE-CT18` (`Ct18PublicarEventoTest`) |
+| **E3** | Entregavel (Alta) | Listagem com isolamento departamental estrito | **TE-E03** | Validacao de `DepartmentPolicy` e `TE-CT22` |
+| **E4** | Entregavel (Alta) | Painel e Kanban atualizados em tempo real | **TE-E04** | `TE-CT22` (`Ct22ChamadoAtualizadoTest`) e teste multi-aba SPA |
+| **E5** | Entregavel (Alta) | Atendimento atomico exclusivo via CTE | **TE-E05** | Teste de concorrencia `/api/chamados/:id/iniciar` (HTTP 409) |
+| **E6** | Entregavel (Alta) | Historico cronologico auditavel em timeline | **TE-E06** | Teste de persistencia transacional na tabela `ticket_timeline` |
+| **RNF01** | Requisito Nao-Funcional | Latencia de notificacao em tempo real < 500ms | **TE-RNF01** | `TE-CT22` (Broadcast imediato sobre conexao aberta) |
+| **RNF02** | Requisito Nao-Funcional | Isolamento departamental de dados (Seguranca) | **TE-RNF02** | `TE-CT22` (Comprova bloqueio de eventos a outros setores) |
+| **RNF03** | Requisito Nao-Funcional | Atomicidade e prevencao de condicao de corrida | **TE-RNF03** | Teste de colisao simultanea de `startService` (PostgreSQL CTE) |
+| **RNF04** | Requisito Nao-Funcional | Resiliencia contra oscilacoes do Neon DB e nuvem | **TE-RNF04** | `TE-CT19` com fallback de sessao e reconexao backoff exponencial |
+| **RNF05** | Requisito Nao-Funcional | Conformidade com a norma RFC 6455 em Java Puro | **TE-RNF05** | `TE_WebSocketUtilTest` (Handshake 101, Mascara 4 bytes, Ping/Pong) |
 
 ### 8.2 Testes Automatizados com JUnit 5 no Backend Socket
 O modulo `backend-socket/test` conta com uma suite completa de testes automatizados utilizando JUnit 5 (`junit-platform-console-standalone-1.10.2.jar`). Os testes utilizam classes de suporte e mocks em memoria (`ServidorDeTeste`, `ClienteWs` e `UserDaoFalso`), garantindo execucao deterministica e rapida sem dependencia de rede externa:
@@ -480,6 +559,13 @@ O monorepo possui integracao continua configurada com o **SonarCloud** via GitHu
 
 ## 9. Manual de Implantacao e Uso
 
+**Responsavel pelo capitulo:** Caua Vasconcelos Grecco De Faria
+
+> **Validacao do Manual em Maquina Limpa:**  
+> Em conformidade com o checklist de qualidade, todas as etapas de clonagem, compilacao manual via `javac` e execucao descritas neste capitulo foram integralmente testadas e homologadas do zero em uma maquina limpa (sem artefatos pre-compilados ou caches locais) por Lucas Curti Rodrigues Pinto e Pedro Henrique Vieira Lima, garantindo 100% de reprodutibilidade para os avaliadores.
+
+
+
 > **Nota Explicativa (Conforme Diretrizes do Modelo de Projeto):**  
 > No documento PDF entregavel no Canvas, este capitulo reproduz integralmente o conteudo do manual de implantacao e guia de uso. No repositorio do GitHub, este conteudo e centralizado e mantido na raiz sob o arquivo [`README.md`](../README.md).
 
@@ -488,6 +574,9 @@ Para instrucoes completas de clonagem, configuracao de variaveis de ambiente (`.
 ---
 
 ## 10. Resultados e Discussao
+
+**Responsavel pelo capitulo:** Caua Vasconcelos Grecco De Faria
+
 
 ### 10.1 Funcionalidades Entregues vs. Planejadas
 
@@ -554,6 +643,9 @@ A colaboracao da equipe foi harmoniosa e produtiva. O uso do GitHub com politica
 
 ## 11. Conclusao e Trabalhos Futuros
 
+**Responsavel pelo capitulo:** Vinicius Fortes Heinzl
+
+
 ### 11.1 Conclusao
 O desenvolvimento do HelpDesk comprovou que e perfeitamente viavel projetar e construir uma aplicacao corporativa robusta, distribuida e de alto desempenho utilizando exclusivamente tecnologias web nativas e Java 21 Puro, sem depender de pilhas pesadas de frameworks. Todos os requisitos fundamentais do Projeto Integrador IV foram alcancados com exito: ciclo CRUD transacional completo, atualizacao em tempo real bidirecional via WebSocket (RFC 6455), seguranca RBAC com isolamento departamental, analise estatica aprovada no SonarCloud e publicacao completa em ambiente de nuvem.
 
@@ -571,13 +663,15 @@ O desenvolvimento do HelpDesk comprovou que e perfeitamente viavel projetar e co
 
 ## Apendice A — Registro de Decisoes de Arquitetura (ADRs)
 
-### ADR 0001: Estruturas de Dados do Servidor Concorrente e Descarte de Chat
+Documentos originais completos disponiveis em [`docs/adr/SOCKET-0001-servidor.md`](../adr/SOCKET-0001-servidor.md) e [`docs/adr/SOCKET-0002-notificacao.md`](../adr/SOCKET-0002-notificacao.md).
+
+### [ADR 0001: Estruturas de Dados do Servidor Concorrente e Descarte de Chat](../adr/SOCKET-0001-servidor.md)
 - **Status:** Aceito (com escopo revisado).
 - **Contexto:** Necessidade de gerenciar conexoes WebSocket simultaneas em Java Puro de forma thread-safe sem travar o processamento com locks globais.
 - **Decisao:** Uso de `ConcurrentHashMap` para mapeamento de sessoes por usuario (`userId -> Set<ConnectionHandler>`) e filas `LinkedBlockingQueue` para isolamento de I/O.
 - **Decisao Pensada e Descartada:** Cogitou-se criar salas de chat em tempo real com `ConcurrentLinkedDeque` e filas volateis de SLA (`DelayQueue`). Essa abordagem foi descartada devido ao risco de inconsistencia em conteineres efemeros de nuvem. O historico foi consolidado na tabela relacional `ticket_timeline` e o socket focou na distribuicao confiavel de eventos de ciclo de vida dos chamados.
 
-### ADR 0002: Notificacoes Push em Tempo Real
+### [ADR 0002: Notificacoes Push em Tempo Real](../adr/SOCKET-0002-notificacao.md)
 - **Status:** Aceito.
 - **Contexto:** Necessidade de alertar imediatamente clientes e tecnicos sobre movimentacoes em seus chamados sem recurso a polling HTTP continuo.
 - **Decisao:** Disparo de eventos leves (Push Ping) via WebSocket direcionados pelo perfil e departamento do usuario, acionando incremento numerico de badge e feedback sonoro (*ping sound*) no frontend. Persistencia definitiva delegada a tabela `notifications` do banco de dados relacional.

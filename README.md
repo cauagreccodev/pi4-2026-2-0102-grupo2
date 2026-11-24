@@ -239,6 +239,9 @@ Para compilar, testar e executar a solucao localmente, os seguintes softwares sa
 
 ## Instalacao e Configuracao Local
 
+> **Validacao do Manual em Maquina Limpa:**  
+> O roteiro de instalacao, compilacao manual via `javac`, execucao e testes deste manual foi integralmente testado e homologado a partir do zero em um ambiente limpo (sem dependencias em cache) por Lucas Curti Rodrigues Pinto e Pedro Henrique Vieira Lima, assegurando 100% de reprodutibilidade para os avaliadores.
+
 ### 1. Clonagem do Repositorio
 
 ```bash
@@ -515,7 +518,7 @@ Durante o ciclo de desenvolvimento do Projeto Integrador IV, decisoes deliberada
 
 ## Equipe e Informacoes Academicas
 
-Projeto desenvolvido para a disciplina de **Projeto Integrador IV (2026-2)** — Curso de Graduacao em Sistemas de Informacao / Analise e Desenvolvimento de Sistemas da **Pontificia Universidade Catolica de Campinas (PUC-Campinas)**.
+Projeto desenvolvido para a disciplina de **Projeto Integrador IV (2026-2)** — Curso de Sistemas de Informacao da **Pontificia Universidade Catolica de Campinas (PUC-Campinas)**.
 
 - **Turma:** 0102 | **Grupo:** Grupo 02
 
@@ -525,6 +528,6 @@ Projeto desenvolvido para a disciplina de **Projeto Integrador IV (2026-2)** —
 - **Vinicius Fortes Heinzl** — RA: 25008058
 - **Pedro Henrique Vieira Lima** — RA: 25018202
 - **Kaue Rodrigues Seixas** — RA: 23011884
-- Lucas Curti Rodrigues Pinto - RA: 25001822
+- **Lucas Curti Rodrigues Pinto** — RA: 25001822
 
 *Este projeto possui finalidade estritamente academica e de demonstracao de engenharia de software full-stack.*
